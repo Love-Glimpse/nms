@@ -1,0 +1,37 @@
+package com.kuaidu.nms.utils;
+
+import com.kuaidu.nms.entity.PartnerPmConfig;
+
+import net.sf.json.JSONObject;
+
+/** 
+ * @Title MyWxUtils.java 
+ * @description TODO 
+ * @time 2018年10月12日 下午2:23:36 
+ * @author victor 
+ * @version 1.0 
+**/
+public class MyWxUtils {
+	public static String validateWeApp(PartnerPmConfig pmConfig) {
+		// TODO Auto-generated method stub
+
+		String url = "https://api.weixin.qq.com/cgi-bin/token?"
+				+ "grant_type=client_credential&appid="+pmConfig.getWe_app_id()
+				+"&secret="+pmConfig.getWe_app_secret();
+		String result = Utils.getHtmlcodeWithoutHeader(url, "utf-8");
+		JSONObject json = JSONObject.fromObject(result);
+		if (json.containsKey("access_token")) {
+			return json.optString("access_token");
+		}else {
+			return "";
+		}
+	}
+	public static String getAccessToken(PartnerPmConfig pmConfig) {
+		// TODO Auto-generated method stub
+		
+		String url = "http://mzshu.com/wx/access_token?"
+				+"partnerId="+pmConfig.getPartner_id()+"&token=looku";
+		String result = Utils.getHtmlcodeWithoutHeader(url, "utf-8");
+		return result;
+	}
+}

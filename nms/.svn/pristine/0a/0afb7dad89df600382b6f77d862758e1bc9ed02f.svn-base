@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!--    <settings>
+		<setting name="logImpl" value="STDOUT_LOGGING" />
+	</settings>   -->
+	<!-- 实体类,简称 -设置别名 -->
+	<typeAliases>
+<!-- 		<typeAlias alias="Author" type="com.kuaidu.nms.entity.Author" />
+		<typeAlias alias="UserInfo" type="com.kuaidu.nms.entity.UserInfo" />
+		<typeAlias alias="Book_list" type="com.kuaidu.nms.entity.Book_list" />
+		<typeAlias alias="Novel_type" type="com.kuaidu.nms.entity.Novel_type" />
+        <typeAlias alias="Promoters" type="com.kuaidu.nms.entity.Promoters" />
+        <typeAlias alias="Sys_user" type="com.kuaidu.nms.entity.Sys_user" />
+        <typeAlias alias="Sys_module" type="com.kuaidu.nms.entity.Sys_module" />
+        <typeAlias alias="Sys_user_module" type="com.kuaidu.nms.entity.Sys_user_module" /> 
+        <typeAlias alias="ChapterList" type="com.kuaidu.nms.entity.ChapterList" />  
+        <typeAlias alias="Sys_group" type="com.kuaidu.nms.entity.Sys_group" /> 
+        <typeAlias alias="SpiderConfig" type="com.kuaidu.nms.entity.SpiderConfig" /> --> 
+        <package name="com.kuaidu.nms.entity"/>
+	</typeAliases>
+	<!-- 实体接口映射资源 -->
+	<!--
+		说明：如果xxMapper.xml配置文件放在和xxMapper.java统一目录下，mappers也可以省略，因为org.mybatis.spring.mapper.MapperFactoryBean默认会去查找与xxMapper.java相同目录和名称的xxMapper.xml
+	-->
+<!-- 	<mappers>
+ 		<mapper resource="com/kuaidu/nms/login/mapper/loginMapper.xml" />
+        <mapper resource="com/kuaidu/nms/homepage/mapper/HomepageMapper.xml" />
+        <mapper resource="com/kuaidu/nms/system/mapper/UserMapper.xml" />
+        <mapper resource="com/kuaidu/nms/system/mapper/ModuleMapper.xml" />
+        <mapper resource="com/kuaidu/nms/query/mapper/RegisterQueryMapper.xml" />
+        <mapper resource="com/kuaidu/nms/query/mapper/BooksQueryMapper.xml" />
+        <mapper resource="com/kuaidu/nms/query/mapper/AuthorsQueryMapper.xml" />
+        <mapper resource="com/kuaidu/nms/query/mapper/ChapterMapper.xml" /> 
+        <mapper resource="com/kuaidu/nms/system/mapper/SystemGroupMapper.xml" />
+	</mappers> -->
+
+</configuration>  

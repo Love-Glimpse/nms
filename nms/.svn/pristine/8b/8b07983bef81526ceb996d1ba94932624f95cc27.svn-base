@@ -1,0 +1,86 @@
+package com.kuaidu.nms.user.serviceImpl;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.config.LayuiResult;
+import com.kuaidu.nms.config.RedisKey;
+import com.kuaidu.nms.entity.UserLoginLog;
+import com.kuaidu.nms.user.mapper.UserLoginLogMapper;
+
+@Service
+public class UserLoginLogServiceImpl {
+	
+	
+	@Autowired
+	UserLoginLogMapper userLoginLogMapper;
+	
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	
+	
+
+	public Object getUserLoginLog(String date, String dates, Integer userId, Integer page, Integer limit) {
+		
+		
+		if (!dates.equals("null")) {
+			String[] split = dates.split("--");
+			int count = userLoginLogMapper.getCount(split[0],split[1]);
+			int page_temp = page;
+			int limit_temp = limit;
+			if (count < page * limit) {
+				limit = count - (page - 1) * limit;
+			}
+			page = (page_temp - 1) * limit_temp;
+			List<UserLoginLog> list = userLoginLogMapper.getUserLoginLog(split[0],split[1],page,limit);
+			return LayuiResult.success(count, list);
+		}
+		if (!date.equals("null")) {
+			String format = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+			if (StringUtils.equals(format, date)) {
+				String key = RedisKey.loginLog(0);
+				Set<Object> keys = redisTemplate.opsForHash().keys(key);
+				System.out.println(keys.size());
+				if (keys.size() == 0) {
+					return LayuiResult.success(0, null);
+				}else {
+					TreeSet<Object> treeSet = new TreeSet<>(keys);
+					List<Object> ids = new ArrayList<>();
+					int i = 1;
+					for (Object object : treeSet) {
+						if ( i <= page*limit) {
+							ids.add(object);
+						}
+						i++;
+					}
+					List<Object> multiGet = redisTemplate.opsForHash().multiGet(key, ids);
+					return LayuiResult.success( keys.size(), multiGet);
+				}
+				
+			}else {
+				int count = userLoginLogMapper.getOneDayLoginLogCount(date);
+				int page_temp = page;
+				int limit_temp = limit;
+				if (count < page * limit) {
+					limit = count - (page - 1) * limit;
+				}
+				page = (page_temp - 1) * limit_temp;
+				List<UserLoginLog> list = userLoginLogMapper.getOneDayUserLoginLog(date,page,limit);
+				return LayuiResult.success(count, list);
+			}
+			
+		}
+		
+		return null;
+	}
+
+}

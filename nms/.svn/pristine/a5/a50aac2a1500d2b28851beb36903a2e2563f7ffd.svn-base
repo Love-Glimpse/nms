@@ -1,0 +1,6 @@
+<link rel="stylesheet" type="text/css" href="static/css/themes/default/easyui.css" />  
+<link rel="stylesheet" type="text/css" href="static/css/themes/icon.css" />  
+<link rel="stylesheet" type="text/css" href="static/css/themes/demo.css">
+<script type="text/javascript" src="static/js/scripts/common/jquery-1.7.2.min.js"></script>  
+<script type="text/javascript" src="static/js/scripts/common/jquery.easyui.min.js"></script>  
+<script type="text/javascript" src="static/js/scripts/common/jquery.tips.js"></script>  

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.bizandpush.mapper.SalesPromotionMapper">
+	<select id="getPromotionProducts" resultType="Product">
+		select product_id,product_desc from product where is_promotion=1
+	</select>
+	<insert id="createActive">
+		INSERT INTO promotion_active(partner_id,active_name,active_description,active_remark,start_time,end_time,active_type,active_price,product_id,point,limit_count,active_url)
+		VALUES(#{partner_id},#{active_name},#{active_description},#{active_remark},#{start_time},#{end_time},#{active_type},#{active_price},#{product_id},#{point},#{limit_count},#{active_url})
+	</insert>
+	<select id="getPromotionActiveList" resultType="PromotionActive">
+	
+			SELECT * from promotion_active WHERE 1=1 
+		<if test="flag==0">
+			 and partner_id =0
+		</if>
+		<if test="flag==1">
+			and partner_id >0
+		</if>
+		<if test="flag==2">
+			and partner_id =#{partnrt_id}
+		</if>
+	</select>
+</mapper>

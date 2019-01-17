@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.partner.proxy.mapper.PartnerProxyMapper">
+	<select id="getProxy" resultType="PartnerInfo">
+		SELECT pi.partner_id,pi.partner_plat_id,pi.partner_symbol,pi.partner_name,pi.partner_level,pi.partner_accounts_scale
+		,pi.login_name,pi.status,pi.created_time ,pi.password,plat.type_name
+		 from partner_info pi  left join partner_plat plat on pi.partner_plat_id = plat.id
+		WHERE pi.parent_id =  #{partner_id}  and pi.partner_gradation >1
+		<if test="partner_name!=null and partner_name!=''">
+			and (partner_symbol like '%${partner_name}%' or partner_name like '%${partner_name}%') 
+		</if>
+		<if test="partner_level !=4">
+			and partner_level=#{partner_level}
+		</if>
+		<if test="status==1 or status ==2">
+			and status = #{status}
+		</if>
+	</select>
+	<insert id="addProxy" parameterType="PartnerInfo" useGeneratedKeys="true" keyProperty="partner_id" keyColumn="partner_id">
+		INSERT into partner_info (group_id,parent_id,partner_plat_id,partner_symbol,partner_name,login_name,password,sub_domain,partner_gradation,status,partner_accounts_scale,created_time)
+		VALUES(2,#{parent_id},#{partner_plat_id},#{partner_symbol},#{partner_name},#{login_name},#{password},#{sub_domain},2,#{status},#{partner_accounts_scale},now())
+	</insert>
+  	<update id="updateProxy" parameterType="PartnerInfo">
+		update partner_info set status = #{status},partner_level=#{partner_level},partner_plat_id=#{partner_plat_id},partner_accounts_scale=#{partner_accounts_scale}
+		where partner_id = #{partner_id}
+	</update>
+</mapper>

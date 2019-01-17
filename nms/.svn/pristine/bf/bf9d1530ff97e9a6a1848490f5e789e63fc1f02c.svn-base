@@ -1,0 +1,98 @@
+package com.kuaidu.nms.entity;
+
+public class PartnerLogo {
+	private int id;
+	private int partner_id;
+	private String logo_url;
+	private String logo_name;
+	private String work_time;;
+	private String qq;
+	private String mail;
+	private String we_chat;
+	private String qr_code_url;
+	private String create_time;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public int getPartner_id() {
+		return partner_id;
+	}
+	public void setPartner_id(int partner_id) {
+		this.partner_id = partner_id;
+	}
+	public String getLogo_url() {
+		return logo_url;
+	}
+	public void setLogo_url(String logo_url) {
+		this.logo_url = logo_url;
+	}
+	public String getLogo_name() {
+		return logo_name;
+	}
+	public void setLogo_name(String logo_name) {
+		this.logo_name = logo_name;
+	}
+	public String getWork_time() {
+		return work_time;
+	}
+	public void setWork_time(String work_time) {
+		this.work_time = work_time;
+	}
+	public String getQq() {
+		return qq;
+	}
+	public void setQq(String qq) {
+		this.qq = qq;
+	}
+	public String getMail() {
+		return mail;
+	}
+	public void setMail(String mail) {
+		this.mail = mail;
+	}
+	public String getWe_chat() {
+		return we_chat;
+	}
+	public void setWe_chat(String we_chat) {
+		this.we_chat = we_chat;
+	}
+	public String getQr_code_url() {
+		return qr_code_url;
+	}
+	public void setQr_code_url(String qr_code_url) {
+		this.qr_code_url = qr_code_url;
+	}
+	public String getCreate_time() {
+		return create_time;
+	}
+	public void setCreate_time(String create_time) {
+		this.create_time = create_time;
+	}
+	@Override
+	public String toString() {
+		return "PartnerLogo [id=" + id + ", partner_id=" + partner_id + ", logo_url=" + logo_url + ", logo_name="
+				+ logo_name + ", work_time=" + work_time + ", qq=" + qq + ", mail=" + mail + ", we_chat=" + we_chat
+				+ ", qr_code_url=" + qr_code_url + ", create_time=" + create_time + "]";
+	}
+	public PartnerLogo(int id, int partner_id, String logo_url, String logo_name, String work_time, String qq,
+			String mail, String we_chat, String qr_code_url, String create_time) {
+		super();
+		this.id = id;
+		this.partner_id = partner_id;
+		this.logo_url = logo_url;
+		this.logo_name = logo_name;
+		this.work_time = work_time;
+		this.qq = qq;
+		this.mail = mail;
+		this.we_chat = we_chat;
+		this.qr_code_url = qr_code_url;
+		this.create_time = create_time;
+	}
+	public PartnerLogo () {
+		super();
+	}
+
+}

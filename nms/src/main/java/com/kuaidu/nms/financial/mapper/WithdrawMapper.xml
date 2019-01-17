@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+
+
+<mapper namespace="com.kuaidu.nms.financial.mapper.WithdrawMapper">
+		
+		
+		<select id="getCount" resultType="int">
+			select count(0) from partner_withdraw 
+			<where>
+				<if test="partner_id != null and partner_id != 0">
+					and partner_id = #{partner_id}
+				</if>
+				<if test="status != null and status != 2">
+					and status = #{status}
+				</if>
+			</where>
+		</select>
+		
+		<select id="getWithdraw" resultType="partnerWithdraw">
+			select pw.id,pw.partner_id,pi.partner_name,pw.parent_id,withdraw_price,bank_charge,pay_price,pw.status,create_time
+				,pay_time from partner_withdraw pw
+			left join partner_info pi on pw.partner_id = pi.partner_id
+			<where>
+				<if test="partnerWithdraw.partner_id != null and partnerWithdraw.partner_id != 0">
+					and pw.partner_id = #{partnerWithdraw.partner_id}
+				</if>
+				<if test="partnerWithdraw.status != null and partnerWithdraw.status != 2 ">
+					and pw.status = #{partnerWithdraw.status}
+				</if>
+			</where>
+			 order by id desc
+			limit #{start},#{end}
+		</select>
+		
+		<select id="getPartnerAccountByPartnerId" resultType="partnerAccount">
+			select pay_type,bank_account,bank_name,bank_province,bank_city,bank_branch,payee,alipay_account,alipay_name,wechat_account,wechat_name
+			from partner_withdraw where id = #{id}
+		</select>
+		
+		<select id="getWithdrawStatusById" resultType="int">
+			select status from partner_withdraw where id = #{id}
+		</select>
+	
+</mapper>

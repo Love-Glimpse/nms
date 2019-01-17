@@ -1,0 +1,37 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kuaidu.nms.entity.user_info;
+import com.kuaidu.nms.query.mapper.userManagementMapper;
+/*
+ * 接口实现类
+ * */
+@Service
+@Transactional 
+public class userManagementMapperImpl {
+	@Resource
+	private userManagementMapper rMapper;
+
+	public userManagementMapper getrMapper() {
+		return rMapper;
+	}
+
+	public void setrMapper(userManagementMapper rMapper) {
+		this.rMapper = rMapper;
+	}
+	//查询书籍
+	public List<user_info> getAllRecords(user_info rList) {
+		return rMapper.getAllRecords(rList);
+	}
+	//获取书籍记录总行数
+	public int getCount(user_info rList) {
+		return rMapper.getCount(rList);
+	}
+
+}

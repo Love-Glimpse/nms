@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.datastaticstics.mapper.UserOrderStatMapper">
+	<select id="getStatsToday" resultType="StatUserOrder">
+		SELECT a.*,IFNULL(b.nocharged_quantity,0) as
+				nm_nocharged_quantity,IFNULL(c.charged_quantity,0) as nm_charged_quantity
+				from (SELECT DATE_FORMAT(uo.created_time,"%Y-%m-%d") as
+				order_time,uo.partner_id,uo.push_id,uo.user_id,uo.channel_id,uo.product_id,p.product_type,uo.product_price
+				from user_order uo 
+				LEFT JOIN partner_info pi ON uo.partner_id = pi.partner_id
+				LEFT JOIN product p ON uo.product_id = p.product_id
+				where TO_DAYS(uo.created_time) = TO_DAYS(NOW())
+				<if test="partner_id > 0"> 
+					and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id} )
+				</if>
+				group by
+				order_time,partner_id,push_id,user_id,channel_id,product_id,product_price)
+				a
+				LEFT JOIN (SELECT DATE_FORMAT(uo.created_time,"%Y-%m-%d") as
+				order_time,uo.partner_id,uo.push_id,uo.user_id,uo.channel_id,uo.product_id,uo.product_price,SUM(uo.quantity)
+				as nocharged_quantity
+				from user_order uo
+				LEFT JOIN partner_info pi ON uo.partner_id = pi.partner_id
+				where uo.`status` != 1 and TO_DAYS(uo.created_time) = TO_DAYS(NOW())
+				<if test="partner_id > 0"> 
+					and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id} )
+				</if>
+				group by
+				order_time,partner_id,push_id,user_id,channel_id,product_id,product_price)
+				b
+				ON a.order_time = b.order_time and a.partner_id = b.partner_id and
+				a.push_id = b.push_id and a.user_id = b.user_id and a.channel_id =
+				b.channel_id and a.product_id = b.product_id and a.product_price =
+				b.product_price
+				LEFT JOIN (SELECT DATE_FORMAT(uo.created_time,"%Y-%m-%d") as
+				order_time,uo.partner_id,uo.push_id,uo.user_id,uo.channel_id,uo.product_id,uo.product_price,SUM(uo.quantity)
+				as charged_quantity
+				from user_order uo
+				LEFT JOIN partner_info pi ON uo.partner_id = pi.partner_id
+				where uo.`status` = 1 and TO_DAYS(uo.created_time) = TO_DAYS(NOW()) 				
+				<if test="partner_id > 0"> 
+					and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id} )
+				</if>
+				group by
+				order_time,partner_id,push_id,user_id,channel_id,product_id,product_price)
+				c
+				ON a.order_time = c.order_time and a.partner_id = c.partner_id and
+				a.push_id = c.push_id and a.user_id = c.user_id and a.channel_id =
+				c.channel_id and a.product_id = c.product_id and a.product_price =
+				c.product_price
+	</select>
+	<!-- 昨日订单 -->
+	<select id="getStatsYesterDay" resultType="StatUserOrder">
+		<if test="partner_id > 0">
+			SELECT order_time,pi.partner_id,SUM(pa_nm_user_count)nm_user_count,SUM(pa_nm_nocharged_quantity)nm_nocharged_quantity
+			,SUM(pa_nm_charged_quantity)nm_charged_quantity,SUM(pa_nm_total_price)nm_total_price
+			,SUM(pa_vip_user_count)vip_user_count,SUM(pa_vip_nocharged_quantity)vip_nocharged_quantity
+			,SUM(pa_vip_charged_quantity)vip_charged_quantity,SUM(pa_vip_total_price)vip_total_price
+		from stat_user_order_overview so LEFT JOIN partner_info pi ON so.partner_id = pi.partner_id
+			 WHERE TO_DAYS(order_time) = TO_DAYS(NOW())-1 
+		and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id} )
+		</if>
+		<if test="partner_id == 0">
+			SELECT order_time,partner_id,SUM(nm_user_count)nm_user_count,SUM(nm_nocharged_quantity)nm_nocharged_quantity
+						,SUM(nm_charged_quantity)nm_charged_quantity,SUM(nm_total_price)nm_total_price
+						,SUM(vip_user_count)vip_user_count,SUM(vip_nocharged_quantity)vip_nocharged_quantity
+						,SUM(vip_charged_quantity)vip_charged_quantity,SUM(vip_total_price)vip_total_price
+					from stat_user_order_overview WHERE TO_DAYS(order_time) = TO_DAYS(NOW())-1 
+		</if>
+	</select>
+	<!-- 本月订单，不包含今天 -->
+	<select id="getStatsMonthAll" resultType="StatUserOrder">
+		<if test="partner_id == 0">
+			SELECT left(order_time,7) as order_time,SUM(nm_user_count)nm_user_count,SUM(nm_nocharged_quantity)nm_nocharged_quantity
+				,SUM(nm_charged_quantity)nm_charged_quantity,SUM(nm_total_price)nm_total_price
+				,SUM(vip_user_count)vip_user_count,SUM(vip_nocharged_quantity)vip_nocharged_quantity
+				,SUM(vip_charged_quantity)vip_charged_quantity,SUM(vip_total_price)vip_total_price
+			from stat_user_order_overview WHERE YEAR(order_time)= YEAR(NOW()) and MONTH(order_time) = MONTH(NOW())
+		</if>
+		<if test="partner_id > 0">
+			SELECT left(order_time,7) as order_time,SUM(pa_nm_user_count)nm_user_count,SUM(pa_nm_nocharged_quantity)nm_nocharged_quantity
+				,SUM(pa_nm_charged_quantity)nm_charged_quantity,SUM(pa_nm_total_price)nm_total_price
+				,SUM(pa_vip_user_count)vip_user_count,SUM(pa_vip_nocharged_quantity)vip_nocharged_quantity
+				,SUM(pa_vip_charged_quantity)vip_charged_quantity,SUM(pa_vip_total_price)vip_total_price
+				from stat_user_order_overview  so LEFT JOIN partner_info pi ON so.partner_id = pi.partner_id 
+			WHERE YEAR(order_time)= YEAR(NOW()) and MONTH(order_time) = MONTH(NOW())
+				and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id} )
+		</if>
+	</select>
+	<select id="getStatsAll" resultType="StatUserOrder">
+		<if test="partner_id == 0">
+			SELECT SUM(nm_user_count)nm_user_count,SUM(nm_nocharged_quantity)nm_nocharged_quantity
+						,SUM(nm_charged_quantity)nm_charged_quantity,SUM(nm_total_price)nm_total_price
+						,SUM(vip_user_count)vip_user_count,SUM(vip_nocharged_quantity)vip_nocharged_quantity
+						,SUM(vip_charged_quantity)vip_charged_quantity,SUM(vip_total_price)vip_total_price
+				from stat_user_order_overview WHERE TO_DAYS(order_time) &lt; TO_DAYS(NOW())
+		</if>
+		<if test="partner_id > 0">
+			SELECT SUM(pa_nm_user_count)nm_user_count,SUM(pa_nm_nocharged_quantity)nm_nocharged_quantity
+						,SUM(pa_nm_charged_quantity)nm_charged_quantity,SUM(pa_nm_total_price)nm_total_price
+						,SUM(pa_vip_user_count)vip_user_count,SUM(pa_vip_nocharged_quantity)vip_nocharged_quantity
+						,SUM(pa_vip_charged_quantity)vip_charged_quantity,SUM(pa_vip_total_price)vip_total_price
+				from stat_user_order_overview  so LEFT JOIN partner_info pi ON so.partner_id = pi.partner_id
+				 WHERE TO_DAYS(order_time) &lt; TO_DAYS(NOW()) 
+				 	and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id} )
+		</if>
+	</select>
+	<select id="getStatsList" resultType="StatUserOrder">
+		<if test="partner_id == 0">
+			SELECT ad.day_time as order_time
+				,IFNULL(aa.nm_user_count,0)nm_user_count,IFNULL(aa.nm_nocharged_quantity,0)nm_nocharged_quantity,IFNULL(aa.nm_charged_quantity,0)nm_charged_quantity,IFNULL(aa.nm_total_price,0)nm_total_price  
+				,IFNULL(aa.vip_user_count,0)vip_user_count,IFNULL(aa.vip_nocharged_quantity,0)vip_nocharged_quantity,IFNULL(aa.vip_charged_quantity,0)vip_charged_quantity,IFNULL(aa.vip_total_price,0)vip_total_price 	
+				from (SELECT * from assist_day  WHERE TO_DAYS(day_time) &lt; TO_DAYS(#{order_time}) ORDER BY day_time DESC LIMIT 30 ) ad 
+					LEFT JOIN  (SELECT order_time,SUM(nm_user_count)nm_user_count,SUM(nm_nocharged_quantity)nm_nocharged_quantity
+								,SUM(nm_charged_quantity)nm_charged_quantity,SUM(nm_total_price)nm_total_price
+								,SUM(vip_user_count)vip_user_count,SUM(vip_nocharged_quantity)vip_nocharged_quantity
+								,SUM(vip_charged_quantity)vip_charged_quantity,SUM(vip_total_price)vip_total_price
+							from stat_user_order_overview WHERE TO_DAYS(order_time) BETWEEN TO_DAYS(#{order_time})-30 and TO_DAYS(#{order_time})-1 
+						GROUP BY order_time) aa
+					ON ad.day_time = aa.order_time ORDER BY day_time desc 
+		</if>
+			
+		<if test="partner_id > 0">
+			SELECT ad.day_time as order_time
+				,IFNULL(aa.nm_user_count,0)nm_user_count,IFNULL(aa.nm_nocharged_quantity,0)nm_nocharged_quantity,IFNULL(aa.nm_charged_quantity,0)nm_charged_quantity,IFNULL(aa.nm_total_price,0)nm_total_price  
+				,IFNULL(aa.vip_user_count,0)vip_user_count,IFNULL(aa.vip_nocharged_quantity,0)vip_nocharged_quantity,IFNULL(aa.vip_charged_quantity,0)vip_charged_quantity,IFNULL(aa.vip_total_price,0)vip_total_price 	
+				from (SELECT * from assist_day  WHERE TO_DAYS(day_time) &lt; TO_DAYS(#{order_time}) ORDER BY day_time DESC LIMIT 30 ) ad 
+					LEFT JOIN  (SELECT order_time,SUM(pa_nm_user_count)nm_user_count,SUM(pa_nm_nocharged_quantity)nm_nocharged_quantity
+								,SUM(pa_nm_charged_quantity)nm_charged_quantity,SUM(pa_nm_total_price)nm_total_price
+								,SUM(pa_vip_user_count)vip_user_count,SUM(pa_vip_nocharged_quantity)vip_nocharged_quantity
+								,SUM(pa_vip_charged_quantity)vip_charged_quantity,SUM(pa_vip_total_price)vip_total_price
+							from stat_user_order_overview  so LEFT JOIN partner_info pi ON so.partner_id = pi.partner_id
+							WHERE TO_DAYS(order_time) BETWEEN TO_DAYS(#{order_time})-30 and TO_DAYS(#{order_time})-1 
+							and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id} )
+					GROUP BY order_time) aa
+				ON ad.day_time = aa.order_time ORDER BY day_time desc 
+		</if>
+
+	</select>
+	<select id="getYestDayStatsList" resultType="StatUserOrder" >
+		SELECT aa.order_time,p.partner_id,p.parent_id,p.partner_name,aa.nm_user_count,aa.nm_nocharged_quantity,aa.nm_charged_quantity,aa.nm_total_price
+				,aa.vip_user_count,aa.vip_nocharged_quantity,aa.vip_charged_quantity,aa.vip_total_price,(aa.nm_total_price+aa.vip_total_price) total_price
+		from partner_info p  Right JOIN 
+		(SELECT a.order_time,a.partner_id,SUM(a.nm_user_count)nm_user_count,SUM(a.nm_nocharged_quantity)nm_nocharged_quantity,SUM(a.nm_charged_quantity)nm_charged_quantity, SUM(a.nm_total_price)nm_total_price
+					,SUM(a.vip_user_count)vip_user_count,SUM(a.vip_nocharged_quantity)vip_nocharged_quantity,SUM(a.vip_charged_quantity)vip_charged_quantity,SUM(a.vip_total_price)vip_total_price
+				from (SELECT s.order_time,s.parent_id,s.partner_id,SUM(nm_user_count)nm_user_count,SUM(nm_nocharged_quantity)nm_nocharged_quantity
+							,SUM(nm_charged_quantity)nm_charged_quantity,SUM(nm_total_price)nm_total_price
+							,SUM(vip_user_count)vip_user_count,SUM(vip_nocharged_quantity)vip_nocharged_quantity
+							,SUM(vip_charged_quantity)vip_charged_quantity,SUM(vip_total_price)vip_total_price
+						from stat_user_order_overview s LEFT JOIN partner_info pi ON s.partner_id = pi.partner_id
+					WHERE TO_DAYS(order_time) BETWEEN TO_DAYS(#{startDate}) and TO_DAYS(#{endDate}) 
+					<if test="parent_id>0">
+						and s.parent_id = #{parent_id}
+					</if>
+						GROUP BY order_time ,partner_id  ) a
+			GROUP BY a.order_time,a.partner_id) aa ON p.partner_id = aa.partner_id
+		WHERE p.`status`= 1 and p.partner_gradation=1	 
+		  ORDER BY aa.order_time DESC,total_price DESC
+	</select>
+	<select id="getYestDayStatsListDetail" resultType="StatUserOrder" >
+		SELECT p.partner_id,p.partner_name,aa.nm_user_count,aa.nm_nocharged_quantity,aa.nm_total_price
+				,aa.vip_user_count,aa.vip_nocharged_quantity,aa.vip_nocharged_quantity,aa.vip_total_price,(aa.nm_total_price+aa.vip_total_price) total_price
+		from partner_info p  LEFT JOIN 
+		(SELECT a.partner_id,SUM(a.nm_user_count)nm_user_count,SUM(a.nm_nocharged_quantity)nm_nocharged_quantity,SUM(a.nm_charged_quantity)nm_charged_quantity, SUM(a.nm_total_price)nm_total_price
+					,SUM(a.vip_user_count)vip_user_count,SUM(a.vip_nocharged_quantity)vip_nocharged_quantity,SUM(a.vip_charged_quantity)vip_charged_quantity,SUM(a.vip_total_price)vip_total_price
+				from (SELECT s.partner_id,SUM(nm_user_count)nm_user_count,SUM(nm_nocharged_quantity)nm_nocharged_quantity
+							,SUM(nm_charged_quantity)nm_charged_quantity,SUM(nm_total_price)nm_total_price
+							,SUM(vip_user_count)vip_user_count,SUM(vip_nocharged_quantity)vip_nocharged_quantity
+							,SUM(vip_charged_quantity)vip_charged_quantity,SUM(vip_total_price)vip_total_price
+						from stat_user_order_overview s LEFT JOIN partner_info pi ON s.partner_id = pi.partner_id
+					WHERE TO_DAYS(order_time) = TO_DAYS(NOW())-1 and pi.partner_gradation=1
+						GROUP BY partner_id 
+					UNION SELECT pi.parent_id partner_id ,SUM(nm_user_count)nm_user_count,SUM(nm_nocharged_quantity)nm_nocharged_quantity
+								,SUM(nm_charged_quantity)nm_charged_quantity,SUM(nm_total_price)nm_total_price
+								,SUM(vip_user_count)vip_user_count,SUM(vip_nocharged_quantity)vip_nocharged_quantity
+								,SUM(vip_charged_quantity)vip_charged_quantity,SUM(vip_total_price)vip_total_price
+						from stat_user_order_overview s LEFT JOIN partner_info pi ON s.partner_id = pi.partner_id
+					WHERE TO_DAYS(order_time) = TO_DAYS(NOW())-1 and pi.partner_gradation>1
+					GROUP BY partner_id) a
+			GROUP BY a.partner_id) aa ON p.partner_id = aa.partner_id
+		WHERE p.`status`= 1 
+		 	and (p.partner_id=#{partner_id} or p.parent_id=#{partner_id})
+		ORDER BY total_price DESC
+	</select>
+	
+</mapper>

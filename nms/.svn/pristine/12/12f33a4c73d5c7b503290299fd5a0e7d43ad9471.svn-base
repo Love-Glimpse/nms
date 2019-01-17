@@ -1,0 +1,19 @@
+package com.kuaidu.nms.user.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.SearchLog;
+
+public interface SearchLogMapper {
+
+	List<SearchLog> getAllRecords(SearchLog searchLog);
+
+	int deleteSearchLog(List<Integer> split);
+
+	int getCount(SearchLog searchLog);
+
+	List<SearchLog> getSortAllRecords(SearchLog searchLog);
+	
+	int getSortCount(SearchLog searchLog);
+
+}

@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.datastaticstics.mapper.UserInfoStatMapper">
+		<!--今日用户统计 -->
+	<select id="getStatsToday" resultType="java.util.HashMap">
+	SELECT a.*,IFNULL(b.new,0) new,IFNULL(c.sub,0) sub ,IFNULL(d.unsub,0) unsub from (
+		select ui.partner_id,ui.push_id,ui.sex,ui.vip_type
+			FROM user_info ui left join partner_info pi on ui.partner_id = pi.partner_id
+			 WHERE (TO_DAYS(ui.created_time) = TO_DAYS(NOW()) OR TO_DAYS(ui.subscribe_time)=TO_DAYS(NOW()) )
+	 		 <if test="partner_id > 0">
+					and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id})
+	 		 </if>
+				GROUP BY partner_id,push_id,sex,vip_type) a
+			LEFT JOIN (select ui.partner_id,ui.push_id,ui.sex,ui.vip_type ,COUNT(DISTINCT user_id) as new 
+			FROM user_info ui left join partner_info pi on ui.partner_id = pi.partner_id
+			 WHERE TO_DAYS(ui.created_time) = TO_DAYS(NOW()) 
+	 			<if test="partner_id > 0">
+					and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id})
+	 		  </if>
+				GROUP BY partner_id,push_id,sex,vip_type) b 
+				ON a.partner_id = b.partner_id and a.push_id = b.push_id AND a.sex = b.sex AND a.vip_type = b.vip_type
+			 LEFT JOIN 	(select ui.partner_id,ui.push_id,ui.sex,ui.vip_type ,COUNT(DISTINCT user_id) sub 
+			FROM user_info ui left join partner_info pi on ui.partner_id = pi.partner_id
+			 WHERE TO_DAYS(ui.subscribe_time) = TO_DAYS(NOW()) 
+	 			<if test="partner_id > 0">
+	 			and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id})
+	 	  	</if>
+				GROUP BY partner_id,push_id,sex,vip_type) c 
+			on a.partner_id = c.partner_id and a.push_id = c.push_id AND a.sex = c.sex AND a.vip_type = c.vip_type
+			LEFT JOIN 	(select ui.partner_id,ui.push_id,ui.sex,ui.vip_type ,COUNT(DISTINCT user_id) unsub 
+			FROM user_info ui left join partner_info pi on ui.partner_id = pi.partner_id
+			 WHERE TO_DAYS(ui.unsubscribe_time) = TO_DAYS(NOW()) 
+	 			<if test="partner_id > 0">
+	 			and (pi.partner_id = #{partner_id} or pi.parent_id=#{partner_id})
+	 	  	</if>
+				GROUP BY partner_id,push_id,sex,vip_type) d 
+		on a.partner_id = d.partner_id and a.push_id = d.push_id AND a.sex = d.sex AND a.vip_type = d.vip_type;
+		
+	</select>
+	<!-- 昨日用户统计 -->
+	<select id="getStatsYesterDay" resultType="StatUserInfo">
+		SELECT ad.day_time,wm.wm_new,wm.wm_sub,wm.wm_unsub,wm.wm_charged
+			,m.m_new,m.m_sub,m.m_unsub,m.m_charged
+			,wz.wz_new,wz.wz_sub,wz.wz_unsub,wz.wz_charged
+			 from (SELECT day_time from stat_user_info  WHERE TO_DAYS(day_time) = TO_DAYS(NOW()) -1 GROUP BY day_time) ad  LEFT JOIN
+			(SELECT day_time,SUM(new) wm_new ,	SUM(sub) wm_sub ,SUM(unsub) wm_unsub		
+				<if test="partner_id > 0">
+					,SUM(pcharged) wm_charged
+				</if>
+				<if test="partner_id == 0">
+					,SUM(charged) wm_charged
+				</if> from stat_user_info 
+			WHERE TO_DAYS(day_time) = TO_DAYS(NOW()) -1 and sex = 0 
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if> GROUP BY day_time) wm
+			ON ad.day_time = wm.day_time  LEFT JOIN
+			(SELECT day_time,SUM(new) m_new ,	SUM(sub) m_sub ,SUM(unsub) m_unsub
+				<if test="partner_id > 0">
+					,SUM(pcharged) m_charged
+				</if>
+				<if test="partner_id == 0">
+					,SUM(charged) m_charged
+				</if> from stat_user_info 
+			WHERE TO_DAYS(day_time) = TO_DAYS(NOW()) -1 and sex = 1 
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if> GROUP BY day_time) m
+			ON ad.day_time = m.day_time LEFT JOIN
+			(SELECT day_time,SUM(new)  wz_new ,	SUM(sub) wz_sub	,SUM(unsub) wz_unsub
+				<if test="partner_id > 0">
+					,SUM(pcharged)  wz_charged
+				</if>
+				<if test="partner_id == 0">
+					,SUM(charged)  wz_charged
+				</if> from stat_user_info 
+			WHERE TO_DAYS(day_time) = TO_DAYS(NOW()) -1 and sex = 2 
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if> GROUP BY day_time) wz
+			ON ad.day_time = wz.day_time
+	</select>
+	<!-- 本月订单，不包含今天 -->
+	<select id="getStatsMonthAll" resultType="StatUserInfo">
+		SELECT ad.d_time,wm.new wm_new,wm.sub wm_sub,wm.unsub wm_unsub
+			,m.new m_new,m.sub m_sub,m.unsub m_unsub
+			,wz.new wz_new,wz.sub wz_sub,wz.unsub wz_unsub
+			,mon.wz_charged
+			from (SELECT left(day_time,7) d_time  from stat_user_info WHERE YEAR(day_time)= YEAR(NOW()) and MONTH(day_time) = MONTH(NOW()) GROUP BY d_time) ad  LEFT JOIN
+			(SELECT left(day_time,7) d_time,SUM(new) new ,	SUM(sub) sub ,SUM(unsub) unsub
+				 from stat_user_info 
+			WHERE YEAR(day_time)= YEAR(NOW()) and MONTH(day_time) = MONTH(NOW()) and sex = 0 
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if>
+			GROUP BY d_time) wm
+			ON ad.d_time = wm.d_time  LEFT JOIN
+			(SELECT left(day_time,7) d_time,SUM(new) new,	SUM(sub) sub,SUM(unsub) unsub 
+
+				 from stat_user_info 
+			WHERE YEAR(day_time)= YEAR(NOW()) and MONTH(day_time) = MONTH(NOW()) and sex = 1 
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if>
+			GROUP BY d_time) m
+			ON ad.d_time = m.d_time LEFT JOIN
+			(SELECT left(day_time,7) d_time,SUM(new) new,	SUM(sub) sub ,SUM(unsub) unsub				
+
+				from stat_user_info 
+			WHERE YEAR(day_time)= YEAR(NOW()) and MONTH(day_time) = MONTH(NOW()) and sex = 2 
+
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if>
+			GROUP BY d_time) wz
+			ON ad.d_time = wz.d_time
+
+			LEFT JOIN (SELECT left(created_time,7) d_time,COUNT(0) wz_charged from user_info 
+				WHERE  vip_type>0  and YEAR(created_time)= YEAR(NOW()) and MONTH(created_time) = MONTH(NOW()) 
+				<if test="partner_id > 0">
+					and partner_id = #{partner_id}
+				</if>
+					) mon
+			ON mon.d_time = ad.d_time 
+
+	</select>
+	<select id="getStatsAll" resultType="StatUserInfo">
+		SELECT ad.d_time,wm.new wm_new,wm.sub wm_sub,wm.unsub wm_unsub
+			,m.new m_new,m.sub m_sub,m.unsub m_unsub
+			,wz.new wz_new,wz.sub wz_sub,wz.unsub wz_unsub
+			,al.wz_charged
+			from (SELECT 'all' d_time  from stat_user_info  GROUP BY d_time) ad  LEFT JOIN
+			(SELECT 'all' d_time,SUM(new) new ,	SUM(sub) sub ,SUM(unsub) unsub
+				 from stat_user_info 
+			WHERE sex = 0 
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if>
+			GROUP BY d_time) wm
+			ON ad.d_time = wm.d_time  LEFT JOIN
+			(SELECT 'all' d_time,SUM(new) new,	SUM(sub) sub,SUM(unsub) unsub 
+
+				 from stat_user_info 
+			WHERE sex = 1 
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if>
+			GROUP BY d_time) m
+			ON ad.d_time = m.d_time LEFT JOIN
+			(SELECT 'all' d_time,SUM(new) new,	SUM(sub) sub ,SUM(unsub) unsub				
+
+				from stat_user_info 
+			WHERE sex = 2 
+
+			<if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+			</if>
+			GROUP BY d_time) wz
+			ON ad.d_time = wz.d_time
+
+			LEFT JOIN (SELECT 'all' d_time,COUNT(0) wz_charged from user_info 
+				WHERE  vip_type>0 
+				<if test="partner_id > 0">
+					and partner_id = #{partner_id}
+				</if>
+					) al
+			ON al.d_time = ad.d_time 
+	</select>
+	<select id="getStatsList" resultType="StatUserInfo">
+		SELECT dd.day_time,wm_new,wm_sub,wm_charged ,wm_active,m_new,m_sub,m_charged 
+			,m_active,wz_new,wz_sub, wz_charged ,wz_active FROM (SELECT day_time from assist_day WHERE TO_DAYS(day_time) BETWEEN TO_DAYS(#{day_time})-30 and TO_DAYS(#{day_time})-1) dd LEFT JOIN
+		 (SELECT ad.day_time,wm.new wm_new,wm.sub wm_sub,wm.charged wm_charged ,wm.active wm_active
+			,m.new m_new,m.sub m_sub,m.charged m_charged ,m.active m_active
+			,wz.new wz_new,wz.sub wz_sub,wz.charged wz_charged ,wz.active wz_active
+		 from (SELECT day_time from stat_user_info	where TO_DAYS(day_time) BETWEEN TO_DAYS(#{day_time})-30 and TO_DAYS(#{day_time})-1
+		 <if test="partner_id > 0">
+				and partner_id = #{partner_id} 
+		 </if> 
+		 GROUP BY day_time ) ad  LEFT JOIN
+		(SELECT day_time,SUM(new) new,	SUM(sub) sub 				
+				<if test="partner_id > 0">
+					,SUM(pcharged) charged
+				</if>
+				<if test="partner_id == 0">
+					,SUM(charged) charged
+				</if>
+				,SUM(active) active from stat_user_info 
+			WHERE  sex = 0 and TO_DAYS(day_time) BETWEEN TO_DAYS(#{day_time})-30 and TO_DAYS(#{day_time})-1
+			 <if test="partner_id > 0">
+					and partner_id = #{partner_id} 
+			 </if> 
+			 GROUP BY day_time ) wm
+		ON ad.day_time = wm.day_time  LEFT JOIN
+		(SELECT day_time,SUM(new) new,	SUM(sub) sub 				
+				<if test="partner_id > 0">
+					,SUM(pcharged) charged
+				</if>
+				<if test="partner_id == 0">
+					,SUM(charged) charged
+				</if>
+				,SUM(active) active from stat_user_info
+		  WHERE  sex = 1 and TO_DAYS(day_time) BETWEEN TO_DAYS(#{day_time})-30 and TO_DAYS(#{day_time})-1
+		     <if test="partner_id > 0">
+					and partner_id = #{partner_id} 
+			 </if> 
+		   GROUP BY day_time) m
+		ON ad.day_time = m.day_time LEFT JOIN
+		(SELECT day_time,SUM(new) new ,	SUM(sub) sub				
+				<if test="partner_id > 0">
+					,SUM(pcharged) charged
+				</if>
+				<if test="partner_id == 0">
+					,SUM(charged) charged
+				</if>
+				,SUM(active) active from stat_user_info 
+			WHERE  sex = 2 and TO_DAYS(day_time) BETWEEN TO_DAYS(#{day_time})-30 and TO_DAYS(#{day_time})-1
+		     <if test="partner_id > 0">
+					and partner_id = #{partner_id} 
+			 </if> 
+			GROUP BY day_time) wz
+		ON ad.day_time = wz.day_time) dt ON dd.day_time = dt.day_time ORDER BY dd.day_time desc
+
+	</select>
+</mapper>

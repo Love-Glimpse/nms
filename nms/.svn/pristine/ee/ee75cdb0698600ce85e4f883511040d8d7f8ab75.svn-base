@@ -1,0 +1,297 @@
+	var info ;
+	var max ;
+	var min  ;
+/*
+   * 初始化表格
+   */
+    initGrid();
+    function initGrid()
+    {
+        $('#grid').datagrid({
+        	 columns:[[
+        	        //js代码创建的datagrid本身已经添加了checkbox列，就是第一列。checkbox列将会自适应宽度。
+                    {field:'ck',checkbox:true,align:'center'},
+                    {
+        				field : 'user_id',
+        				title : '用户id',
+        				width : 25,
+        				align : 'center'
+        			},
+        			 {
+        				field : 'ip',
+        				title : '用户ip',
+        				width : 50,
+        				align : 'center'
+        			},
+        			 {
+        				field : 'modle',
+        				title : '机型',
+        				width : 80,
+        				align : 'center'
+        			},
+        			 {
+        				field : 'browser',
+        				title : '浏览器型号',
+        				width : 50,
+        				align : 'center'
+        			},
+        			 {
+        				field : 'os_name',
+        				title : '操作系统',
+        				width : 30,
+        				align : 'center'
+        			},
+        			 {
+        				field : 'region',
+        				title : '省份',
+        				width : 50,
+        				align : 'center'
+        			},
+        			 {
+        				field : 'city',
+        				title : '城市',
+        				width : 50,
+        				align : 'center'
+        			},
+        			{
+        				field : 'login_time',
+        				title : '登陆时间',
+        				width : 60,
+        				align : 'center',
+        				formatter : function(value, row, index) {
+        					 //var date = new Date(row.login_time);
+        					 return row.login_time.substring(0,19);
+    						//return formatCSTDate(row.login_time,"yyyy-M-d hh:mm:ss");
+    					}
+        			},
+        			{
+        				field : 'online_time',
+        				title : '在线时间',
+        				width : 20,
+        				align : 'center'
+        			},
+        			{
+        				field : 'read_time',
+        				title : '阅读时间',
+        				width : 20,
+        				align : 'center'
+        			},
+			
+            ]],
+        	//同action提交.提交的类型是jason
+            url:'userLoginLog/getAll',
+            method:'post',
+            collapsible: true,
+            //rownumber列的配置是在全局设置的
+            //如果设置为true则会在开头第一列来添加一列来显示行号。
+            rownumbers:false,
+            //如果为true，则只允许选择一行。
+            singleSelect:false,
+            toolbar:'#tb',
+            fitColumns:true,
+            pageNumber:1,
+    		pageSize : 50,
+    		pageList : [ 50,100, 200 ],
+            //pagination:是否启动分页，true，这样一来我们的datagrid底部就会出现一个分页工具栏
+            //datagrid在请求数据的时候会自动的添加分页的信息：
+            //page：当前请求的页码
+            //rows：每页要显示的行数
+            pagination:true,
+            onLoadSuccess: function(data) {//加载成功   
+            	//要判断或者执行的代码
+            	//sysy
+            }
+
+        });
+    }   
+    /**
+     * 查询
+     * load:加载新的数据
+     */
+  //加载新的数据 含（book_name = 用户输出的值    的书名)
+    $("#search").click(function(e) {
+    	var user_id = $('#user_id').val();
+    	var start_time = $("#start_date").val();
+    	var end_time = $("#end_date").val();
+    	 $("#grid").datagrid("load",
+    		{
+    		 user_id:user_id,
+    		 start_time:start_time,
+    		 end_time:end_time
+    		});
+    });
+  
+  /**
+   * 刷新功能
+   */
+  $("#reload").click(function(e) {
+ 	 $('#grid').datagrid('reload');
+    });
+  
+  $("#return").click(function(){
+	/*  $("#map").attr("display","block"); 
+	  $(".easyui-fluid").css("display","block");*/
+	  $(location).attr('href','userLoginLog/index');
+  })
+  
+  
+  $("#user_region").click(function(){
+	  $(".easyui-fluid").css("display","none");
+	  $('#map').attr("display","block"); 
+	 
+	 
+		   $.get({
+			   url:"userLoginLog/userRegion",
+		   		success:function (data){
+		   			info = data.data;
+		   			max = data.max;
+		   			min = data.min;
+		   			aa();
+		   		}
+		   })
+	  
+  }) 
+	   function aa(){
+		   
+	       var myChart = echarts.init(document.getElementById('map'));
+	       var option = {
+	           title : {
+	               text: '用户分布',
+	               subtext: '纯属虚构',
+	               x:'center'
+	           },
+	           tooltip : {//提示框组件。
+	               trigger: 'item'//数据项图形触发，主要在散点图，饼图等无类目轴的图表中使用。
+	           },
+	           legend: {
+	               orient: 'horizontal',//图例的排列方向
+	               x:'left',//图例的位置
+	               data:['用户数']
+	           },
+
+	           visualMap: {//颜色的设置  dataRange
+	               x: 'left',
+	               y: 'center',
+	               splitList: [
+	                   {start: 1500},
+	                   {start: 900, end: 1500},
+	                   {start: 310, end: 1000},
+	                   {start: 200, end: 300},
+	                   {start: 10, end: 200, label: '10 到 200（自定义label）'},
+	                   {start: 5, end: 5, label: '5（自定义特殊颜色）', color: 'black'},
+	                   {end: 10}
+	               ],
+	               calculable : true,
+	               min: min,
+	               max: max,
+//	               calculable : true,//颜色呈条状
+	               text:['高','低'],// 文本，默认为数值文本
+	               color: ['#E0022B', '#E09107', '#A3E00B']
+	           },
+	           toolbox: {//工具栏
+	               show: true,
+	               orient : 'vertical',//工具栏 icon 的布局朝向
+	               x: 'right',
+	               y: 'center',
+	               feature : {//各工具配置项。
+	                   mark : {show: true},
+	                   dataView : {show: true, readOnly: false},//数据视图工具，可以展现当前图表所用的数据，编辑后可以动态更新。
+	                   restore : {show: true},//配置项还原。
+	                   saveAsImage : {show: true}//保存为图片。
+	               }
+	           },
+	           roamController: {//控制地图的上下左右放大缩小 图上没有显示
+	               show: true,
+	               x: 'right',
+	               mapTypeControl: {
+	                   'china': true
+	               }
+	           },
+	           series : [
+	               {
+	                   name: '用户数',
+	                   type: 'map',
+	                   mapType: 'china',
+	                   roam: false,//是否开启鼠标缩放和平移漫游
+	                   itemStyle:{//地图区域的多边形 图形样式
+	                       normal:{//是图形在默认状态下的样式
+	                           label:{
+	                               show:true,//是否显示标签
+	                               textStyle: {
+	                                   color: "rgb(249, 249, 249)"
+	                               }
+	                           }
+	                       },
+	                       emphasis:{//是图形在高亮状态下的样式,比如在鼠标悬浮或者图例联动高亮时
+	                           label:{show:true}
+	                       }
+	                   },
+	                   top:"3%",//组件距离容器的距离
+	                   data:info
+	                	   /* [
+	                       {name: '北京',value: Math.round(Math.random()*2000)},
+	                       {name: '天津',value: Math.round(Math.random()*2000)},
+	                       {name: '上海',value: Math.round(Math.random()*2000)},
+	                       {name: '重庆',value: Math.round(Math.random()*2000)},
+	                       {name: '河北',value: 0},
+	                       {name: '河南',value: Math.round(Math.random()*2000)},
+	                       {name: '云南',value: 5},
+	                       {name: '辽宁',value: 305},
+	                       {name: '黑龙江',value: Math.round(Math.random()*2000)},
+	                       {name: '湖南',value: 200},
+	                       {name: '安徽',value: Math.round(Math.random()*2000)},
+	                       {name: '山东',value: Math.round(Math.random()*2000)},
+	                       {name: '新疆',value: Math.round(Math.random()*2000)},
+	                       {name: '江苏',value: Math.round(Math.random()*2000)},
+	                       {name: '浙江',value: Math.round(Math.random()*2000)},
+	                       {name: '江西',value: Math.round(Math.random()*2000)},
+	                       {name: '湖北',value: Math.round(Math.random()*2000)},
+	                       {name: '广西',value: Math.round(Math.random()*2000)},
+	                       {name: '甘肃',value: Math.round(Math.random()*2000)},
+	                       {name: '山西',value: Math.round(Math.random()*2000)},
+	                       {name: '内蒙古',value: Math.round(Math.random()*2000)},
+	                       {name: '陕西',value: Math.round(Math.random()*2000)},
+	                       {name: '吉林',value: Math.round(Math.random()*2000)},
+	                       {name: '福建',value: Math.round(Math.random()*2000)},
+	                       {name: '贵州',value: Math.round(Math.random()*2000)},
+	                       {name: '广东',value: Math.round(Math.random()*2000)},
+	                       {name: '青海',value: Math.round(Math.random()*2000)},
+	                       {name: '西藏',value: Math.round(Math.random()*2000)},
+	                       {name: '四川',value: Math.round(Math.random()*2000)},
+	                       {name: '宁夏',value: Math.round(Math.random()*2000)},
+	                       {name: '海南',value: Math.round(Math.random()*2000)},
+	                       {name: '台湾',value: Math.round(Math.random()*2000)},
+	                       {name: '香港',value: Math.round(Math.random()*2000)},
+	                       {name: '澳门',value: Math.round(Math.random()*2000)} 
+	                   ]*/
+	               }
+	           ]
+	       };
+	       myChart.setOption(option);
+	       myChart.on('mouseover', function (params) {
+	           var dataIndex = params.dataIndex;
+	           console.log(params);
+	       });
+	   }
+	   
+  
+  
+ 	/*
+ 	 *系统提示函数：alert_autoclose
+ 	 */
+ 	function alert_autoClose(msg,icon){  
+ 		 var interval;  
+ 		 var time=1000;  
+ 		 var x=2;    //设置时间2s
+ 		$.messager.alert("系统提示",msg,icon,function(){
+ 			
+ 		});  
+ 		 interval=setInterval(fun,time);  
+ 		        function fun(){  
+ 		      --x;  
+ 		      if(x==0){  
+ 		          clearInterval(interval);  
+ 		  $(".messager-body").window('close');    
+ 		       }  
+ 		}; 
+ 		}

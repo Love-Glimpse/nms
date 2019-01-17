@@ -1,0 +1,21 @@
+package com.kuaidu.nms.datastaticstics.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.entity.StatOrderPush;
+import com.kuaidu.nms.entity.StatOrderPushByDay;
+
+public interface StatOrderPushMapper {
+
+	List<StatOrderPush> getStatOrders(StatOrderPush statOrderPush);
+
+	List<StatOrderPush> getStatOrdersByPushId(StatOrderPushByDay statOrderPushByDay);
+
+	List<PartnerPushUrl> getAllPush(int partnerId);
+
+	List<PartnerInfo> getAllPartnerId();
+
+
+}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.homepage.mapper.HomepageMapper">
+  <select id="getAll" resultType="Sys_module">
+   <!--  select * from sys_module -->
+    select * from sys_module 
+    where module_id in(select module_id from sys_group_module where group_id =#{group_id}) 
+    order by show_order asc
+  </select>
+  <select id="getPartnerMenu" resultType="Sys_module">
+    select * from partner_module 
+    where module_id in(select module_id from partner_group_module where group_id =#{group_id}) 
+    order by show_order asc
+  </select>
+  
+</mapper>

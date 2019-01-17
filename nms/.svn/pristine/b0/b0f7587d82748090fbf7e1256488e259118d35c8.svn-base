@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.AuthorsQueryMapper">
+	<!--查询所有作家 	start_rows=开始行        采用模糊搜索	-->
+    <select id="getAllAuthors" resultType="author">
+      select * from author where 1=1 
+    <if test="author_name != null and author_name != ''">
+			and author_name like '%${author_name}%'
+	</if>
+limit #{start_rows},#{end_rows}
+    </select>
+
+    <!-- 添加新作者 -->
+    <insert id="add_aList">
+    	INSERT INTO author(author_name,group_type)VALUES(#{author_name},#{group_type})
+    </insert>
+      
+   <!-- 编辑作家 -->
+   <update id="edit_aList">
+     UPDATE author SET author_name=#{author_name} , group_type =#{group_type} where author_id=#{author_id}
+   </update>
+   
+    <!-- 删除作家  for循环实现多行删除-->
+    <!-- item表示集合中每一个元素进行迭代时的别名，
+		index指定一个名字，用于表示在迭代过程中，每次迭代到的位置，
+		open表示该语句以什么开始，
+		separator表示在每次进行迭代之间以什么符号作为分隔符，
+		close表示以什么结束。 -->
+		<!--例子：SELECT * FROM `book_list` WHERE book_id IN (23,24)  -->
+  <delete id="del_aList" parameterType="java.util.List">
+  	 delete from author where author_id in 
+   <foreach item="author_id" collection="list" open="(" separator="," close=")">
+     #{author_id}
+    </foreach>
+  </delete>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+      select COUNT(*) from author where 1=1
+  	</select>
+</mapper>

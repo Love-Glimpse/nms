@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.RegisterQueryMapper">
+  <select id="getAll" resultType="UserInfo">
+    SELECT * from user_info where 1=1
+   <if test="mail != null and mail != ''">
+			and mail=#{mail}
+	</if>
+	  <if test="promoters_name != null and promoters_name != ''">
+			and promoters_name=#{promoters_name}
+	</if>	
+limit #{start_rows},#{end_rows} 
+  </select>
+  
+  <select id="getCount" resultType="int">
+  select COUNT(*) from user_info where 1=1
+     <if test="mail != null and mail != ''">
+			and mail=#{mail}
+	</if>
+	  <if test="promoters_name != null and promoters_name != ''">
+			and promoters_name=#{promoters_name}
+	</if>
+  </select>
+  
+	<select id="getAllpromoters" resultType="Promoters">
+	  select * from promoters
+	</select>
+	
+	<delete id="del">
+	 delete from user_info where user_id in 
+	  <foreach item="user_id" collection="list" open="(" separator="," close=")">
+        #{user_id}
+    </foreach>
+	</delete>
+</mapper>

@@ -1,0 +1,174 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<base href="<%=basePath%>">
+<%-- <%@ include file="../top.jsp"%> --%>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<!-- <script src="static/js/scripts/common/layui/css/layui.css"></script> -->
+<link rel="stylesheet"
+	href="static/js/scripts/common/layui/css/layui.css" media="all">
+<!-- <script src="static/js/scripts/common/jquery-1.8.2.min.js"></script>  -->
+</head>
+<body>
+
+	范围时间：
+	<input id="dates" type="text"> 选择时间：
+	<input id="date" type="text">
+
+
+	<table id="demo" lay-filter="test"></table>
+	<form class="layui-form" action="">
+		<div class="layui-form-item">
+			<div class="layui-input-block" style="width: 100px;">
+				<select name="interest" lay-filter="aihao">
+					<option value="0">明细</option>
+					<option value="1">合计</option>
+				</select>
+			</div>
+		</div>
+	</form>
+	<script src="static/js/scripts/common/layui/layui.js"></script>
+	<script>
+		var date = getNowFormatDate();
+		var dates = null;
+		var statistic = 0;
+		layui.use('form', function() {
+			var form = layui.form;
+			form.on("select(aihao)", function(data) {
+			});
+		});
+		layui.use('laydate', function() {
+			var laydate = layui.laydate;
+			//执行一个laydate实例
+			laydate.render({
+				elem : '#date',
+				value : getNowFormatDate(),
+				min : '2018-08-10',
+				max : getNowFormatDate(),
+				done : function(value, date, endDate) {
+					date = value;
+					dates = 'null';
+					load(date, dates);
+				}
+			});
+			laydate.render({
+				elem : '#dates',
+				max : getNowFormatDate(),
+				range : '--' //或 range: '~' 来自定义分割字符
+				,
+				done : function(value, date, endDate) {
+					dates = value;
+					date = 'null';
+					load(date, dates);
+				}
+			});
+
+		});
+
+		function load(date, dates) {
+			layui.use('table', function() {
+				var table = layui.table;
+				table.render({
+					elem : '#demo',
+					url : '/nms/userLoginLog',
+					where : {
+						date : date,
+						dates : dates
+					},
+					cols : [ [ {
+						field : 'userId',
+						width : 80,
+						title : 'ID'
+					}, {
+						field : 'mail',
+						width : 160,
+						title : '邮箱'
+					}, {
+						field : 'ip',
+						width : 160,
+						title : 'IP'
+					}, {
+						field : 'browser',
+						width : 200,
+						title : '浏览器'
+					}, {
+						field : 'osName',
+						title : '操作系统名称',
+						width : 160,
+					}, {
+						field : 'loginTime',
+						width : 180,
+						title : '登陆时间'
+					}, {
+						field : 'readTime',
+						width : 90,
+						title : '阅读时长'
+					}, {
+						field : 'onlineTime',
+						width : 90,
+						title : '在线时长'
+					} ] ],
+					page : true,
+					even : true
+				});
+			});
+		}
+
+		layui.use('slider', function() {
+			var slider = layui.slider;
+
+			//渲染
+			slider.render({
+				elem : '#slideTest1' //绑定元素
+			});
+		});
+
+		/* layui.use('table','laypage', function(){
+			  var table = layui.table;
+			  //第一个实例
+			  table.render({
+			    elem: '#demo'
+			    ,height: 200
+			    ,url:'/nms/userLoginLog?dates='+'2018-09-06--2018-09-13'
+			    ,page: true //开启分页
+			    ,cols: [[ //表头
+			    	  {field:'user_id', width:80, title: 'ID'}
+				      ,{field:'mail', width:160, title: '用户名'}
+				      ,{field:'ip', width:80, title: '性别'}
+				      ,{field:'browser', width:80, title: '城市'}
+				      ,{field:'os_name', title: '签名', minWidth: 250}
+				      ,{field:'login_time', width:80, title: '积分'}
+				      ,{field:'online_time', width:80, title: '评分'}
+			    ]]
+			  });
+			  
+			}); */
+
+		function getNowFormatDate() {
+			var date = new Date();
+			var seperator1 = "-";
+			var year = date.getFullYear();
+			var month = date.getMonth() + 1;
+			var strDate = date.getDate();
+			if (month >= 1 && month <= 9) {
+				month = "0" + month;
+			}
+			if (strDate >= 0 && strDate <= 9) {
+				strDate = "0" + strDate;
+			}
+			var currentdate = year + seperator1 + month + seperator1 + strDate;
+			return currentdate;
+		}
+	</script>
+</body>
+</html>

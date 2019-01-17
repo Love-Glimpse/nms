@@ -1,0 +1,19 @@
+package com.kuaidu.nms.user.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.UserLoginLog;
+
+public interface UserLoginLogMapper {
+
+	List<UserLoginLog> getUserLoginLog(@Param("start")String string,@Param("end") String string2,@Param("page") Integer page,@Param("limit") Integer limit);
+
+	int getCount(@Param("start")String split, @Param("end")String split2);
+
+	int getOneDayLoginLogCount(String date);
+
+	List<UserLoginLog> getOneDayUserLoginLog(@Param("date")String date,@Param("page") Integer page,@Param("limit") Integer limit);
+
+}

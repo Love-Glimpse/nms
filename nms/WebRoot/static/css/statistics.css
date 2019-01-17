@@ -1,0 +1,145 @@
+body {
+    font-size: 14px;
+    padding:0;
+}
+.page-content {
+    background-color: #fff;
+    position: relative;
+    margin: 0;
+    padding:0;
+}
+.btn, .input-group .input-group-btn .btn {
+    border-width: 1px;
+}
+
+.frontend-template .template-preview {
+    width: 100%;
+    border: 1px solid #eee;
+}
+.btn-secondary, .btn-secondary:focus {
+    background-color: #428bca!important;
+    border-color: #428bca;
+}
+
+.btn-default{
+    background-color: #428bca!important;
+    border-color: #428bca;
+}
+.btn-default:hover{
+    background-color: #0d5fa7!important;
+    border-color: #0d5fa7;
+}
+.btn-color{
+    background-color: #428bca!important;
+    border-color: #428bca;
+}
+.btn-color:hover{
+    background-color: #0d5fa7!important;
+    border-color: #0d5fa7;
+}
+.td-middle{
+
+}
+.table .referral-link-item td{
+    vertical-align: middle;
+}
+
+.btn-group .dropdown-toggle:active{
+    border-color: #428bca;
+}
+.actions-bar .btn-group .dropdown-toggle:focus{
+    border-color: #428bca;
+}
+.actions-bar{
+    padding: 12px 0;
+}
+
+.referral-link-item{
+    color: #444;
+    font-size: 17px;
+}
+
+.btn-group .btn .caret {
+    margin-top: 0px;
+    margin-left: 1px;
+    border-width: 5px;
+    border-top-color: #FFF;
+}
+.export{
+    cursor: pointer;
+}
+
+
+.page-content .nav-tabs .active a{
+    color: #576373;
+    border-color: #c5d0dc #c5d0dc transparent;
+    border-top: 2px solid #4c8fbd;
+    background-color: #FFF;
+    z-index: 1;
+    line-height: 18px;
+    margin-top: -1px;
+    box-shadow: 0 -2px 3px 0 rgba(0,0,0,.15);
+}
+#order-statistics .row{
+	
+}
+
+ 		
+        .bill-detail {
+            border: #ddd 1px solid;
+            padding: 10px;
+            max-width: 100%;
+            margin-bottom: 5px;
+            line-height: 1.7em;
+        }
+        .bill-detail .bill-cell {
+            padding: 10px;
+        }
+        .bill-detail .amount {
+            color: #00a0e9;
+            font-size: 32px;
+            line-height: 1.5;
+        }
+        .bill-detail label {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .bill-detail .remark-lines {
+            line-height: 1.7em;
+            color: #393939;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .bill-detail .remark-lines span {
+            line-height: 1.7em;
+            color: #999;
+            margin-left: 6px;
+            font-weight: 400;
+        }
+        .status-pending,.status-wait{
+            color: orange;
+            border-color: orange;
+        }
+        .status-pending{
+            color: orange;
+            border-color: orange;
+        }
+        .status-paid {
+            color: #5cb85c;
+            border-color: #5cb85c;
+        }
+        #status{
+            font-size: 20px;
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-width: 2px;
+            border-style: solid;
+        }
+
+.active1{
+    display: block;
+}
+.active2{
+    display: none;
+}

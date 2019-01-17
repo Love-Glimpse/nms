@@ -1,0 +1,311 @@
+//界面加载完毕执行以下程序
+  var type_id;
+  var pushId;
+$(function(){
+    /*首页推广模态框*/
+	$("[data-toggle='create-referral-link']").on("click",function () {
+		type_id = $(this).attr("data-type");
+        if(type_id==1){
+        	alert(type_id)
+            $(".form-control-static span").attr("style",'display: none;');
+            $(".form-control-static span:eq(1)").attr("style",'display: block;');
+            $("#create-referral-link-modal").modal('show');
+        }else if (type_id==0){
+        	alert(type_id)
+            $("#novel-promotion-alert").modal('show');
+        }else if (type_id==2){
+        	alert(type_id)
+            $(".form-control-static span").attr("style",'display: none;');
+            $(".form-control-static span:eq(2)").attr("style",'display: block;');
+            $("#create-referral-link-modal").modal('show');
+        }else if (type_id==3){
+        	alert(type_id)
+            $(".form-control-static span").attr("style",'display: none;');
+            $(".form-control-static span:eq(3)").attr("style",'display: block;');
+            $("#create-referral-link-modal").modal('show');
+        }else if (type_id==4){
+        	alert(type_id)
+            $(".form-control-static span").attr("style",'display: none;');
+            $(".form-control-static span:eq(4)").attr("style",'display: block;');
+            $("#create-referral-link-modal").modal('show');
+        }else if (type_id==5){
+        	alert(type_id)
+            $(".form-control-static span").attr("style",'display: none;');
+            $(".form-control-static span:eq(5)").attr("style",'display: block;');
+            $("#create-referral-link-modal").modal('show');
+        }
+
+    });
+    /*复制链接模态框*/
+    $(".fa-copy").on("click",function () {
+        //根据data-toggle="copy-link"获取点击元素
+        var clipboard = new ClipboardJS('[data-toggle="copy-link"]', {
+            //根据 data-clipboard-target获取带有链接的span的id    $(e).data('clipboard-target')= data-clipboard-target的值。列如（data-clipboard-target="#link-2993746"）
+            text : function (e) {
+                return $($(e).data('clipboard-target')).text();//等价return $("#id").text();
+            }
+        });
+
+        clipboard.on('success', function (e) {
+            //显示模态框
+            $("#copy-alert").modal('show');
+        });
+
+        clipboard.on('error', function(e) {
+            alert("复制失败");
+        });
+    });
+
+    /*短链接模态框*/
+    $(".fa-link").on("click",function () {
+        //显示模态框
+        $("#get-referral-link-short-url-modal").modal('show');
+    });
+
+    /*二维码模态框*/
+    $(".btn-get-rich-qrcode").on("click",function () {
+        //显示模态框
+        $("#get-referral-link-rich-qrcode-modal").modal('show');
+        if($('#qrshow:has(img)').length!=0){
+            $('#qrshow img').remove();
+        }
+        var qr_id =  $(this).attr("data-link-id");
+        var qr_url = $("#link-"+qr_id+"").text();
+        $(".qrshow").attr("data-url",qr_url);
+    });
+
+    /*删除模态框*/
+    $("[data-toggle='delete-referral-link']").on("click",function () {
+        //显示模态框
+    	var name = $(this).attr("data-name");
+    	pushId = $(this).attr("data-id");
+        $("#del-alert").modal('show');
+        $("#del-alert .modal-confirm-message").text("确定要删除推广链接\" "+name+"\" 吗?");
+
+    });
+
+    /*修改模态框*/
+    $("[data-toggle='edit-referral-link']").on("click",function () {
+        //显示模态框
+    	var pushId = $(this).attr('data-id');
+    	$("#revise-referral-link-modal").attr('push-id',pushId);
+    	var type = $(this).parent().parent().attr("type");
+    	$(".form-control-static span").attr("style",'display: none;');
+    	$(".form-control-static :eq("+type+")").attr("style",'display: block;');
+        $("#revise-referral-link-modal").modal('show');
+    });
+});
+
+	$("#updatePushUrl").click(function(){
+		var name = $("#update-push-name").val();
+		alert(name)
+		var pushId = $("#revise-referral-link-modal").attr('push-id');
+		$.ajax({
+			type:"post",
+  			url:'/nms/partner/pushUrl/'+pushId,
+  			dataType:'json',
+  			data:{'name':name,_method:'put'},
+			success: function aa(data) {
+				window.location.reload()
+			}
+	  })
+	})
+
+
+
+	/*删除链接按钮*/
+	$("#delete").click(function(){
+		$.ajax({
+			type:"delete",
+  			url:'/nms/partner/pushUrl/'+pushId,
+			success: function aa(data) {
+				window.location.reload()
+			}
+	  })
+	})
+	
+  
+  	$("#createUrl").click(function(){
+  		var name = $("#urlName").val()
+  		$.post({
+  			url:'/nms/partner/pushUrl',
+  			data:{'name':name,'type':type_id},
+			dataType:"json",
+			async: false,
+			success: function aa(data) {
+				window.location.reload()
+			}
+	  })
+  })
+  
+  /*选择页数*/
+  $(".per-page-select").change(function(){
+	  var ps =Number($("option:selected").val());
+	  var pn = Number($("li.active a").text());
+	  var name = $("#pushUrlName").val();
+	  $(location).attr('href','partner/pushUrls?pn='+pn+'&'+'ps='+ps+'&'+'name='+name)
+  })
+  
+  /*跳转页面按钮*/
+  $(".pager-jump").click(function(){
+	  var pn = $(".page-input").val();
+	  var ps =Number($("option:selected").val());
+	  var name = $("#pushUrlName").val();
+	  $(location).attr('href','partner/pushUrls?pn='+pn+'&'+'ps='+ps+'&'+'name='+name)
+  })
+  /*回车跳转页面*/
+  $(".page-input").keydown(function(e) {  
+        	if (e.keyCode == 13) {  
+        		var pn = $(this).val(); 
+        		var ps =Number($("option:selected").val());
+        		 var name = $("#pushUrlName").val();
+        		$(location).attr('href','partner/pushUrls?pn='+pn+'&'+'ps='+ps+'&'+'name='+name)
+        	}  
+  });
+  
+	   /**
+     *  二维码模板
+     *  模板1,2：二维码大小150x150    	偏移量x y：351，34     x为距离左边，y为距离上边，单位px
+     *  模板3,4,5：二维码大小120x120     偏移量x y：391，68
+     *  模板6：二维码大小90x90   		    偏移量x y：26，64
+     *  模板7：二维码大小90x90   	 	    偏移量x y：218，72
+     *  模板8：二维码大小90x90   		    偏移量x y：204，68
+     **/
+        $(".il-0").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,150,150);
+        });
+        $(".il-1").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,150,150);
+            var module_id = "il-1";
+            var img_url = "static/image/img_module/module1.png"
+            QrcodeModule1(module_id,img_url,351,34);
+        });
+        $(".il-2").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,150,150);
+            var module_id = "il-2";
+            var img_url = "static/image/img_module/module2.png"
+            QrcodeModule1(module_id,img_url,354,34);
+        });
+        $(".il-3").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,120,120);
+            var module_id = "il-3";
+            var img_url = "static/image/img_module/module3.png"
+            QrcodeModule1(module_id,img_url,391,68);
+        });
+        $(".il-4").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,120,120);
+            var module_id = "il-4";
+            var img_url = "static/image/img_module/module4.png"
+            QrcodeModule1(module_id,img_url,391,68);
+        });
+        $(".il-5").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,120,120);
+            var module_id = "il-5";
+            var img_url = "static/image/img_module/module5.png"
+            QrcodeModule1(module_id,img_url,391,68);
+        });
+        $(".il-6").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,90,90);
+            var module_id = "il-6";
+            var img_url = "static/image/img_module/module6.png"
+            QrcodeModule1(module_id,img_url,26,64);
+        });
+        $(".il-7").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,90,90);
+            var module_id = "il-7";
+            var img_url = "static/image/img_module/module7.png"
+            QrcodeModule1(module_id,img_url,218,72);
+        });
+        $(".il-8").on("click",function () {
+            var qr_url =  $(".qrshow").attr("data-url");
+            QRcode(qr_url,90,90);
+            var module_id = "il-8";
+            var img_url = "static/image/img_module/module8.png"
+            QrcodeModule1(module_id,img_url,204,68);
+        });
+
+     /**
+      * 模板绘画方法   
+      * 参数1：模板id,   
+      * 参数2：模板背景图url   
+      * 参数3:二维码 X 偏移量     
+      * 参数4：二维码 Y 偏移量
+      * */
+        function QrcodeModule1(module_id,url,left_x,top_y){
+            /*创建一个img 存放二维码*/
+         $('#qrshow img').attr("id",module_id);
+         $('#qrshow img').hide();
+         /*创建一个canvas 插入背景图*/
+         $("#qrshow").append("<canvas id='myCanvas'></canvas>");
+         var canvas = document.getElementById("myCanvas");
+         var ctx = canvas.getContext("2d");
+         //图片
+         var img = new Image();
+         img.src = url;
+         canvas.width = 538;
+         canvas.height = 215;
+         var ewm=document.getElementById(module_id);
+         img.crossOrigin="*";
+         img.onload = function() { //必须等待图片加载完成，才能对图片进行操作
+             /*放入背景*/
+             ctx.drawImage(img, 0, 0, 538, 215); //背景图大小
+             /*放入二维码*/
+             ctx.drawImage(ewm,left_x,top_y);//二维码位置偏移量
+             /*创建img 存放 合成图*/
+             var srcImg = new Image();
+             srcImg.src = canvas.toDataURL('images/png');
+             /*容器初始化        移除已生成的，避免重复生成*/
+             $('#qrshow').html("");
+             /*插入合成图*/
+             $('#qrshow').append(srcImg);
+             /*设置图片大小*/
+             $('#qrshow img').attr("width",'538');
+             $('#qrshow img').attr("height",'215');
+         }
+       }
+
+
+    /**
+     * 二维码描绘（canvas描绘的）方法。     参数1：二维码对应链接。     参数2：二维码宽度   参数3：    二维码高度
+     */
+    function QRcode(qrUrl,width,height){
+        /*如果已生成过二维码，则删除二维码img图片和canvas，重新生成；反之，则直接生成二维码*/
+        if($('#qrshow:has(canvas)').length!=0 ||$('#qrshow:has(img)').length!=0){
+            $('#qrshow img').remove();
+            $('#qrshow canvas').remove();
+        }
+        $(".qrshow").qrcode({
+            width:width,
+            height:height,
+/*          foreground: "#C00",
+            background: "#FFF",*/
+            text:qrUrl
+        })
+        //获取网页中的canvas对象
+        var mycanvas1=document.getElementsByTagName('canvas')[0];
+
+        //将转换后的img标签插入到html中
+        var img = convertCanvasToImage(mycanvas1);
+        $('#qrshow').append(img);//imgDiv表示你要插入的容器id
+        $('#qrshow canvas').remove();
+    }
+
+    /**
+     * canvas 转换img
+     * */
+    function convertCanvasToImage(canvas) {
+        //新Image对象，可以理解为DOM
+        var image = new Image();
+        // canvas.toDataURL 返回的是一串Base64编码的URL
+        // 指定格式PNG
+        image.src = canvas.toDataURL("image/png");
+        return image;
+    }

@@ -1,0 +1,41 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kuaidu.nms.entity.ReplaceConfig;
+import com.kuaidu.nms.query.mapper.ReplaceConfigMapper;
+/*
+ * 接口实现类
+ * */
+@Service
+@Transactional 
+public class ReplaceConfigMapperImpl {
+	@Resource
+	ReplaceConfigMapper rMapper;
+	public List<ReplaceConfig> getAllConfigs(ReplaceConfig replaceConfig) {
+		// TODO Auto-generated method stub
+		return rMapper.getAllConfigs(replaceConfig) ;
+	}
+	public int getCount(ReplaceConfig replaceConfig) {
+		// TODO Auto-generated method stub
+		return rMapper.getCount(replaceConfig);
+	}
+	public void add_rConfig(ReplaceConfig replaceConfig) {
+		// TODO Auto-generated method stub
+		rMapper.add_rConfig(replaceConfig);
+	}
+	public void del_rConfig(ReplaceConfig replaceConfig) {
+		// TODO Auto-generated method stub
+		rMapper.del_rConfig(replaceConfig);
+	}
+	public void update_rConfig(ReplaceConfig replaceConfig) {
+		// TODO Auto-generated method stub
+		rMapper.update_rConfig(replaceConfig);
+	}
+	
+}

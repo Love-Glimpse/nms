@@ -1,0 +1,158 @@
+package com.kuaidu.nms.partner.datastat.serviceImpl;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.StatUserInfo;
+import com.kuaidu.nms.partner.datastat.mapper.PartnerUserInfoStatMapper;
+import com.kuaidu.nms.utils.Utils;
+
+/** 
+ * @Title UserInfoStatMapperImpl.java 
+ * @description TODO 
+ * @time 2018年9月11日 下午2:01:37 
+ * @author victor 
+ * @version 1.0 
+**/
+@Service
+public class PartnerUserInfoStatMapperImpl {
+	
+	@Resource
+	PartnerUserInfoStatMapper uMapper;
+
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	
+	@Autowired
+	RedisTemplate<String, List<Map<String, Object>>> redisTemplate2;
+
+	@SuppressWarnings("unchecked")
+	public synchronized StatUserInfo getStatsToday(StatUserInfo statUserInfo) {
+		// TODO Auto-generated method stub
+		List<Map<String, Object>> redisUsers = new ArrayList<Map<String, Object>>();
+		String redisKey = "statUser:statInfoTorday_"+statUserInfo.getPartner_id();
+		if (!redisTemplate.hasKey(redisKey)) {
+			try {
+				redisUsers = uMapper.getStatsToday(statUserInfo);
+				if (redisUsers!=null&&redisUsers.size()>0) {
+					redisTemplate2.opsForValue().set(redisKey,redisUsers);
+					redisTemplate2.expire(redisKey, 10, TimeUnit.MINUTES);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else {
+			redisUsers =  redisTemplate2.opsForValue().get(redisKey);
+		}
+		if (statUserInfo.getPartner_id()>0) {//根据客户id 筛选
+	        Iterator<Map<String, Object>> iterator = redisUsers.iterator();
+	        while (iterator.hasNext()) {
+				Map<String, Object> sInfo = (Map<String, Object>) iterator.next();
+				if (!(sInfo.get("partner_id")+"").equalsIgnoreCase(statUserInfo.getPartner_id()+"")) {
+					iterator.remove();
+				}
+	        }
+		}
+		int m_new = 0,m_charged = 0,wm_new = 0,wm_charged = 0,wz_new = 0,wz_charged = 0;
+		for (Object object : redisUsers) {
+			Map<Integer, Object> sInfo = (Map<Integer, Object>) object;
+			int sex = Integer.parseInt(sInfo.get("sex")+"");
+			int count = Integer.parseInt(sInfo.get("count")+"");
+			int vip_type = Integer.parseInt(sInfo.get("vip_type")+"");
+			//男新增
+			if (sex==1) {
+				m_new = m_new + count;
+				//付费
+				if (vip_type>0) {
+					m_charged = m_charged + count;
+				}
+			}else if (sex==0) {//女新增
+				wm_new = wm_new + count;
+				//付费
+				if (vip_type>0) {
+					wm_charged = wm_charged + count;
+				}
+			}else {
+				wz_new = wz_new + count;
+				//付费
+				if (vip_type>0) {
+					wz_charged = wz_charged + count;
+				}
+			}
+			
+		}
+		statUserInfo.setM_new(m_new);
+		statUserInfo.setM_charged(m_charged);
+		statUserInfo.setWm_new(wm_new);
+		statUserInfo.setWm_charged(wm_charged);
+		statUserInfo.setWz_new(wz_new);
+		statUserInfo.setWz_charged(wz_charged);
+		
+		return statUserInfo;
+	
+	}
+	public StatUserInfo getStatsYesterDay(StatUserInfo statUserInfo) {
+		// TODO Auto-generated method stub
+		String redisKey = "statUser:statInfoYestorday_"+statUserInfo.getPartner_id();
+		if (!redisTemplate.hasKey(redisKey)) {
+			try {
+				StatUserInfo sInfo = uMapper.getStatsYesterDay(statUserInfo);
+				if (sInfo!=null) {
+					statUserInfo = sInfo;
+					int a = 1;
+					redisTemplate.opsForValue().set(redisKey,statUserInfo);
+					redisTemplate.expireAt(redisKey,  Utils.getNextDate());
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else {
+			statUserInfo = (StatUserInfo) redisTemplate.opsForValue().get(redisKey);
+		}
+		return statUserInfo;
+	}
+	public StatUserInfo getStatsMonthAll(StatUserInfo statUserInfo) {
+		// TODO Auto-generated method stub
+		String redisKey = "statUser:statOrderMonthAll_"+statUserInfo.getPartner_id();
+		if (!redisTemplate.hasKey(redisKey)) {
+			StatUserInfo sInfo = uMapper.getStatsMonthAll(statUserInfo);
+			if (sInfo!=null) {
+				statUserInfo = sInfo;
+				redisTemplate.opsForValue().set(redisKey,statUserInfo);
+				redisTemplate.expireAt(redisKey,  Utils.getNextDate());
+			}
+		}else {
+			statUserInfo = (StatUserInfo) redisTemplate.opsForValue().get(redisKey);
+		}
+		return statUserInfo;
+	}
+	public StatUserInfo getStatsAll(StatUserInfo statUserInfo) {
+		// TODO Auto-generated method stub
+		String redisKey = "statUser:statOrderAll_"+statUserInfo.getPartner_id();
+		if (!redisTemplate.hasKey(redisKey)) {
+			StatUserInfo sInfo = uMapper.getStatsAll(statUserInfo);
+			if (sInfo!=null) {
+				statUserInfo = sInfo;
+				redisTemplate.opsForValue().set(redisKey,statUserInfo);
+				redisTemplate.expireAt(redisKey,  Utils.getNextDate());
+			}
+		}else {
+			statUserInfo = (StatUserInfo) redisTemplate.opsForValue().get(redisKey);
+		}
+		return statUserInfo;
+	}
+	public List<Object> getStatsList(StatUserInfo statUserInfo) {
+		return  uMapper.getStatsList(statUserInfo);
+	}
+}

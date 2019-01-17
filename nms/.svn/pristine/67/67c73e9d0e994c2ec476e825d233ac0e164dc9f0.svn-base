@@ -1,0 +1,19 @@
+package com.kuaidu.nms.message.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.WxCustomMsg;
+
+public interface CustomMsgMapper {
+
+	void createCustomMsg();
+
+	void updateMsgStatus(WxCustomMsg customMsg);
+
+	List<WxCustomMsg> loadCustomMsg();
+
+	void updateCustomMsg(List<WxCustomMsg> wxCustomMsgs);
+
+	void batchInsertCustomMsg(List<WxCustomMsg> subList);
+	
+}

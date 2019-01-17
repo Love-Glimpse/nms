@@ -1,0 +1,199 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+    <%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<base href="<%=basePath%>">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>小说封面管理</title>
+ <script src="static/js/scripts/common/jquery-1.8.2.min.js"></script>
+    <link rel="stylesheet" href="static/css/picture.css">
+</head>
+<body>
+       <div class="View-pictures">
+            <div style="width: 100%;height: 40px;margin: 30px 0;">
+                <div style="display: inline-block; width: 25%;height: 40px;float: left;line-height: 40px;" align="center">
+                    <input type="button"  id="downSelect" class="demo" value="下载选中">
+                    <input type="button"  id="downNoPic" class="demo" value="下载未上传" style="margin-right: 30px;">
+                </div>
+                <div class="changed">
+               	  <select  id="changed" style="width: 80">   
+			        <option value="1" selected="selected">全部</option>   
+			        <option value="2">已更新</option>   
+			        <option value="3">未更新</option>   
+   				  </select> 
+                </div>
+                
+                    <form  style="display: inline-block;" action="booksQuery/uploadPic" method="post" enctype="multipart/form-data">
+                        <input tabindex="3" size="3" name="file"  type="file"><br>
+                        <input type="submit"  class="demo" value="上传原图" style="margin: 10px 160px 0 0">
+                    </form>
+                    <form style="display: inline-block;" action="booksQuery/uploadSmallPic" method="post" enctype="multipart/form-data">
+                        <input tabindex="3" size="3" name="file"  type="file"><br>
+                        <input type="submit"  class="demo" value="上传压缩后图" style="margin: 10px 160px 0 0">
+                    </form>
+
+            </div>
+            <div>
+                <table class="table center" id="imgTable">
+                    <tr>
+                        <th class="td-select" ><input type="checkbox" title="全选/取消选择" name="selectAll"></th>
+                        <th class="td-id td-select" >图书id</th>
+                        <th class="td-id td-width" style="width: 15%;">书名</th>
+                        <th class="td-img1 td-width" >原网站图片</th>
+                        <th class="td-img2 td-width" >本地原图</th>
+                         <th class="td-img2 td-width" >本地压缩图</th> 
+                        <th class="td-btn1 td-width" >按钮</th>
+                    </tr>
+                   <!--  <tr>
+                        <th class="td-select" ><input type="checkbox" name="cks" img-id="1" ></th>
+                        <th class="td-id" >img_id1</th>
+                        <th class="td-img" ><img src="static/image/180.jpg" class="img"></th>
+                        <th class="td-img" ><img src="static/image/180.jpg" class="img"></th>
+                        <th class="td-img" ><input class="btn" type="button" value="按钮a "></th>
+                    </tr> -->
+                </table>
+            </div>
+        </div>
+            <!--分页-->
+            <div class="gigantic pagination">
+                <a  class="first" data-action="first" style=" color: gray; "><span>&laquo;</span></a>
+                <a  class="previous" data-action="previous" style=" color: gray; "><span>&lsaquo;</span></a>
+                <input type="text" class="ip_text" disabled="disabled" value="第"/>
+                <input  id="pn" type="text"  onchange="toMyPage()" value="1"   style=" color: #666; " />
+                <input type="text" class="ip_text"  disabled="disabled"  value="页"/>
+                <input type="text" class="ip_center"  disabled="disabled"  value="/" />
+                <input id="ps" type="text"  value="999" disabled="disabled" style=" color: #666; "/>
+                <input type="text" class="ip_text"  disabled="disabled" value="页"/>
+                <a  class="next" data-action="next"><span>&rsaquo;</span></a>
+                <a  class="last" data-action="last"><span>&raquo;</span></a>
+            </div>
+    
+<script type="text/javascript">
+var changed
+    //全选/全不选
+    $("#imgTable").find(":checkbox[name='selectAll']").click(function(){
+        var checked = $(this).prop("checked");
+        $("#imgTable").find(":checkbox").each(function(idx, item){
+            $(this).prop("checked", checked);
+        });
+
+    });
+    
+    
+    
+    //下载未上传
+    $("#downNoPic").click(function(){
+    	$(location).attr('href', '/nms/booksQuery/downNoPic');
+    })
+    //下载选中
+    $("#downSelect").click(function(){
+    	var ids = '';
+    	$('input:checkbox[name=cks]:checked').each(function(k){
+    	        ids += $(this).val()+"-";
+    	})
+    	 $(location).attr('href', '/nms/booksQuery/downPic?ids='+ids);
+    	
+    })
+    
+    
+   $("#changed").change(function(){ 
+   		changed = $(this).children('option:selected').val();
+   		changed = Number(changed)
+   		load(1,changed);
+    })
+    
+    
+    
+    $(function(){
+		 changed =  $("#changed").children('option:selected').val();
+    	load(1,changed);
+    })
+    
+    function load(pn,changed){
+    	$.ajax({  
+	        type:"post",  
+	        url:"/nms/booksQuery/picture",  
+	        dataType:"json",
+	        data:{'pn':pn,'changed':changed},
+	        success: function aa(data) {
+	        	$("tr:not(:first)").remove();
+	        	$.each(data.list,function(index,value){
+	        		var pic = value.book_pic_url;
+	        		var myPic = value.pic_path
+	        		var smallPic = value.small_pic;
+	        		var id = value.book_id;
+	        		var bookName = value.book_name;
+	        		var myPicHtml = '<img src="'+myPic+'" alt="文件错误-'+myPic+'" class="img">';
+	        		if(myPic == null || myPic == ""){
+	        			myPicHtml = "<h1>无本地图片</h1>";
+	        		}
+	        		 var smallPicHtml = '<img src="'+smallPic+'" alt="文件错误-'+smallPic+'" class="img">';
+	        		if(smallPic == null || smallPic == ""){
+	        			smallPicHtml = "<h1>无本地图片</h1>";
+	        		} 
+	        	/* 	 if(myPic == null || myPic == ""){ */
+		             $("#imgTable").append('<tr><td class="td-select" ><input type="checkbox" name="cks" img-id="1" value="'+id+'"></td>'+
+		                        '<td class="td-id">'+id+'</td>'+
+		                        '<td class="td-id">'+bookName+'</td>'+
+		                        '<td class="td-img1" ><img src="'+pic+'" class="img"></td>'+
+		                        '<td class="td-img2" >'+myPicHtml+'</td>'+
+		                         '<td class="td-img2" >'+smallPicHtml+'</td>'+ 
+		                       ' <td class="td-img1" ><input class="btn" onclick="downOne('+id+')" type="button" value="下载原网站图片 "></td></tr>');
+		        		
+	        		/* else{
+	        			$("#imgTable").append('<tr><td class="td-select" ><input type="checkbox" name="cks" img-id="1" value="'+id+'"></td>'+
+		                        '<td class="td-id">'+id+'</th>'+
+		                        '<td class="td-id">'+bookName+'</th>'+
+		                        '<td class="td-img" ><img src="'+pic+'" class="img"></td>'+
+		                        '<td class="td-img" ><img src="'+myPic+'" alt="文件错误-'+myPic+'" class="img"></td>'+
+		                       ' <td class="td-img" ><input class="btn" onclick="downOne('+id+')" type="button" value="下载原网站图片 "></td></tr>');
+	        		}  */
+		        });
+	        	$("#pn").val(data.pageNum);
+	        	$("#ps").val(data.pages);
+	             
+	        }  
+	    });  
+    }
+    
+    
+    
+    
+    $(".first").click(function(){
+    	load(1,changed)
+    })
+    $(".previous").click(function(){
+    	var pn = Number($("#pn").val())-1;
+    	load(pn,changed);
+    })
+    $(".next").click(function(){
+    	var pn = Number($("#pn").val())+1;
+    	load(pn,changed);
+    })
+    $(".last").click(function(){
+    	var pn = $("#ps").val();
+    	load(pn,changed);
+    })
+    
+    function toMyPage(){
+    	var pn = Number($("#pn").val());
+    	load(pn,changed);
+    }
+    
+    
+    //下载选中的单个文件
+  	function downOne(i){
+  		 $(location).attr('href', '/nms/booksQuery/down/'+i);
+  	}
+  	
+    
+    
+    
+</script>
+</body>
+</html>

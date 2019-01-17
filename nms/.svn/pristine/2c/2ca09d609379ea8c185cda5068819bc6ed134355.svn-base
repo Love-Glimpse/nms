@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.partner.push.mapper.PartnerPushUrlMapper">
+ 
+ 
+ 	<insert id="savePartnerPushUrl" useGeneratedKeys="true" keyColumn="push_id" keyProperty="push_id">
+ 		insert into partner_push_url(name,partner_id,book_id,chapter_id,push_type,type,chapter_id,hits,source_url,status,created_time) 
+ 		values(#{name},#{partner_id},#{book_id},#{chapter_id},#{push_type},#{type},#{chapter_id},0,#{source_url},1,now())
+ 	</insert>
+ 
+ 	<select id="getPushUrlInfo" resultType="PartnerPushUrl">
+		SELECT a.*,IFNULL(b.price,0) price,IFNULL(b.num,0) order_count,IFNULL(c.user_count,0) user_count FROM(
+				SELECT  pa.status,pa.partner_id,pa.chapter_id,pa.push_id,pa.name,pa.type,pa.created_time,pa.hits,b.book_name,c.book_id,c.chapter_name,pa.mode,pa.cost
+				FROM partner_push_url pa
+				LEFT JOIN chapter_list c
+				on pa.chapter_id = c.chapter_id
+				LEFT JOIN book_list b
+				on c.book_id = b.book_id 
+				WHERE pa.partner_id = #{partnerId} and pa.status = 1 
+				<if test='name != null and name != ""'>
+					and (pa.name like concat('%',#{name},'%') or b.book_name like concat('%',#{name},'%'))
+				</if>
+				) a
+		LEFT JOIN (SELECT uo.push_id,SUM(product_price * quantity) price,SUM(quantity) num  FROM user_order uo LEFT JOIN user_info ui
+				ON uo.user_id = ui.user_id  WHERE uo.partner_id= #{partnerId} and uo.status=1 and ui.user_id IS NOT NULL    GROUP BY push_id) b
+		on a.push_id = b.push_id
+		LEFT JOIN (SELECT push_id, count(0) user_count FROM user_info 
+				WHERE push_id in(SELECT push_id FROM partner_push_url WHERE partner_id = #{partnerId}) and subscribe!=0
+				GROUP BY push_id) c
+		on a.push_id = c.push_id 
+		order by a.push_id desc 
+ 	</select>
+ 	
+ 	<insert id="creatExternal_push_config">
+		INSERT INTO external_push_config(push_id,partner_id,head_pic_url,reply_keyword,foot_pic_url,redirect_url)
+		VALUES(#{push_id},#{partner_id},#{head_pic_url},#{reply_keyword},#{foot_pic_url},#{redirect_url})
+	</insert>
+ 	
+ 	<update id="deletePartnerPushUrl">
+ 		update partner_push_url set status = 0 where push_id = #{pushId}
+ 	</update>
+ 	
+ 	<update id="updatePartnerPushUrl">
+ 		update partner_push_url set name = #{name} ,cost=#{cost} where push_id = #{pushId} and status = 1
+ 	</update>
+ 
+ 	<select id="getCover" resultType="RecCover">
+ 		select id,source_url,compress_url from rec_cover where status = 1
+ 	</select>
+ 	
+ 	<select id="getRanDomRecCover" resultType="recCover">
+ 		select id,source_url from rec_cover where status = 1 order by rand() limit 1
+ 	</select>
+ 	
+ 	<select id="getRecTitle" resultType="RecTitle">
+ 		select id,title from rec_title where status = 1
+ 	</select>
+ 	
+ 	<select id="selectOpenUrlByPuahId" resultType="PartnerPushUrl">
+ 		select push_id, open_str,expiry_date from partner_push_url where push_id = #{pushId}  and status = 1
+ 	</select>
+ 	
+ 	<select id="getExpiryDate" resultType="string">
+ 		select expiry_date from partner_push_url where push_id = #{push}
+ 	</select>
+ 	
+ 	<select id="getPartnerPushUrlByRandom" resultType="PartnerPushUrl">
+ 		select push_id,partner_id,parent_id,book_id,chapter_num,chapter_id,t.title,l.lead_url rec_lead_url,c.source_url rec_cover_url,mode,expiry_date,text_template,qr_code_id from partner_push_url p
+ 		left join rec_cover c on p.rec_cover_id = c.id
+ 		left join rec_title t on p.rec_title_id = t.id
+ 		left join rec_lead_url l on l.id = p.rec_lead_url_id 
+ 		where open_str = #{open_str} and p.status = 1 and expiry_date &gt; now()
+ 	</select>
+ 	
+ 	<select id="getOpenUrlByPushId" resultType="PartnerPushUrl">
+ 		select open_str,expiry_date from partner_push_url where push_id = #{pushId} and partner_id = #{partnerId} and status = 1
+ 	</select>
+ 	
+ 	<select id="getRecCovers" resultType="recCover">
+ 		select id,source_url,compress_url from rec_cover where status = 1
+ 	</select>
+ 	
+ 	<select id="getRecLeadUrl" resultType="recLeadUrl">
+ 		select id,lead_url  from rec_lead_url where status = 1
+ 	</select>
+ 	
+ 	<select id="getRecTitleById" resultType="recTitle">
+ 		select id,title from rec_title where id = #{id}
+ 	</select>
+ 	
+ 	<select id="getRecCoverById" resultType="recCover">
+ 		select id,source_url,compress_url from rec_cover where id = #{id}
+ 	</select>
+</mapper>

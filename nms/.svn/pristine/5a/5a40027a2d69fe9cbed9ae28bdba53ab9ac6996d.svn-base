@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.ChapterMapper">
+	<!--查询所有章节 	start_rows=开始行        采用模糊搜索	-->
+    <select id="getAllChapter" resultType="ChapterList" parameterType="ChapterList">
+      select c.*,b.read_original_chapter_num,cs.sub_chapter_num from chapter_list c 
+		LEFT JOIN book_list b ON c.book_id = b.book_id
+		LEFT JOIN (SELECT book_id,IFNULL(sub_chapter_num,0)sub_chapter_num
+		 from chapter_subscribe WHERE partner_id = 0) cs ON  
+			c.book_id = cs.book_id where 1=1
+	    <if test="book_id > 0">
+	    <!-- 若为带book_id参数跳转，则进行改book_id查询。并逆序排 -->
+				and c.book_id = #{book_id} 
+		</if>
+		<if test="status == 0 or status == 1">
+			and status = #{status}
+		</if>
+		<if test="vip_flag == 0 or vip_flag == 1">
+			and vip_flag = #{vip_flag}
+		</if>
+		<if test="chapter_checked == 0 or chapter_checked == 1">
+			and chapter_checked = #{chapter_checked}
+		</if>
+		<if test="content_upload_flag == 0 or content_upload_flag == 1">
+			and content_upload_flag = #{content_upload_flag}
+		</if>
+		ORDER BY chapter_num asc limit #{start_rows},#{end_rows}
+    </select>
+    
+	<!--查询章节名以及章节数      用于插入-->
+    <select id="getChapterNum" resultType="int">
+      select COUNT(*) from chapter_list where 1=1 
+    <if test="chapter_num != null and chapter_num != ''">
+			and book_id = ${book_id} and chapter_num = ${chapter_num}
+	</if>
+    </select>
+    
+    <!-- 章节后移 -->
+	<insert id="chapterNumBack">
+		UPDATE chapter_list set chapter_num=chapter_num+1 WHERE book_id =#{book_id} and  chapter_num &gt;=#{chapter_num} ;
+		update book_list set newest_chapter_num=newest_chapter_num+1 where book_id=#{book_id};
+	</insert>
+	
+	<!--查询book_name/最新章节/最新章节名/-->
+    <select id="selectNew" resultType="book_List">
+      SELECT * FROM book_list WHERE book_id=${book_id}
+    </select>
+    
+    <!-- 添加章节 -->
+	<insert id="addChapter"  useGeneratedKeys="true" parameterType="ChapterList" keyProperty="chapter_id" >
+		insert into chapter_list(type_id,book_id,chapter_name,chapter_name_old,chapter_num,created_time,chapter_filepath,chapter_filepath_fdfs,content_exist_flag,content_upload_flag,source_ids,vip_flag,words) 
+		values(#{type_id},#{book_id},#{chapter_name},#{chapter_name_old},#{chapter_num},now(),#{chapter_filepath},#{chapter_filepath_fdfs},#{content_exist_flag},#{content_upload_flag},#{source_ids},#{vip_flag},#{words})
+	</insert>
+
+	
+  	<select id="checkChapterExist" resultType="int">
+  		select count(0) from chapter_list where book_id=#{book_id} and chapter_name=#{chapter_name}
+  	</select>
+  	
+  	 <!-- 根据查询记录数，返回记录数，用于分页显示	-->
+    <select id="getCount" resultType="int">
+      select count(*) from chapter_list where 1=1 
+	    <if test="book_id > 0">
+	    <!-- 若为带book_id参数跳转，则进行改book_id查询。并逆序排 -->
+				and book_id = #{book_id} 
+		</if>
+		<if test="status == 0 or status == 1">
+			and status = #{status}
+		</if>
+		<if test="vip_flag == 0 or vip_flag == 1">
+			and vip_flag = #{vip_flag}
+		</if>
+		<if test="chapter_checked == 0 or chapter_checked == 1">
+			and chapter_checked = #{chapter_checked}
+		</if>
+		<if test="content_upload_flag == 0 or content_upload_flag == 1">
+			and content_upload_flag = #{content_upload_flag}
+		</if>
+  	</select>
+  	<update id="updateChapter" parameterType="ChapterList">
+  		update chapter_list set chapter_name=#{chapter_name},chapter_num=#{chapter_num}
+  			,chapter_filepath=#{chapter_filepath},chapter_filepath_fdfs=#{chapter_filepath_fdfs}
+  			,content_exist_flag=#{content_exist_flag},content_upload_flag=#{content_upload_flag}
+  			,vip_flag=#{vip_flag},words=#{words},chapter_checked=#{chapter_checked}
+  			where chapter_id=#{chapter_id}
+  	</update>
+  		
+  	<!-- 删除章节    for循环实现多行删除-->
+    <!-- item表示集合中每一个元素进行迭代时的别名，
+		index指定一个名字，用于表示在迭代过程中，每次迭代到的位置，
+		open表示该语句以什么开始，
+		separator表示在每次进行迭代之间以什么符号作为分隔符，
+		close表示以什么结束。 -->
+		<!--例子：SELECT * FROM `book_list` WHERE book_id IN (23,24)  -->
+  <delete id="del_cList" parameterType="ChapterList">
+  	 delete from chapter_list where chapter_id =#{chapter_id}
+  </delete>
+	<update id="changeFee">
+  		update chapter_list set vip_flag=#{vip_flag} ,chapter_checked=#{chapter_checked},status=#{status} where chapter_id=#{chapter_id};
+  		
+  </update>
+  <update id="check_chapter">
+  		update chapter_list set chapter_checked=1 where chapter_id in (
+  		<foreach collection ="list" item="chapter_id" index= "index" separator =",">
+					#{chapter_id}
+         </foreach >
+         )
+  </update>
+  <select id="getChaptersByBookId" resultType="ChapterList">
+  	select * from chapter_list where book_id = #{book_id}
+  	<if test='checked == "0"'>
+  		and chapter_checked=0
+  	</if>
+  	order by chapter_num asc
+  </select>
+  
+  <select id="getFreeChapterByBookId" resultType="ChapterList">
+  	select c.chapter_id,c.chapter_name,c.chapter_num,c.created_time,c.book_id,b.read_original_chapter_num,
+  		cs1.sub_chapter_num,cs2.sub_chapter_num partner_sub_chapter_num from chapter_list c
+			LEFT JOIN book_list b ON c.book_id = b.book_id 
+			LEFT JOIN (SELECT book_id,sub_chapter_num from chapter_subscribe
+				 WHERE (partner_id=0)
+			 and book_id =#{book_id} order by partner_id DESC Limit 1) cs1
+			 	ON c.book_id=cs1.book_id
+			LEFT JOIN (SELECT book_id,sub_chapter_num from chapter_subscribe
+				 WHERE (partner_id = #{partner_id} or partner_id=0)
+			 and book_id =#{book_id} order by partner_id DESC Limit 1) cs2
+			 	ON c.book_id=cs2.book_id
+  	WHERE c.book_id = #{book_id} and (c.vip_flag = 0 or c.vip_flag is null) and c.status = 1
+  	order by chapter_num
+  </select>
+  
+  <select id="getChapterUrl" resultType="string">
+  	select chapter_filepath_fdfs from chapter_list where chapter_id = #{chapterId}  and vip_flag != 1 and status =1
+  </select>
+  
+  
+  <select id="checkChapterNumExist" resultType="int">
+    	select count(0) from chapter_list where book_id=#{book_id} and chapter_num=#{chapter_num}
+  </select>
+  <update id="moveChapter">
+  		<if test="old_chapter_num > chapter_num">
+  			update chapter_list set chapter_num = chapter_num +1 
+  				where chapter_num &lt; #{old_chapter_num} and  chapter_num>=#{chapter_num}
+  		</if>
+  		<if test="old_chapter_num &lt; chapter_num">
+  			update chapter_list set chapter_num = chapter_num -1 
+  				where chapter_num &lt;=#{chapter_num} and  chapter_num>#{old_chapter_num}
+  		</if>
+  </update>
+  <update id="updateBookChecked">
+   	 UPDATE book_list set checked_ok = (SELECT COUNT(0)  FROM chapter_list WHERE book_id = #{book_id} and chapter_checked=0 and status = 1) WHERE book_id = #{book_id}
+  </update>
+  <update id="moveChapterNum">
+  	  <if test="move_mode==1">
+  	  		update chapter_list set chapter_num=chapter_num+#{move_count} where book_id=#{book_id} and chapter_num &gt;=#{chapter_num}
+  	  </if>
+  	  <if test="move_mode==2">
+  	  		update chapter_list set chapter_num=chapter_num-#{move_count} where book_id=#{book_id} and chapter_num &gt;=#{chapter_num}
+  	  </if>
+  </update>
+  
+	<select id="fixChapterNum" statementType="CALLABLE">
+		{CALL fix_chapter_num(#{start_char, mode=IN, jdbcType=VARCHAR},
+			#{end_char, mode=IN, jdbcType=VARCHAR},#{book_id, mode=IN, jdbcType=INTEGER})}
+	</select>
+	
+	<select id="getChapterContent" resultType="map">
+		select chapter_id,chapter_name,chapter_filepath_fdfs from chapter_list 
+		where book_id = #{bookId} and chapter_num &lt;= #{chapterNum} and status = 1 order by chapter_num 
+	</select>
+	
+	<select id="getBookPicAndNextChapterId" resultType="map">
+		select b.small_pic,c.chapter_name,c.chapter_id from book_list b
+		left join chapter_list c on b.book_id = c.book_id
+		where b.book_id =#{bookId} and c.chapter_num &gt; #{chapterNum} and c.status = 1 limit 1
+	</select>
+	
+	
+	<select id="getChapterLists" resultType="ChapterList">
+		SELECT chapter_id,chapter_filepath_fdfs from chapter_list_copy 
+			WHERE chapter_filepath_fdfs like 'http://45.78.43.207%' 
+			and content_upload_flag=0 and do_flag &lt; 5 
+			and running = 0
+			LIMIT 100
+	</select>
+	<update id="updateChapterRun" parameterType="java.util.List">
+		update chapter_list_copy set running =#{flag} where chapter_id in (
+  		<foreach collection ="list" item="chapter" index= "index" separator =",">
+					#{chapter.chapter_id}
+         </foreach >
+         )
+	
+	</update>
+	
+	<update id="updateChapterFdfs">
+		update chapter_list_copy set chapter_filepath_fdfs= #{chapter_filepath_fdfs}
+		,content_upload_flag=1,do_flag=do_flag+1
+		where chapter_id=#{chapter_id}
+	</update>
+	<update id="updateChapterDoFlag">
+		update chapter_list_copy set do_flag=do_flag+1
+		where chapter_id=#{chapter_id}
+	</update>
+	<select id="getAllChapterByBookID" resultType="Object">
+		select chapter_filepath_fdfs from chapter_list where book_id =#{book_id}
+	</select>
+	<delete id="delChapterListsByBookId">
+		delete from  chapter_list where book_id = #{book_id}
+	</delete>
+	
+	<select id="getChapterIds" resultType="chapterList">
+		select chapter_id,chapter_name from chapter_list where book_id = #{book_id} and chapter_num &lt;= #{chapter_num} and status = 1 order by chapter_num
+	</select>
+</mapper>

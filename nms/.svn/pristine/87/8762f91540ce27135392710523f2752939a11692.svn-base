@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.message.mapper.CustomMsgMapper">
+	<select id="createCustomMsg" statementType="CALLABLE">
+		CALL create_sign_custom_msg();
+		CALL create_sub_custom_msg();
+		CALL create_first_order_custom_msg();
+		
+	</select>
+	<update id="updateMsgStatus">
+		update wx_custom_msg set send_status = #{send_status} where id=#{id}
+	</update>
+	<update id="updateCustomMsg">
+		update wx_custom_msg set send_status = 1 where id in (
+  		<foreach collection ="list" item="msg" index= "index" separator =",">
+					#{msg.id}
+         </foreach >
+         )
+	</update>
+	<select id="loadCustomMsg" resultType="WxCustomMsg">
+		select * from wx_custom_msg where send_status=0 and send_time &lt;= now() limit 1000
+	</select>
+	<insert id="batchInsertCustomMsg" parameterType="java.util.List">
+		INSERT INTO wx_custom_msg(partner_id,partner_msg_id,user_id,book_id,to_user,type,msg_type,title,description,url,pic_url)VALUES
+		<foreach collection ="list" item="m" index= "index" separator =",">
+					(#{m.partner_id},#{partner_msg_id},#{m.user_id},#{m.to_user},#{m.type},#{m.msg_type},#{m.title},#{m.description},#{m.url},#{m.pic_url})
+         </foreach >
+	</insert>
+</mapper>

@@ -1,0 +1,149 @@
+package com.kuaidu.nms.datastaticstics.serviceImpl;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.datastaticstics.mapper.StatOrderPushMapper;
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.entity.StatOrderPush;
+import com.kuaidu.nms.entity.StatOrderPushByDay;
+import com.kuaidu.nms.utils.ResultData;
+import com.kuaidu.nms.utils.Utils;
+
+/**
+ * @description TODO
+ * @time 2018年9月11日 下午2:01:37
+ * @author victor
+ * @version 1.0
+ **/
+@Service
+public class StatOrderPushMapperImpl {
+	@Autowired
+	StatOrderPushMapper sMapper;
+
+	public String getStatOrders(StatOrderPushByDay statOrderPushByDay) {
+		// TODO Auto-generated method stub
+		List<StatOrderPushByDay> statOrderPushByDays = new ArrayList<StatOrderPushByDay>();
+		List<String> dates = Utils.findDates(statOrderPushByDay.getStart_date(), statOrderPushByDay.getEnd_date());
+		StatOrderPush statOrderPush = new StatOrderPush();
+		statOrderPush.setParent_id(statOrderPushByDay.getParent_id());
+		statOrderPush.setPartner_id(statOrderPushByDay.getPartner_id());
+		statOrderPush.setPush_id(statOrderPushByDay.getPush_id());
+		for (String date : dates) {
+			statOrderPush.setSub_date(date);
+			StatOrderPushByDay sByDay = new StatOrderPushByDay();
+			sByDay.setSub_date(date);
+			double day1 = 0.00;
+			double day2 = 0.00;
+			double day3 = 0.00;
+			double day4 = 0.00;
+			double day5 = 0.00;
+			double day6 = 0.00;
+			double day7 = 0.00;
+			double day8 = 0.00;
+			double day9 = 0.00;
+			double day10 = 0.00;
+			double day15 = 0.00;
+			double day30 = 0.00;
+			double day60 = 0.00;
+			double day90 = 0.00;
+			double dayAll = 0.00;
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			if (date.equalsIgnoreCase(sdf.format(Utils.getDateByDays(0)))) {//今日统计
+				sMapper.statTodayOrders();
+			}
+			List<StatOrderPush> sOrderPushs = sMapper.getStatOrders(statOrderPush);
+			for (int i = 0; i < sOrderPushs.size(); i++) {
+				sByDay.setParent_id(sOrderPushs.get(i).getParent_id());
+				sByDay.setPartner_id(sOrderPushs.get(i).getPartner_id());
+				sByDay.setPush_id(sOrderPushs.get(i).getPush_id());
+				if (i == 0) {
+					day1 = sOrderPushs.get(i).getAmount();
+				}
+				if (i == 1) {
+					day2 =  sOrderPushs.get(i).getAmount();
+				}
+				if (i == 2) {
+					day3 =  sOrderPushs.get(i).getAmount();
+				}
+				if (i == 3) {
+					day4 =  sOrderPushs.get(i).getAmount();
+				}
+
+				if (i == 4) {
+					day5 =  sOrderPushs.get(i).getAmount();
+				}
+				if (i == 5) {
+					day6 =  sOrderPushs.get(i).getAmount();
+				}
+				if (i == 6) {
+					day7 =  sOrderPushs.get(i).getAmount();
+				}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+				if (i == 7) {
+					day8 =  sOrderPushs.get(i).getAmount();
+				}
+				if (i == 8) {
+					day9 =  sOrderPushs.get(i).getAmount();
+				}
+				if (i == 9) {
+					day10 =  sOrderPushs.get(i).getAmount();
+				}
+				if (i < 15) {
+					day15 = day15 + sOrderPushs.get(i).getAmount();
+				}
+				if (i < 30) {
+					day30 = day30 + sOrderPushs.get(i).getAmount();
+				}
+				if (i < 60) {
+					day60 = day60 + sOrderPushs.get(i).getAmount();
+				}
+				if (i < 90) {
+					day90 = day90 + sOrderPushs.get(i).getAmount();
+				}
+				dayAll = dayAll + sOrderPushs.get(i).getAmount();
+			}
+			sByDay.setDay1(String.valueOf(day1));
+			sByDay.setDay2(String.valueOf(day2));
+			sByDay.setDay3(String.valueOf(day3));
+			sByDay.setDay4(String.valueOf(day4));
+			sByDay.setDay5(String.valueOf(day5));
+			sByDay.setDay6(String.valueOf(day6));
+			sByDay.setDay7(String.valueOf(day7));
+			sByDay.setDay8(String.valueOf(day8));
+			sByDay.setDay9(String.valueOf(day9));
+			sByDay.setDay10(String.valueOf(day10));
+			sByDay.setDay15(String.valueOf(day15));
+			sByDay.setDay30(String.valueOf(day30));
+			sByDay.setDay60(String.valueOf(day60));
+			sByDay.setDay90(String.valueOf(day90));
+			sByDay.setDayAll(String.valueOf(dayAll));
+			statOrderPushByDays.add(sByDay);
+		}
+		return ResultData.toJsonString(statOrderPushByDays.size(), statOrderPushByDays);
+	}
+
+
+	public List<PartnerInfo> getAllPartnerId() {
+		return sMapper.getAllPartnerId();
+	}
+
+
+
+	public Object getPushIdByPartnerId(Integer partnerId) {
+		return sMapper.getAllPush(partnerId);
+	}
+
+
+
+	public String getSubDateDetail(Integer parentId, Integer pushId,String sub_date) {
+		// TODO Auto-generated method stub
+		List<StatOrderPush> statOrderPushs = sMapper.getSubDateDetail(parentId,pushId,sub_date);
+		return ResultData.toJsonString(statOrderPushs.size(), statOrderPushs);
+	}
+}

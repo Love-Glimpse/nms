@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.RechargeRecordMapper">
+    <select id="getAllRecords" resultType="UserOrder">
+    	SELECT uo.user_id,uo.created_time,pc.channel_name,uo.order_id,uo.`status`,IFNULL(uo.pay_time,'--') pay_time
+    			,p.product_desc,uo.product_price,uo.quantity
+				,pi.partner_gradation,pi.partner_name,pi2.partner_name as parent_partner
+    			,IFNULL(ui.nick_name,'--') nick_name,IFNULL(ui.picture,'static/image/1.jpg') picture
+    		 FROM user_order uo 
+    		LEFT JOIN product p ON uo.product_id=p.product_id
+    		LEFT JOIN user_info ui ON uo.user_id = ui.user_id
+				LEFT JOIN partner_info pi ON uo.partner_id = pi.partner_id
+				LEFT JOIN partner_info pi2 ON uo.parent_id = pi2.partner_id
+		LEFT JOIN pay_channel pc ON uo.channel_id = pc.channel_id where 1=1 
+    	<if test="nick_name != null and nick_name != ''">
+			and (ui.nick_name like '%${nick_name}%' or ui.nick_name like '%${nick_name}%' or ui.user_id like '%${nick_name}%' )
+		</if>
+    	<if test="order_id != null and order_id != ''">
+			and order_id like '%${order_id}%'
+		</if>
+    	<if test="third_order_id != null and third_order_id != ''">
+			and third_order_id like '%${third_order_id}%'
+		</if>
+		<if test="channel_id != null and channel_id >0">
+			and pc.channel_id = #{channel_id}
+		</if>
+		<if test="partner_id!=null and partner_id > 0">
+			and uo.partner_id =#{partner_id}
+		</if>
+    	order by id desc limit #{start_rows},#{end_rows}
+    </select>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+      SELECT count(*)  FROM user_order uo 
+    		LEFT JOIN product p ON uo.product_id=p.product_id
+    		LEFT JOIN user_info ui ON uo.user_id = ui.user_id
+			LEFT JOIN partner_info pi ON ui.partner_id = pi.partner_id
+		LEFT JOIN pay_channel pc ON uo.channel_id = pc.channel_id where 1=1 
+    	<if test="nick_name != null and nick_name != ''">
+			and (ui.nick_name like '%${nick_name}%' or ui.nick_name like '%${nick_name}%' or ui.user_id like '%${nick_name}%' )
+		</if>
+    	<if test="order_id != null and order_id != ''">
+			and order_id like '%${order_id}%'
+		</if>
+    	<if test="third_order_id != null and third_order_id != ''">
+			and third_order_id like '%${third_order_id}%'
+		</if>
+		<if test="channel_id != null and channel_id >0">
+			and pc.channel_id = #{channel_id}
+		</if>
+		<if test="partner_id!=null and partner_id > 0">
+			and uo.partner_id =#{partner_id}
+		</if>
+  	</select>
+</mapper>

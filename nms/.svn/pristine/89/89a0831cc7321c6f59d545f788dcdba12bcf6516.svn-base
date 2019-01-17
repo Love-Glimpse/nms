@@ -1,0 +1,104 @@
+package com.kuaidu.nms.entity;
+
+/**
+ * 封装响应状态和信息
+ * 
+ * @author 管永钊
+ *
+ */
+public class RestReturn {
+
+	private Integer code; // 0：代表成功 1：代表失败
+	private Object msg;
+
+	/**
+	 * 
+	 * @param msg
+	 * @return 返回成功状态,带数据
+	 */
+	public static RestReturn success(Object msg) {
+		RestReturn restReturn = new RestReturn();
+		restReturn.setCode(0);
+		restReturn.setMsg(msg);
+		return restReturn;
+	}
+	/*public static RestReturn success(Object... message) {
+		RestReturn restReturn = new RestReturn();
+		for (int i = 0; i < message.length; i++) {
+			restReturn.msg.add(message[i]);
+		}
+		return restReturn;
+	}*/
+	/**
+	 * 
+	 * @return返回成功不带数据
+	 */
+	public static RestReturn success() {
+		RestReturn restReturn = new RestReturn();
+		restReturn.setCode(0);
+
+		return restReturn;
+	}
+
+	/**
+	 * 
+	 * @param msg
+	 * @return 返回失败，带数据
+	 */
+	public static RestReturn fail(Object msg) {
+		RestReturn restReturn = new RestReturn();
+		restReturn.setCode(1);
+		restReturn.setMsg(msg);
+		return restReturn;
+	}
+	
+	
+	/*public static RestReturn fail(Object ...message) {
+		RestReturn restReturn = new RestReturn();
+		for (Object object : message) {
+			restReturn.msg.add(object);
+		}
+		return restReturn;
+	}
+*/
+	/*public  RestReturn fail(Object ...message) {
+		for (Object object : message) {
+			this.msg.add(object);
+		}
+		return this;
+	}*/
+	
+	
+	/**
+	 * 
+	 * @param msg
+	 * @return 返回失败不带数据 
+	 */
+	public static RestReturn fail() {
+		RestReturn restReturn = new RestReturn();
+		restReturn.setCode(1);
+		return restReturn;
+	}
+
+	
+	public Integer getCode() {
+		return code;
+	}
+	public void setCode(Integer code) {
+		this.code = code;
+	}
+	
+	public Object getMsg() {
+		return msg;
+	}
+	public void setMsg(Object msg) {
+		this.msg = msg;
+	}
+	@Override
+	public String toString() {
+		return "RestReturn [code=" + code + ", msg=" + msg + "]";
+	}
+
+
+
+}

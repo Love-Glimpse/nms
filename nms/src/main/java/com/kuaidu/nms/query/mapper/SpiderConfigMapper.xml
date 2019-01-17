@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.SpiderConfigMapper">
+	<!--查询所有 	start_rows=开始行-->
+    <select id="getAllConfigs" resultType="SpiderConfig">
+      select * from spider_config where 1=1
+      	<if test='main_url != null and main_url != ""'>
+      		and main_url like CONCAT('%',#{main_url},'%')
+      	</if>
+      	order by stars desc
+       limit #{start_rows},#{rows}
+    </select>
+						
+    <!-- 添加 -->
+    <insert id="add_sConfig">
+    	INSERT INTO spider_config(website_name,main_url,method,chapter_reg,chapter_url_reg,content_reg,next_page_reg,orderby,before_count,after_count,spider_user_charset,
+    			chapter_name,content_next_page_name_reg,content_next_page_name,content_next_page_reg,stars,charset,sleep_mills,have_next_content,created_time,should_filter)
+    		VALUES(#{website_name},#{main_url},#{method},#{chapter_reg},#{chapter_url_reg},#{content_reg},#{next_page_reg},#{orderby},#{before_count},#{after_count},#{spider_user_charset},
+    			#{chapter_name},#{content_next_page_name_reg},#{content_next_page_name},#{content_next_page_reg},#{stars},#{charset},#{sleep_mills},#{have_next_content},now(),#{should_filter})
+    </insert>
+   <!-- 编辑 -->
+   <update id="update_sConfig">
+     UPDATE spider_config SET website_name=#{website_name},main_url=#{main_url},chapter_reg=#{chapter_reg},chapter_url_reg=#{chapter_url_reg}
+     ,content_reg=#{content_reg},next_page_reg=#{next_page_reg},orderby=#{orderby},before_count=#{before_count},after_count=#{after_count},
+     chapter_name=#{chapter_name},content_next_page_name_reg=#{content_next_page_name_reg},method=#{method},
+	 content_next_page_name=#{content_next_page_name},charset=#{charset},stars=#{stars},spider_user_charset=#{spider_user_charset},
+	 content_next_page_reg=#{content_next_page_reg},sleep_mills=#{sleep_mills},have_next_content=#{have_next_content},should_filter=#{should_filter}
+ 	where id=#{id}
+   </update>
+   
+  <delete id="del_sConfig">
+  	 delete from spider_config where id =#{id}
+  </delete>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+      select COUNT(*) from spider_config
+  	</select>
+</mapper>

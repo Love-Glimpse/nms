@@ -1,0 +1,47 @@
+package com.kuaidu.nms;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
+
+import org.junit.Test;
+
+public class FilterTest {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		String chapterName = " 　　没等车停稳，张雨就已经跳下车奔进了院子里。";
+		for (int i = 0; i < chapterName.length(); i++) {
+			System.out.println((int)chapterName.charAt(i));
+			
+		}
+		System.out.println();
+		System.out.println(chapterName.trim());
+		System.out.println(chapterName);
+		System.out.println(chapterName.replaceAll("\\s|\t|\r|\n", "").replace((char)12288, " ".charAt(0)).trim());
+		
+		Date date = new Date();
+		SimpleDateFormat df = new SimpleDateFormat("YYYYMMddHHmmss");
+		String dates = df.format(date);
+		 Random random = new Random();
+	    String fourRandom = random.nextInt(10000) + "";
+	    int randLength = fourRandom.length();
+	     if(randLength<4){
+	       for(int i=1; i<=4-randLength; i++)
+	              fourRandom = "0" + fourRandom  ;
+	    }
+	    System.out.println(dates+":"+fourRandom);
+	}
+	
+	
+	
+	@Test
+	public void sdfs() {
+		BigDecimal bigDecimal = new BigDecimal(10);
+		BigDecimal bigDecimal2 = null;
+		BigDecimal add = bigDecimal.add(bigDecimal2);
+		System.err.println(add.intValue());
+	}
+
+}

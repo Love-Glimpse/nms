@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+
+
+<mapper namespace="com.kuaidu.nms.partner.financial.mapper.PartnerBillMapper">
+	
+	<resultMap type="PartnerBill" id="partnerBillInfo">
+		<id property="id" column="id"/>
+		<result property="partner_id" column="partner_id"/>
+		<result property="parent_id" column="parent_id"/>
+		<result property="partner_name" column="partner_name"/>
+		<result property="order_num" column="order_num"/>
+		<result property="order_price" column="order_price"/>
+		<result property="withdraw_price" column="withdraw_price"/>
+		<result property="partner_accounts_scale" column="partner_accounts_scale"/>
+		<result property="proxy_accounts_scale" column="proxy_accounts_scale"/>
+		<result property="status" column="status"/>
+		<result property="proxy_status" column="proxy_status"/>
+		<result property="create_time" column="create_time"/>
+		<association property="partnerAccount" javaType="partnerAccount">
+			<id property="partner_id" column="account_partner_id"/>
+			<result property="pay_type" column="pay_type"/>
+			<result property="bank_account" column="bank_account"/>
+			<result property="bank_name" column="bank_name"/>
+			<result property="bank_province" column="bank_province"/>
+			<result property="bank_city" column="bank_city"/>
+			<result property="bank_branch" column="bank_branch"/>
+			<result property="payee" column="payee"/>
+			<result property="alipay_account" column="alipay_account"/>
+			<result property="alipay_name" column="alipay_name"/>
+			<result property="wechat_account" column="wechat_account"/>
+			<result property="wechat_name" column="wechat_name"/>
+		</association>
+	</resultMap>
+	
+	<select id="statisticalBill" resultType="partnerBill">
+		SELECT pa_nm_total_price+pa_vip_total_price order_price,pa_vip_charged_quantity+pa_nm_charged_quantity order_num,partner_id,parent_id FROM stat_user_order_overview
+		WHERE TO_DAYS(order_time) = TO_DAYS(CURDATE())-1 and (pa_nm_total_price != 0  or pa_vip_total_price != 0)
+	</select>
+	
+	<insert id="saveEveryDayBill">
+		insert into partner_bill(partner_id,parent_id,order_num,order_price,create_time)
+		values 
+		<foreach collection="list" item="item" separator=",">
+			(#{item.partnerId},#{item.parentId},#{item.orderNum},#{item.orderPrice},DATE_SUB(curdate(),INTERVAL 1 DAY) )
+		</foreach>
+	</insert>
+	
+	<select id="getPartnerBillOneMonthByParentId" resultType="partnerBill">
+		select sum(order_price) order_price ,status    from partner_bill
+		where parent_id = #{parent_id} and to_days(create_time) between to_days(curdate())-31 and to_days(curdate())-1
+		group by status
+	</select>
+	
+	<select id="getPartnerBillByPartnerId" resultType="partnerBill">
+		select sum(order_price) order_price,status    from partner_bill
+		where partner_id = #{parent_id} 
+		
+	</select>
+	
+	<select id="selssect" resultType="partnerBill">
+		SELECT partner_id,parent_id ,(sum(pa_nm_total_price)+ sum(pa_vip_total_price)) order_price,
+		(sum(pa_nm_charged_quantity)+sum(pa_vip_charged_quantity)) order_num,LEFT(order_time,10) create_time,partner_accounts_scale
+		FROM stat_user_order_overview GROUP BY partner_id,create_time having order_price &gt; 0
+	</select>
+	
+	<select id="getPartnerWithdrawInfoByPartnerId" resultType="partnerBill">
+		select status, sum(order_price) order_price from partner_bill 
+		where partner_id = #{partnerId} and (status = 0 or status = 2) 
+		group by status
+	</select>
+	
+	<select id="getEveryDayBillByParentId" resultType="partnerBill">
+		select id,order_num,order_price,withdraw_price,status,partner_accounts_scale,create_time from partner_bill
+		where parent_id = #{parentId} and status = #{status} order by create_time desc
+	</select>
+	
+	
+	<select id="getPendingBillByParentId" resultType="partnerBill">
+		select id,withdraw_price from partner_bill where parent_id = #{parentId} and status = 0
+	</select>
+	
+	<select id="getPendingBillByPartnerId" resultType="partnerBill">
+		select id,withdraw_price from partner_bill where partner_id = #{partnerId} and status = 0
+	</select>
+	
+	<update id="updatePartnerBillStatus">
+		update partner_bill set status = #{status} where id in
+		<foreach collection="list" item="item" open="(" close=")" separator=",">
+			#{item.id}
+		</foreach>
+	</update>
+	
+	
+	<select id="getEveryDayBillByPartnerId" resultType="partnerBill">
+		select id,order_num,order_price,withdraw_price,status,partner_accounts_scale,create_time from partner_bill
+		where partner_id = #{partnerId} and status = #{status} order by create_time desc
+	</select>
+	
+	<select id="getPartnerBillById" resultMap="partnerBillInfo">
+		select partner_id from partner_bill where id = #{id}
+	</select>
+	
+	<select id="getParentBillById" resultMap="partnerBillInfo">
+		select pb.parent_id,pi.partner_name,order_num,order_price,withdraw_price,pb.status,pb.create_time,pb.partner_accounts_scale
+		,pay_type,bank_account,bank_name,bank_province,bank_city,bank_branch,payee,alipay_account,alipay_name,wechat_account,wechat_name 
+		from partner_bill pb
+		left join partner_account pa on pb.parent_id = pa.partner_id
+		left join partner_info pi on pi.partner_id = pb.parent_id
+		where pb.id = #{id}
+	</select>
+</mapper>

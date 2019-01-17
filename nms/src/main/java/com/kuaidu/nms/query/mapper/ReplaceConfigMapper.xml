@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+
+<mapper namespace="com.kuaidu.nms.query.mapper.ReplaceConfigMapper">
+	<!--查询所有 	start_rows=开始行-->
+    <select id="getAllConfigs" resultType="ReplaceConfig">
+      SELECT r.*,IFNULL(b.book_name,'通用') as book_name,IFNULL(b.book_url,'通用') as book_url,IFNULL(s.main_url,'通用') as  main_url,IFNULL(s.website_name,'通用') as  website_name from replace_config r LEFT JOIN book_list  b ON r.book_id = b.book_id
+			LEFT JOIN spider_config s ON r.source_id = s.id where 1=1 
+      <if test="book_name != null and book_name != ''">
+      		and (r.book_id=#{book_name} 
+      		or r.book_id in (select book_id from book_list where book_name like CONCAT('%',#{book_name},'%')))
+      </if>
+      <if test="main_url != null and main_url != ''">
+      		and (source_id=#{main_url} 
+      		or source_id in (select id from spider_config where main_url like CONCAT('%',#{main_url},'%')))
+      </if>
+      <if test="type > 0">
+      		and type=#{type}
+      </if>
+       limit #{start_rows},#{rows}
+    </select>
+
+    <!-- 添加 -->
+    <insert id="add_rConfig">
+    	INSERT INTO replace_config(type,source_id,book_id,target,replacement)VALUES(#{type},#{source_id},#{book_id},#{target},#{replacement})
+    </insert>
+   <!-- 编辑 -->
+   <update id="update_rConfig">
+     UPDATE replace_config SET target=#{target},replacement=#{replacement},book_id=#{book_id},source_id=#{source_id},type=#{type}
+      	where id=#{id}
+   </update>
+   
+  <delete id="del_rConfig">
+  	 delete from replace_config where id =#{id}
+  </delete>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+      SELECT count(*) from replace_config r LEFT JOIN book_list  b ON r.book_id = b.book_id
+			LEFT JOIN spider_config s ON r.source_id = s.id where 1=1 
+      <if test="book_id!=null and book_id != ''">
+      		and (book_id=#{book_id} or book_name like CONCAT('%',#{book_id},%)
+      </if>
+      <if test="main_url != null and main_url != ''">
+      		and (source_id=#{main_url} or main_url like CONCAT('%',#{main_url},%)
+      </if>
+      <if test="type > 0">
+      		and type=#{type}
+      </if>
+  	</select>
+</mapper>

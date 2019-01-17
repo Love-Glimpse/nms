@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+
+
+<mapper namespace="com.kuaidu.nms.financial.mapper.BillMapper">
+		
+		
+		<select id="getBill" resultType="partnerBill">
+			select id,partner_id,parent_id,withdraw_price,bank_charge,pay_price,status,create_time,pay_type
+			from partner_withdraw
+			<where>
+			<if test="partner_id != null">
+				partner_id = #{partner_id}
+			</if>
+			</where>
+			
+		</select>
+		
+		
+		<update id="updateBillPay">
+			UPDATE partner_bill set status = 1 where id in(
+				SELECT bill_id FROM partner_withdraw_bill pwb 
+				LEFT join partner_withdraw pw on pw.id = pwb.withdraw_id 
+				where pw.id = #{id} 
+				)
+		</update>
+	
+</mapper>

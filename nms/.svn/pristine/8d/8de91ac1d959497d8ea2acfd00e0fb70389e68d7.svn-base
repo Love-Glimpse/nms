@@ -1,0 +1,42 @@
+package com.kuaidu.nms.pushchannel.mapper;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerLogo;
+import com.kuaidu.nms.entity.Sys_module;
+
+public interface PartnerInfoMapper {
+
+	List<PartnerInfo> getAllPartnerInfo(PartnerInfo partnerInfo);
+
+	List<PartnerInfo> getSubPartner(PartnerInfo partnerInfo);
+
+	void updatePartnerInfo(PartnerInfo partnerInfo);
+
+	void addPartnerInfo(PartnerInfo partnerInfo);
+
+	int getLevelWithPartnerId(@Param("partner_id")int partner_id);
+
+	String getMaxPartnerId();
+
+	int checkPartnerSymbol(PartnerInfo partnerInfo);
+
+	int checkPartnerName(PartnerInfo partnerInfo);
+
+	int checkLoginName(PartnerInfo partnerInfo);
+
+	void delPartnerInfo(int partner_id);
+
+	List<PartnerInfo> getSubPartnerInfo(PartnerInfo partnerInfo);
+
+	PartnerLogo getPartnerLogoConfig(int partner_id);
+
+	void savePartnerLogoConfig(PartnerLogo partnerLogo);
+
+	int checkExist(PartnerLogo partnerLogo);
+
+	void updatePartnerLogoConfig(PartnerLogo partnerLogo);
+	
+}

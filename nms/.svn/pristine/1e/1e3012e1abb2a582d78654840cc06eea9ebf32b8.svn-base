@@ -1,0 +1,94 @@
+package com.kuaidu.nms.entity;
+
+public class user_read_log {
+	private Integer id;
+	private Integer user_id;
+	private Integer type_id;
+	private Integer book_id;
+	private String book_name;
+	private Integer chapter_id;
+	private String chapter_name;
+	private String create_time;
+	private Integer start_rows;  //起始行
+	private Integer end_rows;	//末尾行
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public Integer getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+	public Integer getType_id() {
+		return type_id;
+	}
+	public void setType_id(Integer type_id) {
+		this.type_id = type_id;
+	}
+	public Integer getBook_id() {
+		return book_id;
+	}
+	public void setBook_id(Integer book_id) {
+		this.book_id = book_id;
+	}
+	public String getBook_name() {
+		return book_name;
+	}
+	public void setBook_name(String book_name) {
+		this.book_name = book_name;
+	}
+	public Integer getChapter_id() {
+		return chapter_id;
+	}
+	public void setChapter_id(Integer chapter_id) {
+		this.chapter_id = chapter_id;
+	}
+	public String getChapter_name() {
+		return chapter_name;
+	}
+	public void setChapter_name(String chapter_name) {
+		this.chapter_name = chapter_name;
+	}
+	public String getCreate_time() {
+		return create_time;
+	}
+	public void setCreate_time(String create_time) {
+		this.create_time = create_time;
+	}
+	public Integer getStart_rows() {
+		return start_rows;
+	}
+	public void setStart_rows(Integer start_rows) {
+		this.start_rows = start_rows;
+	}
+	public Integer getEnd_rows() {
+		return end_rows;
+	}
+	public void setEnd_rows(Integer end_rows) {
+		this.end_rows = end_rows;
+	}
+	public user_read_log(Integer id, Integer user_id, Integer type_id, Integer book_id, String book_name,
+			Integer chapter_id, String chapter_name, String create_time, Integer start_rows, Integer end_rows) {
+		super();
+		this.id = id;
+		this.user_id = user_id;
+		this.type_id = type_id;
+		this.book_id = book_id;
+		this.book_name = book_name;
+		this.chapter_id = chapter_id;
+		this.chapter_name = chapter_name;
+		this.create_time = create_time;
+		this.start_rows = start_rows;
+		this.end_rows = end_rows;
+	}
+	public user_read_log() {
+		super();
+	}
+	
+}
+
+

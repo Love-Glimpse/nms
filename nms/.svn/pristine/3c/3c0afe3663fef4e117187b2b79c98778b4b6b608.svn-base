@@ -1,0 +1,171 @@
+package com.kuaidu.nms.message.serviceImpl;
+
+import java.awt.print.Book;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.PartnerCustomMsgConfig;
+import com.kuaidu.nms.entity.WxCustomMsg;
+import com.kuaidu.nms.message.mapper.CustomMsgMapper;
+import com.kuaidu.nms.utils.Log4jUtil;
+import com.kuaidu.nms.utils.Utils;
+
+import net.sf.json.JSONObject;
+
+@Service
+public class CustomMsgImpl {
+	@Resource 
+	@Autowired
+	CustomMsgMapper cMapper;
+	
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	public void createCustomMsg() {
+		// TODO Auto-generated method stub
+		cMapper.createCustomMsg();
+	}
+
+	public void updateMsgStatus(WxCustomMsg customMsg) {
+		// TODO Auto-generated method stub
+		cMapper.updateMsgStatus(customMsg);
+	}
+
+	public List<WxCustomMsg> loadCustomMsg() {
+		// TODO Auto-generated method stub
+		return cMapper.loadCustomMsg();
+	}
+
+	public void updateCustomMsg(List<WxCustomMsg> wxCustomMsgs) {
+		// TODO Auto-generated method stub
+		cMapper.updateCustomMsg(wxCustomMsgs);
+	}
+	/**
+	 * size 分片大小
+	 * */
+	public void batchInsert(List<WxCustomMsg> list,int size) {
+		// TODO Auto-generated method stub
+		if (list==null||list.isEmpty()) {
+			return;
+		}
+		int count = (int) Math.ceil((double)list.size()/size);
+		int from,to;
+		for (int i = 0; i < count; i++) {
+			from = size*i;
+			to=(from+size)>list.size()?list.size():(from+size);
+			cMapper.batchInsertCustomMsg(list.subList(from, to));
+		}
+	}
+
+	public void createDailyCustomMsg() {
+		// TODO Auto-generated method stub
+		List<WxCustomMsg> wxCustomMsgs = new ArrayList<WxCustomMsg>();
+		List<PartnerCustomMsgConfig> pConfigs = cMapper.getAutoSendPartner();
+		for (PartnerCustomMsgConfig partnerCustomMsgConfig : pConfigs) {
+			int partnerId = partnerCustomMsgConfig.getPartner_id();
+			Set<String> keys = redisTemplate.keys( "ActivityUser-ParentId:"+partnerId+"userId:*");
+			for (String key : keys) {
+				String userInfo = (String) redisTemplate.opsForValue().get(key);
+				if (userInfo==null) {
+					continue;
+				}
+				JSONObject json = JSONObject.fromObject(userInfo);
+				if (json==null) {
+					continue;
+				}
+				int userId = json.optInt("userId",0);
+				if (userId>0) {
+					Log4jUtil.getBusinessLogger().info(System.currentTimeMillis()+"=="+partnerId+"=="+userId);
+					String ret = "";
+					 Integer sendBookId = 0;
+					//根据读者找出合适的书籍推送
+					Map<String, Object> map = cMapper.getReadBookIdByUserID(userId);
+					if (map!=null&&map.size()>0) {//有阅读记录
+						//获取读的最多的bookId
+						Integer readBookId =  Integer.parseInt(map.get("book_id")+"");
+						String bookLabels = map.get("labels")+"";
+						String[] labelIds = bookLabels.split(",");
+
+				        Map<Integer, Integer> mapIds = new HashMap<Integer, Integer>();
+						for (String labelId : labelIds) {
+							//根据bookId和标签查找相关书籍
+							List<Integer> bookIdList = cMapper.getSimilarBookIds(labelId,readBookId,userId);
+				        	for (Integer bookId : bookIdList) {
+				        		if (mapIds.containsKey(bookId)) {
+				        			Integer value = mapIds.get(bookId);
+				        			mapIds.put(bookId, value+1);
+								}else {
+									mapIds.put(bookId, 1);
+								}
+							}
+						}
+				        //这里将map.entrySet()转换成list
+				        List<Map.Entry<Integer,Integer>> list = new ArrayList<Map.Entry<Integer,Integer>>(mapIds.entrySet());
+				        if (list.size()>0) { //没有相关的书籍
+					        //然后通过比较器来实现排序
+					        Collections.sort(list,new Comparator<Map.Entry<Integer,Integer>>() {
+					            //降序排序
+					            public int compare(Entry<Integer, Integer> o1,
+					                    Entry<Integer, Integer> o2) {
+					                return o2.getValue().compareTo(o1.getValue());
+					            }
+					        });
+							Random random = new Random();
+							int n = random.nextInt(list.size()>10?10:list.size());
+							Entry<Integer, Integer> sendBookIdenEntry = list.get(n);
+					        sendBookId = sendBookIdenEntry.getKey();
+					        if (sendBookId>0) {
+								ret = cMapper.getCustomMsgInfoByBookId(partnerId,sendBookId);
+							}else {
+								ret = cMapper.getCustomMsgInfoByUserId(userId);
+							}
+						}else {
+							ret = cMapper.getCustomMsgInfoByUserId(userId);
+						}
+
+					}else {//无阅读记录
+						ret = cMapper.getCustomMsgInfoByUserId(userId);
+					}
+					if (ret!=null&&!ret.equalsIgnoreCase("")) {
+						JSONObject jsonRet = JSONObject.fromObject(ret);
+						sendBookId = Integer.parseInt(jsonRet.optString("bookId"));
+						WxCustomMsg wxCustomMsg = new WxCustomMsg();
+						wxCustomMsg.setPartner_id(partnerId);
+						wxCustomMsg.setUser_id(userId);
+						wxCustomMsg.setBook_id(sendBookId);
+						wxCustomMsg.setTo_user(json.getString("openid"));
+						wxCustomMsg.setType("auto");//自动定时推送
+						wxCustomMsg.setMsg_type("news");
+						wxCustomMsg.setP_msg_id(0);
+						wxCustomMsg.setDescription("点击阅读");
+
+						wxCustomMsg.setTitle(jsonRet.optString("title"));
+						wxCustomMsg.setUrl(jsonRet.optString("url"));
+						wxCustomMsg.setPic_url(jsonRet.optString("picUrl"));
+						
+						wxCustomMsg.setSend_time(Utils.getNowDate());
+						wxCustomMsgs.add(wxCustomMsg);
+					}
+				}
+			}
+			System.out.println(wxCustomMsgs.size());
+			//save 客服消息
+			//batchInsert(wxCustomMsgs,5000);
+		}
+
+	}
+	
+}

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.system.mapper.UserMapper">
+  <select id="getAll" resultType="Sys_user">
+  	select a.*,b.group_name from sys_user a LEFT JOIN sys_group b ON  a.group_id=b.group_id where 1=1 
+    <if test="user_name != null and user_name != ''">
+			and a.user_name=#{user_name}
+	</if>
+  </select>
+  
+   <!-- 新增用户 -->
+   <insert id="save_user">
+   	<!-- 账号 用户名 密码 邮箱 -->
+     INSERT INTO sys_user(user_name,show_name,group_id,md5_pwd,email)VALUES(#{user_name},#{user_name},#{group_id},#{md5_pwd},#{email})
+   </insert>
+   
+  <!-- 删除用户 -->
+  <delete id="del_user" parameterType="java.util.List">
+   delete from sys_user where user_id in 
+   <foreach item="user_id" collection="list" open="(" separator="," close=")">
+     #{user_id}
+    </foreach>
+  </delete>
+  
+   <!-- 编辑用户 -->
+   <update id="edit_user">
+     UPDATE sys_user SET user_name=#{user_name}, group_id=#{group_id}, email=#{email} ,updated_time=now() where user_id=#{user_id}
+   </update>
+   <!-- 修改密码 -->
+   <update id="changePwd">
+     UPDATE sys_user SET password=#{password} where user_id=#{user_id}
+   </update>
+   <!-- 树形菜单 -->
+   <select id="getAllTree" resultType="Sys_module">
+    select a.*,b.flag from sys_module as a LEFT JOIN sys_user_module as b ON a.module_id =b.module_id and b.user_id=#{user_id}
+   </select>
+   
+   <insert id="save_authority">
+      INSERT INTO sys_user_module(user_id,module_id)VALUES(#{user_id},#{module_id})
+   </insert>
+   <delete id="del_user_module">
+      delete from sys_user_module where user_id=${user_id}
+   </delete>
+   <select id="getSysGroups" resultType="Sys_group">
+   		select * from sys_group
+   </select>
+   <update id="changeStatus">
+   	 update sys_user set status = #{status} where user_id=#{user_id}
+   </update>
+   <select id="checkSysUser" resultType="int">
+   		select count(0) from sys_user where user_id=#{user_id} and md5_pwd=#{md5_pwd}
+   </select>
+   <select id="checkPaUser" resultType="int">
+   		select count(0) from partner_info where partner_id=#{partner_id} and md5_pwd=#{md5_pwd}
+   </select>
+   <update id="changeSysPwd">
+   		update sys_user set md5_pwd=#{md5_pwd} where user_id = #{user_id} and md5_pwd=#{s_pwd}
+   </update>
+   <update id="changePaPwd">
+   		update partner_info set md5_pwd=#{md5_pwd} where partner_id = #{partner_id} and md5_pwd=#{s_pwd}
+   </update>
+</mapper>

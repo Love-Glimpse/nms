@@ -1,0 +1,64 @@
+ $(function(){
+	
+	 $(function(){
+	        var startDate = new Date();
+	        startDate.setTime(startDate.getTime()-10*24*60*60*1000);
+	        var seperator = "-";
+	        var year = startDate.getFullYear();
+	        var month = startDate.getMonth() + 1;
+	        var strDate = startDate.getDate();
+	        if (month >= 1 && month <= 9) {
+	            month = "0" + month;
+	        }
+	        if (strDate >= 0 && strDate <= 9) {
+	            strDate = "0" + strDate;
+	        }
+	        var sDate = year + seperator + month + seperator + strDate;
+
+	        var endDate = new Date();
+	        endDate.setTime(endDate.getTime());
+	        year = endDate.getFullYear();
+	        month = endDate.getMonth() + 1;
+	        strDate = endDate.getDate();
+	        if (month >= 1 && month <= 9) {
+	            month = "0" + month;
+	        }
+	        if (strDate >= 0 && strDate <= 9) {
+	            strDate = "0" + strDate;
+	        }
+	        var eDate = year + seperator + month + seperator + strDate;
+
+
+	        $("#start-time").val(sDate);
+	        $("#end-time").val(eDate);
+	        /*导出表格  -  起始时间*/
+	        $('.from-date-picker').datetimepicker({
+	            format: 'YYYY-MM-DD',
+	            locale: moment.locale('zh-cn')
+	            //minDate: '2016-7-1'
+	        });
+	        /*导出表格  -  终止时间*/
+	        $('.to-date-picker').datetimepicker({
+	            format: 'YYYY-MM-DD',
+	            locale: moment.locale('zh-cn')
+	        });
+	        /*导出Excel*/
+	        $("#btn-export").click(function () {
+	            var star = $(".from-date-picker input").val();
+	            star = star.replace(/-/g,"");
+	            var end = $(".to-date-picker input").val();
+	            end = end.replace(/-/g,"");
+	            var fileName = star +"-"+ end;
+	            $("#cashWithdrawal").table2excel({
+	                alt: 'excel',
+	                exclude  : ".noExl", //不导出的行的class 名
+	                exclude_img: true,
+	                exclude_links: true,
+	                exclude_inputs: true,
+	                filename : fileName //导出文件的名称
+	            });
+	        });
+	    });
+
+	 
+});

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.user.mapper.UserManagementMapper">
+    <!-- 查询作者表  返回类型为实体类对象-->
+    <select id="getAllRecords" resultType="UserInfo">
+    	SELECT ui.user_id,ui.nick_name,ui.login_type,ui.login_name,ui.openid,ui.vip_type,ui.picture,ui.subscribe
+    	,ui.vip_end_date,ui.user_status,ui.user_point,ui.sex,pi.partner_name,pi2.partner_name parent_name,ui.created_time
+    	,ui.last_login_time,IFNULL(ppu.`name`,'--') push_name,IFNULL(bl.book_name,'--') book_name FROM user_info ui 
+		LEFT JOIN partner_info pi ON ui.partner_id=pi.partner_id
+		LEFT JOIN partner_info pi2 ON ui.parent_id=pi2.partner_id
+		LEFT JOIN partner_push_url ppu ON ui.push_id=ppu.push_id
+		LEFT JOIN book_list  bl ON ppu.book_id=bl.book_id
+			where 1=1 
+    	<if test="login_name != null and login_name != ''">
+			and (ui.login_name like '%${login_name}%' or ui.nick_name like '%${login_name}%' or ui.user_id like '%${login_name}%')
+		</if>
+		<if test="subscribe != null  and subscribe != '99'">
+			and ui.subscribe = #{subscribe}
+		</if>
+		<if test="partner_name != null and partner_name != ''">
+			and pi.partner_name like '%${partner_name}%'
+		</if>
+		<if test="vip_type != null ">
+			and ui.vip_type = #{vip_type}
+		</if>
+    	order by user_id desc limit #{start_rows},#{end_rows}
+    </select>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+     	SELECT count(*) FROM user_info ui 
+		LEFT JOIN partner_info pi ON ui.partner_id=pi.partner_id where 1=1 
+
+    	<if test="login_name != null and login_name != ''">
+			and (ui.login_name like '%${login_name}%' or ui.nick_name like '%${login_name}%' or ui.user_id like '%${login_name}%')
+		</if>
+		<if test="subscribe != null  and subscribe != '99'">
+			and ui.subscribe = #{subscribe}
+		</if>
+		<if test="partner_name != null and partner_name != ''">
+			and pi.partner_name like '%${partner_name}%'
+		</if>
+		<if test="vip_type != null">
+			and ui.vip_type = #{vip_type}
+		</if>
+  	</select>
+  	<update id="addUserPoint50">
+  		update user_info set user_point = user_point+50 where user_id=#{user_id}
+  	</update>
+  	<select id="getActiveUsersByPartnerId" resultType="UserInfo">
+  		
+  	</select>
+  	<select id="getUserInfoByUserId" resultType="UserInfo">
+  		select  ui.user_id, ui.nick_name,pi.partner_name, ui.picture, ui.subscribe, 
+  				ui.user_point, ui.created_time, ui.subscribe_time,IFNULL(SUM(uc.charge_point),0)charge_point from user_info ui
+			LEFT JOIN partner_info pi ON ui.partner_id = pi.partner_id
+				LEFT JOIN user_cost uc ON ui.user_id = uc.user_id
+ 			where ui.user_id = #{user_id}
+  	</select>
+  	
+  	<select id="getUserInfosByIds" resultType="userInfo">
+  		SELECT ui.user_id,ui.sex,ui.nick_name,ui.login_type,ui.login_name,ui.openid,ui.vip_type,ui.picture,ui.subscribe
+    	,ui.vip_end_date,ui.user_status,ui.user_point,pi.partner_name,pi2.partner_name parent_name,ui.created_time
+    	,ui.last_login_time,IFNULL(ppu.`name`,'--') push_name,IFNULL(bl.book_name,'--') book_name FROM user_info ui 
+		LEFT JOIN partner_info pi ON ui.partner_id=pi.partner_id
+		LEFT JOIN partner_info pi2 ON ui.parent_id=pi2.partner_id
+		LEFT JOIN partner_push_url ppu ON ui.push_id=ppu.push_id
+		LEFT JOIN book_list  bl ON ppu.book_id=bl.book_id
+		where  user_id in
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach> 
+		<if test="userInfo.login_name != null and userInfo.login_name != ''">
+			and (ui.login_name like '%${userInfo.login_name}%' or ui.nick_name 
+			like '%${userInfo.login_name}%' or ui.user_id like '%${userInfo.login_name}%')
+		</if>
+		<if test="userInfo.subscribe != null and userInfo.subscribe != '99'">
+			and ui.subscribe = #{userInfo.subscribe}
+		</if>
+		<if test="userInfo.partner_name != null and userInfo.partner_name != ''">
+			and pi.partner_name like '%${userInfo.partner_name}%'
+		</if>
+		<if test="userInfo.vip_type != null">
+			and ui.vip_type = #{userInfo.vip_type}
+		</if>
+		order by user_id desc limit #{userInfo.start_rows},#{userInfo.end_rows}
+  	</select>
+  	<select id="getOnlineCountUserInfosByIds" resultType="int">
+  		SELECT count(0) FROM user_info ui 
+		LEFT JOIN partner_info pi ON ui.partner_id=pi.partner_id
+		LEFT JOIN partner_info pi2 ON ui.parent_id=pi2.partner_id
+		LEFT JOIN partner_push_url ppu ON ui.push_id=ppu.push_id
+		LEFT JOIN book_list  bl ON ppu.book_id=bl.book_id
+		where  user_id in
+		<foreach collection="ids" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach> 
+		<if test="userInfo.login_name != null and userInfo.login_name != ''">
+			and (ui.login_name like '%${userInfo.login_name}%' or ui.nick_name 
+			like '%${userInfo.login_name}%' or ui.user_id like '%${userInfo.login_name}%')
+		</if>
+		<if test="userInfo.subscribe != null and userInfo.subscribe != '99'">
+			and ui.subscribe = #{userInfo.subscribe}
+		</if>
+		<if test="userInfo.partner_name != null and userInfo.partner_name != ''">
+			and pi.partner_name like '%${userInfo.partner_name}%'
+		</if>
+		<if test="userInfo.vip_type != null">
+			and ui.vip_type = #{userInfo.vip_type}
+		</if>
+  	</select>
+  	<delete id="clearUsers" parameterType="java.util.List">
+  	  	 delete from user_info where user_id in 
+		   <foreach item="user_id" collection="list" open="(" separator="," close=")">
+		     #{user_id}
+		    </foreach>
+  	</delete>
+</mapper>

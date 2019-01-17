@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.partner.push.mapper.KeywordReplyMapper">
+ 	<select id="getKeywordReply" resultType="PartnerKeyword">
+ 		select * from partner_keyword where partner_id=#{partner_id} limit #{start_rows},#{rows}
+ 	</select>
+ 	<select id="getKeywordReplyCount" resultType="int">
+ 		select count(0) from partner_keyword where partner_id=#{partner_id}
+ 	</select>
+ 	
+ 	<!--查询所有书名         采用模糊搜索	-->
+    <select id="seachBook" resultType="Book_list">
+      select book_id,book_name from book_list where 1=1 and book_name like '%${book_name}%'
+    </select>
+ 	<!--查询对应书籍所有章节         采用模糊搜索	-->
+    <select id="seaChapter" resultType="ChapterList">
+      select chapter_id,chapter_name from chapter_list where 1=1 and book_id =${book_id} LIMIT 10
+    </select>
+ 	<!--查询所有活动图片 -->
+    <select id="searchImg" resultType="RecCover">
+      select compress_url from rec_cover where 1=1 and is_promotion=1
+    </select>
+ 	<!--获取随机一条title -->
+    <select id="randTitle" resultType="RecTitle">
+      SELECT * FROM `rec_title` AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `rec_title`)-(SELECT MIN(id) FROM `rec_title`))+(SELECT MIN(id) FROM `rec_title`)) AS id) AS t2 WHERE t1.id >= t2.id ORDER BY t1.id LIMIT 1;
+    </select>
+ 	
+ 	
+	<!-- 删除记录 -->
+ 	<delete id="delKeywords" parameterType="java.util.List">
+  		 delete from partner_keyword where id in 
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+	     #{id}
+	    </foreach>
+	</delete>
+ 	
+ 	<!-- 添加记录 -->
+ 	<insert id="addKeyword" parameterType="PartnerKeyword">
+		INSERT INTO partner_keyword(partner_id,key_word,status,reply_type,url,title,description,pic_url,msg_type)
+		VALUES(#{partner_id},#{key_word},#{status},#{reply_type},#{url},#{title},#{description},#{pic_url},#{msg_type})
+ 	</insert>
+</mapper>

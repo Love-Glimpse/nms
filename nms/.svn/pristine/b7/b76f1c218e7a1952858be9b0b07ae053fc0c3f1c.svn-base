@@ -1,0 +1,37 @@
+package com.kuaidu.nms.bizandpush.controller;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.kuaidu.nms.entity.PartnerCustomMsg;
+import com.kuaidu.nms.entity.PromotionActive;
+import com.kuaidu.nms.entity.StatUserOrder;
+import com.kuaidu.nms.entity.Sys_user;
+import com.kuaidu.nms.utils.Utils;
+
+/** 
+ * @Title CustomMsgNews.java 
+ * @description 图文客服消息
+ * @time 2018年11月2日 上午9:52:31 
+ * @author victor 
+ * @version 1.0 
+**/
+@Controller
+@RequestMapping("/pushUrl")
+public class PushUrlController {
+	@RequestMapping("/pushUrlIndex")
+	public ModelAndView customMsgNewsIndex(HttpSession session){
+		ModelAndView mv = new ModelAndView();
+		try {
+			mv.setViewName("bizAndPush/pushUrl"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+	
+}

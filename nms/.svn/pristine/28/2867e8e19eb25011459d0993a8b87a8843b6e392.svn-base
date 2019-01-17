@@ -1,0 +1,16 @@
+package com.kuaidu.nms.datastaticstics.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.StatUserOrder;
+public interface UserOrderStatMapper {
+	   public List<Object> getStatsToday();
+
+	   public StatUserOrder getStatsYesterDay(StatUserOrder statUserOrder);
+
+	   public StatUserOrder getStatsMonthAll(StatUserOrder statUserOrder);
+
+	   public StatUserOrder getStatsAll(StatUserOrder statUserOrder);
+
+	   public List<Object> getStatsList(StatUserOrder statUserOrder);
+}

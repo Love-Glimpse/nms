@@ -1,0 +1,13 @@
+package com.kuaidu.nms.query.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.Promoters;
+import com.kuaidu.nms.entity.UserInfo;
+
+public interface RegisterQueryMapper {
+     public List<UserInfo> getAll(UserInfo uInfo);
+     public List<Promoters>getAllpromoters();
+     public void del(List<Object> list);
+     public Integer getCount(UserInfo uInfo);
+}

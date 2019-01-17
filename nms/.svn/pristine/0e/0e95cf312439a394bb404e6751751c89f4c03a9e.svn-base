@@ -1,0 +1,35 @@
+package com.kuaidu.nms.partner.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.partner.serviceImpl.PartnerPushUrlServiceImpl;
+
+@Controller
+public class OpenUrlController {
+	@Autowired
+	PartnerPushUrlServiceImpl partnerPushUrlService;
+	
+	
+	@RequestMapping("temp/{random}")
+	public String sdfs(@PathVariable()String random,HttpServletRequest request) {
+		PartnerPushUrl partnerPushUrl = partnerPushUrlService.getOpenUrl(random);
+		if (partnerPushUrl != null) {
+			List<Map<String,Object>> chapters = partnerPushUrlService.getChapterContent(partnerPushUrl.getBook_id(),partnerPushUrl.getChapter_num());
+			request.setAttribute("chapters", chapters);
+			request.setAttribute("partnerPushUrl", partnerPushUrl);
+			request.setAttribute("referralUrl", "http://c"+partnerPushUrl.getPartner_id()+".mzshu.com/referral/"+partnerPushUrl.getPush_id());
+			return "partner/PushChannel/referencedCopywriting2";
+		}
+		return null;
+	}
+
+}

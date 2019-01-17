@@ -1,0 +1,227 @@
+package com.kuaidu.nms.partner.serviceImpl;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import org.apache.commons.io.Charsets;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.entity.RecCover;
+import com.kuaidu.nms.entity.RecTitle;
+import com.kuaidu.nms.entity.RestReturn;
+import com.kuaidu.nms.partner.mapper.PartnerPushUrlMapper;
+import com.kuaidu.nms.query.mapper.ChapterMapper;
+import com.kuaidu.nms.utils.NumTools;
+
+@Service
+public class PartnerPushUrlServiceImpl {
+	
+	
+	
+	@Autowired
+	PartnerPushUrlMapper partnerPushUrlMapper;
+	@Autowired
+	ChapterMapper chapterMapper;
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	
+
+	
+
+
+
+	public RestReturn savePartnerPushUrl(Integer partner_id,PartnerPushUrl partnerPushUrl) {
+		//添加推广章节url
+		//章节推广
+		Integer type = partnerPushUrl.getType();
+		if (type == 0) { 
+			if (partnerPushUrl.getChapter_id() == null) {
+				return RestReturn.fail();
+			}
+			partnerPushUrl.setSource_url("http://c"+partner_id+".mzshu.com/kdread/chapter/"+partnerPushUrl.getChapter_id());
+		//首页推广
+		}else if(type == 1){
+			partnerPushUrl.setSource_url("http://c"+partner_id+".mzshu.com/kdread/index");
+		}
+		partnerPushUrl.setPartner_id(partner_id);
+		partnerPushUrlMapper.insertSelective(partnerPushUrl);
+		String url = "http://c"+partner_id+".mzshu.com/kdread/referral/"+partnerPushUrl.getPush_id();
+		HashMap<String,String> hashMap = new HashMap<>();
+		hashMap.put("url", url);
+		hashMap.put("pushId", partnerPushUrl.getPush_id()+"");
+		return RestReturn.success(hashMap);
+		
+	}
+
+
+
+	public PageInfo<PartnerPushUrl> getPushUrlInfo(int partner_id, Integer pn, Integer ps, String name) {
+		PageHelper.startPage(pn, ps);
+		List<PartnerPushUrl> list  = partnerPushUrlMapper.getPushUrlInfo(partner_id,name);
+		
+		PageInfo<PartnerPushUrl> pageInfo = new PageInfo<PartnerPushUrl>(list, 5);
+		return pageInfo;
+	}
+
+
+
+	public RestReturn deletePartnerPushUrl(Integer pushId) {
+		 int num = partnerPushUrlMapper.deletePartnerPushUrl(pushId);
+		 if (num > 0) {
+			return RestReturn.success();
+		}
+		 return RestReturn.fail();
+	}
+
+
+
+	public RestReturn updatePartnerPushUrl(Integer pushId, String name) {
+		 int num = partnerPushUrlMapper.updatePartnerPushUrl(pushId,name);
+		 if (num > 0) {
+			return RestReturn.success();
+		}
+		 return RestReturn.fail();
+	}
+
+
+
+	public List<Map<String, Object>> getChapterContent(Integer bookId, Integer chapterNum) {
+		List<Map<String,Object>> list = chapterMapper.getChapterContent(bookId,chapterNum);
+		for (int i = 0; i < list.size(); i++) {
+			String object = (String) list.get(i).get("chapter_filepath_fdfs");
+			try {
+				List<String> contentByUrl = getContentByUrl(object);
+				list.get(i).put("content", contentByUrl);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+		
+		return list;
+	}
+	
+	public static List<String> getContentByUrl(String fileUrl) throws Exception {
+		List<String> list = new ArrayList<>();
+		URL url = new URL(fileUrl);
+		InputStream inputStream = url.openStream();
+		ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+		ZipEntry zipEntry = null;
+		StringBuffer sb = new StringBuffer();
+		while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+			InputStreamReader inputStreamReader = new InputStreamReader(zipInputStream, Charsets.toCharset("UTF-8"));
+			BufferedReader reader = toBufferedReader(inputStreamReader);
+			String line = reader.readLine();
+			while (line != null && !line.equalsIgnoreCase("null")) {
+				if (line.length() > 1) {
+					list.add(line);
+				}
+				line = reader.readLine();
+			}
+		}
+		return list;
+	}
+
+	public static BufferedReader toBufferedReader(Reader reader) {
+		return reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader);
+	}
+
+
+
+	public Map<String, Object> getBookPicAndNextChapterId(Integer bookId, Integer chapterNum) {
+		return chapterMapper.getBookPicAndNextChapterId(bookId,chapterNum);
+		 
+	}
+
+
+
+	public Object getCover(Integer pn) {
+		PageHelper.startPage(pn, 15);
+		List<RecCover> list = partnerPushUrlMapper.getCover();
+		PageInfo<RecCover> pageInfo = new PageInfo<>(list);
+		return pageInfo;
+	}
+
+
+
+	
+
+
+
+	public RecCover getRanDomRecCover() {
+		return partnerPushUrlMapper.getRanDomRecCover();
+		 
+	}
+
+
+
+	public List<RecTitle> getRecTitle() {
+		return partnerPushUrlMapper.getRecTitle();
+	}
+
+
+
+	public Object createOpenUrl(Integer pushId) {
+		HashMap<String, String> hashMap = new HashMap<>();
+		PartnerPushUrl partnerPushUrl = partnerPushUrlMapper.selectOpenUrlByPuahId(pushId);
+		if (partnerPushUrl == null ||partnerPushUrl.getOpen_str() == null) {
+			String randomStr = NumTools.getRandomStr(10);
+			//String openurl = "http://c1.mzshu.com/nms/temp/"+randomStr;
+			PartnerPushUrl partnerPushUrl1 = new PartnerPushUrl();
+			partnerPushUrl1.setPush_id(pushId);
+			partnerPushUrl1.setOpen_str(randomStr);
+			Date addDays = DateUtils.addDays(new Date(), 7);
+			String format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(addDays);
+			partnerPushUrl1.setExpiry_date(format);
+			partnerPushUrlMapper.updateByPrimaryKeySelective(partnerPushUrl1);
+			hashMap.put("url", "http://c1.mzshu.com/nms/temp/"+randomStr);
+			hashMap.put("expiry_date", format);
+			return hashMap;
+		}
+		hashMap.put("url",  "http://c1.mzshu.com/nms/temp/"+partnerPushUrl.getOpen_str());
+		hashMap.put("expiry_date", partnerPushUrl.getExpiry_date());
+		return hashMap;
+		
+	}
+
+
+
+	public Object resetExpiryDate(Integer pushId) {
+		PartnerPushUrl partnerPushUrl = new PartnerPushUrl();
+		partnerPushUrl.setPush_id(pushId);
+		Date addDays = DateUtils.addDays(new Date(), 7);
+		String format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(addDays);
+		partnerPushUrl.setExpiry_date(format);
+		partnerPushUrlMapper.updateByPrimaryKeySelective(partnerPushUrl);
+		return RestReturn.success(format);
+	}
+
+
+
+	public PartnerPushUrl getOpenUrl(String random) {
+		PartnerPushUrl partnerPushUrl = partnerPushUrlMapper.getPartnerPushUrlByRandom(random);
+		
+		
+		
+		return partnerPushUrl;
+	}
+
+}

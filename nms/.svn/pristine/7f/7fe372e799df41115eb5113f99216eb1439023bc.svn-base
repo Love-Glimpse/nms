@@ -1,0 +1,20 @@
+package com.kuaidu.nms.quartz;
+
+
+import org.quartz.DisallowConcurrentExecution;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import com.kuaidu.nms.utils.Utils;
+
+
+
+/*@Component
+@DisallowConcurrentExecution*/
+public class TestJob {
+	@Scheduled(cron="0/1 * * * * ?")
+	public void test() {
+		System.out.println(System.currentTimeMillis());
+		Utils.threadSleep(10000);
+	}
+}

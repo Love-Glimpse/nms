@@ -1,0 +1,82 @@
+package com.kuaidu.nms.query.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.ChapterList;
+
+public interface ChapterMapper {
+
+	//添加章节
+	Integer addChapter(ChapterList chapterList);
+	
+	//查看章节
+	public List<ChapterList> getAllChapter(ChapterList chapterList);
+	
+	//查看book_name/最新章节/最新章节数/
+	public List<ChapterList> selectNew(ChapterList chapterList);
+	
+	//查看book_id and chapterNum是否存在。用于插入
+	public int getChapterNum(ChapterList chapterList);
+	
+	//章节后移
+	public void chapterNumBack(ChapterList chapterList);
+	
+	//获得总记录行
+	public int getCount(ChapterList chapterList);
+	
+	//判断章节是否存在
+	int checkChapterExist(ChapterList chapterList);
+	
+	 //章节增
+	 public int add_cList(ChapterList chapterList);
+	 //章节删
+	 public void del_cList(ChapterList chapterList);
+	 //章节改
+	 public void edit_cList(ChapterList chapterList);
+	 
+	 public void updateBookList(ChapterList chapterList);
+	 
+	 void updateChapter(ChapterList chapterList);
+
+	void changeFee(ChapterList chapterList);
+
+	void check_chapter(List<Integer> chapter_ids);
+
+	List<ChapterList> getChaptersByBookId(@Param("book_id")Integer book_id, @Param("checked")String checked);
+	//查询免费章节
+	List<ChapterList> getFreeChapterByBookId(Integer bookId);
+
+
+	String getChapterUrl(Integer chapterId);
+
+	int checkChapterNumExist(ChapterList chapterList);
+
+	void moveChapter(@Param("old_chapter_num")Integer old_chapter_num, @Param("chapter_num")Integer chapter_num);
+
+	void updateBookChecked(@Param("book_id")Integer book_id);
+
+	void moveChapterNum(@Param("chapter_num")int chapter_num, @Param("move_mode")int move_mode,
+					@Param("move_count")int move_count,@Param("book_id")int book_id);
+
+	void fixChapterNum(@Param("start_char")String start_char, @Param("end_char")String end_char,@Param("book_id") int book_id);
+
+	List<Map<String, Object>> getChapterContent(@Param("bookId")Integer bookId, @Param("chapterNum")Integer chapterNum);
+
+	Map<String, Object> getBookPicAndNextChapterId(@Param("bookId")Integer bookId, @Param("chapterNum")Integer chapterNum);
+
+	List<ChapterList> getChapterLists();
+
+	void updateChapterFdfs(ChapterList chapterList);
+
+	void updateChapterDoFlag(ChapterList chapterList);
+
+	void updateChapterRun(@Param("list")List<ChapterList> chapterLists, @Param("flag")int i);
+
+	List<Object> getAllChapterByBookID(@Param("book_id")Integer book_id);
+	
+	void delChapterListsByBookId(@Param("book_id")Integer book_id);
+
+}

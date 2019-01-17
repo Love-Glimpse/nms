@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.UserManagementMapper">
+    <!-- 查询作者表  返回类型为实体类对象-->
+    <select id="getAllRecords" resultType="UserInfo">
+    	SELECT ui.*,p.partner_name FROM user_info ui LEFT JOIN partner_push_url pi ON ui.push_id=pi.push_id LEFT JOIN partner_info p ON pi.partner_id=p.partner_id where 1=1 
+
+    	<if test="login_name != null and login_name != ''">
+			and (ui.login_name like '%${login_name}%' or ui.nick_name like '%${login_name}%')
+		</if>
+		<if test="mail != null and mail != ''">
+			and ui.mail like '%${mail}%'
+		</if>
+		<if test="partner_name != null and partner_name != ''">
+			and p.partner_name like '${partner_name}'
+		</if>
+		<if test="vip_type != null and vip_type != ''">
+			and ui.vip_type like '${vip_type}'
+		</if>
+		<if test="user_status != null and user_status != ''">
+			and ui.user_status like '${user_status}'
+		</if>
+    	order by user_id desc limit #{start_rows},#{end_rows}
+    </select>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+      	SELECT count(0) FROM user_info ui 
+      	LEFT JOIN partner_push_url pi ON ui.push_id=pi.push_id 
+      	LEFT JOIN partner_info p ON pi.partner_id=p.partner_id where 1=1 
+
+    	<if test="login_name != null and login_name != ''">
+			and (ui.login_name like '%${login_name}%' or ui.nick_name like '%${login_name}%')
+		</if>
+		<if test="mail != null and mail != ''">
+			and ui.mail like '%${mail}%'
+		</if>
+		<if test="partner_name != null and partner_name != ''">
+			and p.partner_name like '${partner_name}'
+		</if>
+		<if test="vip_type != null and vip_type != ''">
+			and ui.vip_type like '${vip_type}'
+		</if>
+		<if test="user_status != null and user_status != ''">
+			and ui.user_status like '${user_status}'
+		</if>
+  	</select>
+  	<update id="addUserPoint50">
+  		update user_info set user_point = user_point+50 where user_id=#{user_id}
+  	</update>
+</mapper>

@@ -1,0 +1,1087 @@
+$("#dialog_keyword").hide();
+/*
+   * 初始化表格
+   */
+initGrid();
+var div_num = 1; //静态存储 新添加的 内容条数
+var divob;	//静态存储点击过得  内容   对象
+var des;	//静态存储    拼接  内容
+
+
+$(function(){
+	/*封*/
+    loadCover(1);
+    loadCoverActive(1);
+    $("#copyWriting-img-active").hide(); 
+    /*img nav 切换 */
+    $("#img-nav li").on("click",function(){
+    	var nav = $(this).attr("data-nav");
+    	if(nav=="copyWriting-img"){
+    		$("#copyWriting-img-active").hide(); 
+    		$("#copyWriting-img").show(); 
+    	}else{
+    		$("#copyWriting-img").hide();
+    		$("#copyWriting-img-active").show(); 
+    	}
+    	
+    });
+    
+    /*链接 nav 切换 */
+    $("input[name='subscribe_mode']").on("click",function(){
+    	var val = $(this).val();
+    	if(val==2){
+    		$(".link-novel").hide();
+    		$(".active-url").show();   	
+    	}else{
+    		$(".link-novel").show();
+    		$(".active-url").hide();   
+    	}
+    });
+	
+	
+    /*模式 nav 切换 */
+    $(".radio-inline .valid").on("click",function(){
+    	var val = $(this).val();
+    	if(val==2){
+    		$(".rich-msg-editor").hide();
+    		$(".text-msg-editor").show();
+    		$(".add-sub-item-panel").show();
+    		$(".add-error").hide();
+    		/*$(".dialog-scroll").attr("style","display:inline-block;height:600px"); //文本模式添加滚动条
+*/    	}else{
+    		$(".text-msg-editor").hide();
+    		$(".add-sub-item-panel").hide();
+    		$(".rich-msg-editor").show();
+    		$(".add-error").hide();
+    	/*	$(".dialog-scroll").attr("style","display:inline-block;height:600px");*/
+    	}
+    });
+    
+    
+    $("#load").click(function(){
+		loadCover(pageNum+1)
+	})
+	
+	/**
+	 * 图文
+	 * */
+	/*imge change*/
+    $(".btn-edit-pic").on("click",function () {
+       $("#choose-pic-modal").modal('show');
+    });
+    
+    /*图文模式   编辑文本*/
+    $("#img-msg-editor").on('click', '.edit-article', function(){
+    	var txt_content= $("#title").text(),
+    		txt_url = $(".msg-url").text();
+    		$("#txt-content").val(txt_content);
+        	$("#txt-url").val(txt_url);
+        	$("#txt_bookName").val("");
+        	$("#book_name").html("<option value='no'>请先搜索小说</option>");
+        	$("#chapter_name").html("<option value='no'>请先选择小说</option>");
+    	$("#edit-article-modal").modal('show');
+    })
+    
+     $("#edit-article-modal").on('click', '#img-chang', function(){
+    	var nav  =  $("input[name='subscribe_mode']:checked").val();
+    	 if(nav==1){
+    		 var text = $("#txt-content").val();
+    		 var book_id = $("#chapter_name").children('option:selected').val()
+    		 if(book_id=="no"){
+    			 $('#txt_bookName').focus();
+    		   		$('#txt_bookName').tooltip({
+    		   			delay: {show: 100, hide: 300},
+    		   			title:"小说链接的图文，需要选择一本书的章节！！",
+    		   			trigger:"focus"
+    		   		});
+    		   		return false;
+    		 }
+    		 var url = "http://c1.mzshu.com/kdread/chapter/"+book_id+"";
+    	 }else{
+    		 var text = $("#txt-content").val();
+    		 var url = $("#txt-url").val();
+    	 }
+     	 
+   	if(text.length<=0){
+   		$('#txt-content').focus();
+   		$('#txt-content').tooltip({
+   			delay: {show: 100, hide: 300},
+   			title:"标题不能为空！！",
+   			trigger:"focus"
+   		});
+   		return false;
+   	}else{
+   		/*prev 同级元素 上一个元素*/
+   		$("#img-msg-editor span").text(text);
+   	}
+   	if(url.length<=0){
+   		$('#txt-url').focus();
+   		$('#txt-url').tooltip({
+   			delay: {show: 100, hide: 300},
+   			title:"url不能为空！！",
+   			trigger:"focus"
+   		});
+   		return false;
+   	}else{
+   		$("#img-msg-editor .msg-url").text(url);
+   		$("#img-msg-editor .msg-url").attr("style","color: #ccc;font-size: 11px;margin-top: 5px;");
+   	}
+   	$(".img-title-close").trigger("click");
+   })
+   
+
+    
+    
+    $(".msg-cover").on({
+		mouseover : function(){
+			$(".msg-edit-pic-overlay").show();
+		} ,
+		mouseout : function(){
+			$(".msg-edit-pic-overlay").hide();
+		} 
+	});
+    
+    /*封面修改*/
+    $("#choose-pic-modal").on('click', '#copyWriting-img img', function(){
+    	var img_url = $(this).attr("src");
+    	$(".msg-cover-img").attr("src",img_url);
+    	$("#choose-pic-close").trigger("click");
+    })
+    $("#choose-pic-modal").on('click', '#copyWriting-img-active img', function(){
+    	var img_url = $(this).attr("src");
+    	$(".msg-cover-img").attr("src",img_url);
+    	$("#choose-pic-close").trigger("click");
+    })
+    
+    /*随机封*/
+    $("#choose-pic-modal").on('click', '#give-img', function(){
+    	var module_num = Math.floor(Math.random()*10)+1;// 可均衡获取0到9的随机整数。
+        var pic_url = $("#choose-pic-modal img").eq(module_num).attr("src");
+    	$(".msg-cover-img").attr("src",pic_url);
+    })
+    
+    
+   
+    /*添加新文本*/
+    $("#add-article").on("click",function(){
+    	/*var nav  =  $("input[name='publish_type']:checked").val();*/
+    	var title = recTitle();
+    	/*判断添加的是那种模式的文本*/
+    	if(div_num==8){	    		
+	    		$(".add-error").text("最多添加8条");
+				$(".add-error").show();
+				return false;
+			}else if(div_num<=8){
+				$(".add-error").hide();
+				$('#text-msg-editor').append("<div class='clearText' style='margin-bottom: 10px;'><span  style='color: #444;'>"+ title+"</span><a href='javascript:void(0);' title='修改' class='edit-article2' ><i class='fa fa-edit'></i></a> <a href='javascript:void(0);'  title='删除' class='del-article' style='display: none;'><i class='fa fa-trash-o'></i></a><br><span class='text-url'></span></div>");
+				div_num++;
+				if(div_num>=2){
+		    		$(".del-article").show();
+		    	}
+			}else{
+				div_num=8;
+				return false;
+			}
+    });
+    
+    /*文本模式 删除文本*/
+	   $('#text-msg-editor').on('click', '.del-article', function(){
+		   $(this).parent().remove();
+		   div_num--;
+		   if(div_num==1){
+	    		$(".del-article").hide();
+	    		return false;
+	    	}else{
+	    		$(".add-error").hide();
+	    	}
+		   
+   })
+   
+   
+   /*文本模式   编辑文本*/
+   $("#text-msg-editor").on('click', '.edit-article2', function(){
+	   divob = $(this);
+	   $("#txt-content2").val(divob.prev().text());
+  	   $("#txt-url2").val(divob.next().next().next().text());
+	   $("#edit-text-modal").modal('show');
+   })
+   /**
+    * 图文模式
+    * */
+   /*书本搜索*/
+   $("#edit-article-modal").on('click', '#search_bookName', function(){
+	   var book_name = $("#txt_bookName").val();
+	   $.ajax({
+			//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+			async : false,
+			//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+			cache : false,
+			type : 'POST',
+			data : {
+				book_name : book_name
+			},
+			url : "partnerKeywordReply/searchBook",
+			error : function() { //请求失败处理函数  
+				alert('请求失败');
+			},
+			success : function(data) {
+				var book_name = data.book_name;
+				$("#book_name").html("");
+				if(book_name.length<=0){
+					$("#book_name").append("<option value='no'>没有任何相关小说</option>");
+					return false;
+				}
+				$("#book_name").append("<option value='no'>★★★★★★★请选择一本小说★★★★★★★</option>");
+				$("#chapter_name").html("<option value='no'>请先选择一本小说</option>");
+				for (var i = 0; i < book_name.length; i++) {
+					//data[i]表示获得第i个json对象即JSONObject
+					//data[i]通过.字段名称即可获得指定字段的值
+					$("#book_name").append("<option value="+book_name[i].book_id+">"+book_name[i].book_name+"</option>");
+				}
+			} //请求成功后处理函数。    
+		});
+	   
+   })
+   
+   
+      /*章节搜索*/
+   $("#edit-article-modal").on('change', '#book_name', function(){
+			   var  book_id =  $(this).children('option:selected').val();
+			   if(book_id!='no'){
+				   $.ajax({
+						//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+						async : false,
+						//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+						cache : false,
+						type : 'POST',
+						data : {
+							book_id : book_id
+						},
+						url : "partnerKeywordReply/searchChapter",
+						error : function() { //请求失败处理函数  
+							alert('请求失败');
+						},
+						success : function(data) {
+							var chapter_name = data.chapter_name;
+							$("#chapter_name").html("");
+							if(chapter_name.length<=0){
+								$("#chapter_name").append("<option value='no'>该书没有任何章节</option>");
+								return false;
+							}
+							$("#chapter_name").append("<option value='no'>★★★★★★★请选择章节内容★★★★★★★</option>");
+							for (var i = 0; i < chapter_name.length; i++) {
+								//data[i]表示获得第i个json对象即JSONObject
+								//data[i]通过.字段名称即可获得指定字段的值
+								$("#chapter_name").append("<option value="+chapter_name[i].chapter_id+">"+chapter_name[i].chapter_name+"</option>");
+							}
+						} //请求成功后处理函数。    
+					});
+			   }else{
+				   $("#chapter_name").html("<option value='no'>请先选择一本小说</option>");
+			   }
+   })
+   
+   /**
+    * 文字模式
+    * */
+   /*书本搜索*/
+   $("#edit-text-modal").on('click', '#search_bookName2', function(){
+	   var book_name = $("#txt_bookName2").val();
+	   if(book_name.replace(/(^\s*)|(\s*$)/g, '')===""){
+		   $('#txt_bookName2').focus();
+	   		$('#txt_bookName2').tooltip({
+	   			delay: {show: 100, hide: 300},
+	   			title:"搜索框不能为空或者空格进行搜索！！",
+	   			trigger:"focus"
+	   		});
+	   		return false;
+	   }
+	   $.ajax({
+			//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+			async : false,
+			//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+			cache : false,
+			type : 'POST',
+			data : {
+				book_name : book_name
+			},
+			url : "partnerKeywordReply/searchBook",
+			error : function() { //请求失败处理函数  
+				alert('请求失败');
+			},
+			success : function(data) {
+				var book_name = data.book_name;
+				$("#book_name2").html("");
+				if(book_name.length<=0){
+					$("#book_name2").append("<option value='no'>没有任何相关小说</option>");
+					return false;
+				}
+				$("#book_name2").append("<option value='no'>★★★★★★★请选择一本小说★★★★★★★</option>");
+				$("#chapter_name2").html("<option value='no'>请先选择一本小说</option>");
+				for (var i = 0; i < book_name.length; i++) {
+					//data[i]表示获得第i个json对象即JSONObject
+					//data[i]通过.字段名称即可获得指定字段的值
+					$("#book_name2").append("<option value="+book_name[i].book_id+">"+book_name[i].book_name+"</option>");
+				}
+			} //请求成功后处理函数。    
+		});
+   })
+   
+   
+      /*章节搜索*/
+   $("#edit-text-modal").on('change', '#book_name2', function(){
+		   var  book_id =  $(this).children('option:selected').val();
+		   
+		   if(book_id!='no'){
+			    $.ajax({
+					//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+					async : false,
+					//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+					cache : false,
+					type : 'POST',
+					data : {
+						book_id : book_id
+					},
+					url : "partnerKeywordReply/searchChapter",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						var chapter_name = data.chapter_name;
+						$("#chapter_name2").html("");
+						if(chapter_name.length<=0){
+							$("#chapter_name2").append("<option value='no'>该书没有任何章节</option>");
+							return false;
+						}
+						$("#chapter_name2").append("<option value='no'>★★★★★★★请选择章节内容★★★★★★★</option>");
+						for (var i = 0; i < chapter_name.length; i++) {
+							//data[i]表示获得第i个json对象即JSONObject
+							//data[i]通过.字段名称即可获得指定字段的值
+							$("#chapter_name2").append("<option value="+chapter_name[i].chapter_id+">"+chapter_name[i].chapter_name+"</option>");
+						}
+					} //请求成功后处理函数。    
+				});
+		   }else{
+			   $("#chapter_name2").html("<option value='no'>请先选择一本小说</option>");
+		   }
+
+   })
+   
+   
+   /*获取文本*/
+   $("#text-msg-editor").on('click', '#hide-text', function(){
+	   var x = "",
+		   len = $("#text-msg-editor span:even").length;
+	   $("#text-msg-editor span:even").each(function(i){
+		   if(i===len-1){
+			   if($(this).next().next().next().next().text()==""){
+				   x = x + $(this).text();
+			   }else{
+				   x = x + "<a href=\\\"Max\\\">"+$(this).text()+"</a>"
+			   }
+		   }else{
+			   if($(this).next().next().next().next().text()==""){
+				   x = x + $(this).text()+"\\n";
+			   }else{
+				   x = x + "<a href=\\\"Max\\\">"+$(this).text()+"</a>\\n"
+			   }
+		   }
+	   });
+
+	   $("#text-msg-editor span:odd").each(function(){
+		   if($(this).text()==""){
+			   x=x;
+		   }else{
+			   x = x.replace("Max", $(this).text());
+		   }
+	   });
+	   des = x;
+   })
+   
+   $("#edit-text-modal").on('click', '#text-chang', function(){
+	   var nav  =  $("input[name='subscribe_mode']:checked").val();
+   	 if(nav==1){
+   		 var text = $("#txt-content2").val();
+		 var book_id = $("#chapter_name2").children('option:selected').val();
+		 if(book_id=="no"){
+			 var url = ""
+		 }else{
+			 var url = "http://c1.mzshu.com/kdread/chapter/"+book_id+"";
+		 }
+	}else{
+		 var text = $("#txt-content2").val();
+		 var url = $("#txt-url2").val();
+	}
+   		
+   	if(text.length<=0){
+   		$('#txt-content2').focus();
+   		$('#txt-content2').tooltip({
+   			delay: {show: 100, hide: 300},
+   			title:"标题不能为空！！",
+   			trigger:"focus"
+   		});
+   		return false;
+   	}else{
+   		divob.prev().text(text);
+   	}
+   	if(url.length<=0){
+   		
+   	}else{
+   		divob.next().next().next().text(url);
+   		$(".text-url").attr("style","color: #ccc;font-size: 11px;margin-top: 5px;");
+   	}
+   	$("#close-text-edit").trigger("click");
+   })
+    
+   /*时间*/
+    $('#send_time').datetimepicker({
+        format: 'YYYY-MM-DD H:mm:ss',
+        locale: moment.locale('zh-cn'),
+        showClose:true	//是否显示关闭 按钮
+        /*viewMode: 'days',//天数模块展示，months则为以月展示
+        daysOfWeekDisabled: false,//星期几 禁止选择,参数 [num],多个逗号隔开
+        calendarWeeks: false,	//显示 周 是 今年第几周
+        toolbarPlacement:'default', //工具摆放的位置，top 则为上，默认为底
+        showTodayButton:false,	//是否工具栏 显示 直达今天天数的 按钮，默认false
+        showClear:false, //是否 工具栏显示  清空 输入框  的按钮。默认false
+*/        
+
+    });
+	   
+	/*示例*/
+	$('.btn-member-id-screen').webuiPopover({content:"<img style='width:240px;height:400px;' src='https://wx1.sinaimg.cn/mw690/00617AGFgy1fxfgzst5i9j30bm0ipt9m.jpg'>",trigger:'hover'});
+
+	
+	$(".send_time a").on("click",function(){
+		var nowDate = new Date();
+		var year = nowDate.getFullYear(),
+			month = nowDate.getMonth()+1,
+			day = nowDate.getDate(),
+			hours = nowDate.getHours(),
+			minutes = nowDate.getMinutes(),
+			seconds = nowDate.getSeconds();
+		var nav = $(this).attr("data-time");
+		switch(nav)
+		{
+		case "10":
+			minutes = minutes+10;
+			$("#send_time").val(year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds);
+		  break;
+		case "60":
+			hours = hours+1;
+			$("#send_time").val(year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds);
+		  break;
+		case "120":
+			hours = hours+2;
+			$("#send_time").val(year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds);
+		  break;
+		default:
+		 alert("没有选项对应的值。");
+		}
+	})
+   
+	/*测试粉丝id*/
+   $("#dialog_keyword").on('click', '#btn-cs', function(){
+	   var user_id = $("#Fans-cs").val();
+	   var checkNum = /^[0-9]*$/;
+		//创建一个正则表达式对象
+		var objExp = new RegExp(checkNum);
+	   if(objExp.test(user_id)){
+		   /*确定图文还是文本*/
+		   var  nav  =  $("input[name='publish_type']:checked").val(),
+		   		subscribe_mode =  $("input[name='subscribe_mode']:checked").val();
+           if(nav == 1){
+        	   if(subscribe_mode == 1){
+    			   var book_id = $("#book_name").children('option:selected').val();
+    		   }else{
+    			   var book_id = 0;
+    		   }
+	       	   var msg_type_val = $("input[name='publish_type']:checked").val(),
+       	       	   title = $("#title").text(),
+	       	   	   description = $("#add_des").val(),
+	       	  	   pic_url = $(".msg-cover-img").attr("src"),
+	       	   	   send_time = $("#send_time").val(),
+	       	   	   url = $("#img-msg-editor .msg-url").text();
+	           	   if(url=="链接未配置"){
+	       	   		   url="";
+	       	   	   }
+	           	   if(msg_type_val==1){
+	           		   msg_type = "news"
+	           	   }else{
+	           		   msg_type = "text"
+	           	   }
+       	  
+          }else{
+       	   $("#hide-text").trigger("click");
+       	   var  msg_type = $("input[name='subscribe_mode']:checked").val(),
+       	   		vip_type = $("input[name='paid']:checked").val(),
+        	   	    sex = $("input[name='gender']:checked").val(),
+       	   		pic_url = "",
+       	   		description = $("#add_des").val(),
+       	   		send_time = $("#send_time").val(),
+       	   		url = "",
+       	   		title = des;
+       	   		book_id = 0;
+          }
+		$.ajax({  
+  	    	 //默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+  	         async : false,  
+  	         //默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+  	         cache:false,  
+  	         type: 'POST',  
+  	         data:{
+  	        	 "msg_type":msg_type,
+  	        	 "book_id":book_id,
+  	        	 "pic_url":pic_url,
+  	        	 "title":title,
+  	        	 "description":description,
+  	        	 "url":url,
+  	        	 "send_time":"",
+  	        	 "user_id":user_id,
+  	        	 "msg_type":"text"
+  	         },
+  	         //转到authorsQueryManage
+  	         url:"partnerCustomerServiceInfo/addTestWxCustomMsg",
+  	         error: function () {//请求失败处理函数  
+  	             alert('请求失败');  
+  	         },  
+  	         success:function(data){
+  	        	 var obj = eval(data);
+  	        	 result=obj.result;
+  	        	 if(result==0){
+  	        		 //title:窗口标题
+  	        		 //信息弹出框，
+  	        		$.messager.show({
+  	        			title:"客服消息设置",
+  	        			msg:'发送成功！',
+  	        			showSpeed:100,
+  	        			timeout:1000,
+  	        			showType:'show',
+  	        			//弹出框的样式。
+  	        			style:{
+  	        				right:'',
+  	        				top:document.body.scrollTop+document.documentElement.scrollCenter,
+  	        				bottom:''
+  	        			}
+
+  	        		});
+  	        		return false;
+  	        		
+  	        	 }else{
+  	        		 alert_autoClose("发送失败！","error");
+  	        		 return false;
+  	        	 }
+  	         } //请求成功后处理函数。    
+  	      });
+	   }else{
+		   alert("id为数字");
+	   }
+   })
+	
+   
+    // 提示框设置显示配置
+    var messageOpts = {
+        "closeButton" : true,// 是否显示关闭按钮
+        "debug" : false,// 是否使用debug模式
+        "positionClass" : "toast-bottom-right",// 弹出窗的位置
+        "onclick" : null,
+        "showDuration" : "300",// 显示的动画时间
+        "hideDuration" : "1000",// 消失的动画时间
+        "timeOut" : "2000",// 展现时间
+        "extendedTimeOut" : "1000",// 加长展示时间
+        "preventDuplicates": true,//是否阻止弹出多个消息框
+        "showEasing" : "swing",// 显示时的动画缓冲方式
+        "hideEasing" : "linear",// 消失时的动画缓冲方式
+        "showMethod" : "fadeIn",// 显示时的动画方式
+        "hideMethod" : "fadeOut" // 消失时的动画方式
+    };
+    toastr.options = messageOpts;
+});
+
+
+
+
+
+function initGrid() {
+	$('#grid').datagrid({
+		columns : [ [
+			//js代码创建的datagrid本身已经添加了checkbox列，就是第一列。checkbox列将会自适应宽度。
+			{
+				field : 'ck',
+				checkbox : true,
+				align : 'center'
+			},
+			{
+				field : 'p_msg_id',
+				title : 'id',
+				width : 20,
+				align : 'center'
+			},
+			{
+				field : 'task_name',
+				title : '任务名称',
+				align : 'center',
+				width : 120
+			},
+			{
+				field : 'type',
+				title : '类型',
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.type==2){
+						return "活动链接";
+					}else{
+						return "小说链接";
+					}
+				}
+			},
+			{
+				field : 'msg_type',
+				title : '类型',
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.msg_type=='text'){
+						return "文字消息";
+					}else{
+						return "图文消息";
+					}
+				}
+			},
+			{
+				field : 'url',
+				title : '原文链接',
+				align : 'center',
+				width : 120
+			},
+			{
+				field : 'url',
+				title : '入口链接',
+				align : 'center',
+				width : 120
+			},
+			{
+				field : 'pic_url',
+				title : '图片链接',
+				align : 'center',
+				width : 120
+			},
+			{
+				field : 'title',
+				title : '标题',
+				width : 60,
+				align : 'center'
+			},
+			{
+				field : 'vip_type',
+				title : '用户类型',
+				width : 60,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.vip_type==0){
+						return "<span style='color:green'>未充值用户</span>";
+					}else if(row.vip_type==1){
+						return "充值用户";
+					}else{
+						return "<span style='color:green'>所有用户</span>";
+					}
+				}
+			},
+			{
+				field : 'description',
+				title : '描述',
+				width : 60,
+				align : 'center'
+			},
+			{
+				field : 'sex',
+				title : '男/女',
+				width : 60,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.sex==0){
+						return "女";
+					}else if(row.sex==1){
+						return "男";
+					}else{
+						return "<span style='color:red'>不限</span>";
+					}
+				}
+			},
+			{
+				field : 'send_status',
+				title : '发送状态',
+				width : 60,
+				align : 'center'
+			},
+			{
+				field : 'send_time',
+				title : '发送时间',
+				width : 65,
+				align : 'center'
+			},
+			{
+				field : 'send_success',
+				title : '成功条数',
+				width : 60,
+				align : 'center'
+			},
+			{
+				field : 'send_failed',
+				title : '失败条数',
+				width : 60,
+				align : 'center'
+			},
+			{
+				field : 'create_time',
+				title : '创建时间',
+				width : 65,
+				align : 'center'
+			}
+		] ],
+
+		//同action提交.提交的类型是jason
+		url : 'partnerCustomerServiceInfo/getCustomerServiceInfo',
+		method : 'post',
+		collapsible : true,
+		//rownumber列的配置是在全局设置的
+		//如果设置为true则会在开头第一列来添加一列来显示行号。
+		rownumbers : false,
+		//如果为true，则只允许选择一行。
+		singleSelect : false,
+		toolbar : '#tb',
+		fitColumns : true,
+		pageSize : 50,
+		pageList : [ 50, 100, 200 ],
+		pagination : true,
+		onLoadSuccess : function(data) { //加载成功   
+			//要判断或者执行的代码
+			//sysy
+		}
+	});
+}
+
+/**
+ * 刷新功能
+ */
+$("#reload").click(function(e) {
+	$('#grid').datagrid('reload');
+});
+
+/**
+ * 添加
+ */
+function add(){
+	$("#dialog_keyword").show();
+	var nav  =  $("input[name='subscribe_mode']:checked").val();
+	if(nav==2){
+		$(".link-novel").hide();
+		$(".active-url").show();   	
+	}else{
+		$(".link-novel").show();
+		$(".active-url").hide();   
+	}
+	/*随机标题*/
+	var isNull = $("#title").text();
+	var isNull2 = $("#title2").text();
+	if(isNull==""){
+		$("#title").text(recTitle());
+	}
+	if(isNull2==""){
+		$("#title2").text(recTitle());
+	}
+
+	$("#give-img").trigger("click");
+	   //创建一个对话框
+	   $('#dialog').dialog({
+		 //对话框窗口标题文本
+        title: "客服消息设置",
+        //
+        iconCls:'icon-add',
+        //定义是否显示最大化按钮，默认没false
+        maximizable: true,
+        //定义定义是否可以改变对话框窗口大小。默认为false
+        resizable: false,
+        overlay: {opacity: 0.5, background: "black" ,overflow:'auto'},
+        //窗口宽度
+        width: 600,
+        //窗口高度
+        height: 600,
+        //定义窗口是不是模态（modal）窗口。有遮布
+        modal:true,
+        //页面已经 初始化隐藏，这里设置false 则显示出来
+        closed: false,
+        align : 'center',
+        buttons: [{
+      	  //定义按钮value值
+            text: '确定',
+            //icon  √
+            iconCls: 'icon-ok',
+            //按钮事件（处理者）
+            handler: function () {
+            	var send_time = $("#send_time").text();
+            	if(send_time==""){
+            		$("#send_time").text(recTitle());
+            	}
+            	/*确定图文还是文本*/
+            	var nav  =  $("input[name='publish_type']:checked").val();
+
+         	   var  task_name = $("#add_task_name").val(),
+         	   		type = $("input[name='subscribe_mode']:checked").val(),
+         	   		vip_type = $("input[name='paid']:checked").val(),
+        	   		description = $("#add_des").val(),
+        	   		send_time = $("#send_time").val(),
+          	   	    sex = $("input[name='gender']:checked").val();
+         	   
+         	   var msg_type="";
+                if(nav == 1){
+                	msg_type = "news";
+            	   var pic_url = $(".msg-cover-img").attr("src"),
+            	   	   title = $("#title").text(),
+            	   	   url = $("#img-msg-editor .msg-url").text();
+	            	   if(url=="链接未配置"){
+	        	   		   url="";
+	        	   	   }
+               }else{
+            	   msg_type = "text";
+            	   $("#hide-text").trigger("click");
+            	   		var pic_url = "",
+            	   		url = "",
+            	   		title = des;
+               }
+               
+               
+    		if(task_name==""){
+    			alert_autoClose("任务名不能空！", "error");
+ 			   return false;
+    		}
+        	if(send_time==""){
+        		alert_autoClose("发送时间不能空！", "info");
+        		return false;
+        	}
+    		$.ajax({  
+	   	    	 //默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+	   	         async : false,  
+	   	         //默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+	   	         cache:false,  
+	   	         type: 'POST',  
+	   	         data:{
+	   	        	 "task_name":task_name,
+	   	        	 "type":type,
+	   	        	 "msg_type":msg_type,
+	   	        	 "vip_type":vip_type,
+	   	        	 "sex":sex,
+	   	        	 "pic_url":pic_url,
+	   	        	 "title":title,
+	   	        	 "description":description,
+	   	        	 "sex":sex,
+	   	        	 "url":url,
+	   	        	 "send_time":send_time
+	   	         },
+	   	         //转到authorsQueryManage
+	   	         url:"partnerCustomerServiceInfo/addCustomerServiceInfo",
+	   	         error: function () {//请求失败处理函数  
+	   	             alert('请求失败');  
+	   	         },  
+	   	         success:function(data){
+	   	        	 var obj = eval(data);
+		        	 var result="";
+		        	 var obj = eval(data);
+		 	    	 for(var i=0;i<obj.length;i++){
+		 	    		result=obj[i].result;
+			    	 }
+	   	        	 if(result!="1"){
+	   	        		 //title:窗口标题
+	   	        		 //信息弹出框，
+	   	        		$.messager.show({
+	   	        			title:"客服消息设置",
+	   	        			msg:'添加成功！',
+	   	        			showSpeed:100,
+	   	        			timeout:1000,
+	   	        			showType:'show',
+	   	        			//弹出框的样式。
+	   	        			style:{
+	   	        				right:'',
+	   	        				top:document.body.scrollTop+document.documentElement.scrollCenter,
+	   	        				bottom:''
+	   	        			}
+
+	   	        		});
+	   	        		//更新完刷新表格
+	   	        		$('#grid').datagrid('load');
+	   	        		//关闭对话框
+	   	        		$('#dialog').dialog('close');
+	   	        		return false;
+	   	        		
+	   	        	 }else{
+	   	        		 alert_autoClose(title+"失败！","error");
+	   	        		 $('#dialog').dialog('close');
+	   	        		 return false;
+	   	        	 }
+	   	         } //请求成功后处理函数。    
+	   	      });
+    		
+           }
+        }, 
+        {
+            text: '取消',
+            iconCls: 'icon-cancel',
+            
+            handler: function () {
+                $('#dialog').dialog('close');
+            }
+        }]
+    });//对话框End
+	   //窗口居中
+	   $('#dialog').window('center');
+}
+/*
+ * 删除
+ * */
+function del() {
+	//获取行，包括 author_id,author_name 之类的存为string数组
+	var rows = $('#grid').datagrid('getChecked');
+	//创建一个mycars数组
+	var ids = new Array()
+	if (rows.length >= 1) {
+		for (var i = 0; i < rows.length; i++) {
+			//存选择小说记录行
+			//可为多行
+			//若存在限制。则用if分支
+			ids[i] = rows[i].p_msg_id;
+		}
+	} else {
+		alert_autoClose("请选择一个！", "error");
+		return false;
+	}
+	//创建一个json对象  存储 数组
+	var ids = JSON.stringify(ids);
+	$.messager.confirm({
+		width : 350,
+		height : 250,
+		title : '操作提示',
+		msg : '确定删除数据？',
+		fn : function(r) {
+			if (r) {
+				$.ajax({
+					async : false,
+					cache : false,
+					type : 'POST',
+					data : {node:ids},
+					url : "partnerCustomerServiceInfo/delCustomerServiceInfo",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						var result = "";
+						var obj = eval(data);
+						result = obj.result;
+						$('#grid').datagrid('reload');
+						if (result == "1") {
+							alert_autoClose("删除失败！", "error");
+							$('#grid').datagrid('reload');
+						} else {
+							alert_autoClose("删除成功！", "info");
+						}
+					} //请求成功后处理函数。    
+				});
+			} else {
+
+			}
+		}
+	});
+}
+
+//加载封面
+function loadCover(pn){
+	$.get({
+		url:"partner/covers",
+		data:{"pn":pn},
+		dataType:"json",
+		success:function(data){
+			pageNum = data.pageNum;
+			if(data.isLastPage){
+				$("#load").attr('disabled', true);
+				$("#load").text("已加载全部");
+			}
+			$.each(data.list,function(index,value){
+				var sourceUrl = value.source_url;
+				var compressUrl = value.compress_url;
+				var id = value.id;
+				$("#title-img").append("<div class='col-sm-3'><a href='javascript:;'  style='display:block;margin-bottom:5px;'> <img  style='width:112px;height:75px;' src="+compressUrl+" /> </a></div>");
+			})
+		}
+	})
+}
+
+function loadCoverActive(page){
+	$.ajax({
+		//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+		async : false,
+		//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+		cache : false,
+		type : 'POST',
+		data : {
+			page : page
+		},
+		url : "partnerKeywordReply/activeImg",
+		error : function() { //请求失败处理函数  
+			alert('请求失败');
+		},
+		success : function(data) {
+			var active_img = data.active_img;
+			for (var i = 0; i < active_img.length; i++) {
+				$("#title-img-active").append("<div class='col-sm-3'><a href='javascript:;'  style='display:block;margin-bottom:5px;'> <img  style='width:112px;height:75px;' src="+active_img[i].compress_url+" /> </a></div>");
+			}
+		} //请求成功后处理函数。    
+	});
+}
+
+function recTitle(){
+	var result = "";
+	$.ajax({
+		//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+		async : false,
+		//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+		cache : false,
+		type : 'POST',
+		url : "partnerKeywordReply/randomTitle",
+		data : {
+			"send_time":""
+		},
+		error : function() { //请求失败处理函数  
+			alert('请求失败');
+		},
+		success : function(data) {
+			var randTitle = data.randTitle,
+				title = "";
+			for (var i = 0; i < randTitle.length; i++) {
+				title = randTitle[i].title;
+			}
+			result =  title;
+		} //请求成功后处理函数。    
+	});
+	return result;
+}
+
+
+/*
+ *系统提示函数：alert_autoclose
+ */
+function alert_autoClose(msg, icon) {
+	var interval;
+	var time = 1000;
+	var x = 2; //设置时间2s
+	$.messager.alert("系统提示", msg, icon, function() {});
+	interval = setInterval(fun, time);
+	function fun() {
+		--x;
+		if (x == 0) {
+			clearInterval(interval);
+			$(".messager-body").window('close');
+		}
+	}
+	
+}
+
+
+

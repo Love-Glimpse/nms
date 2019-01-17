@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:redis="http://www.springframework.org/schema/redis"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/redis http://www.springframework.org/schema/redis/spring-redis-1.0.xsd">
+	
+	
+	
+<!-- 将session放入redis -->
+   <!--  <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">   
+        过期时间 4小时  
+        <property name="maxInactiveIntervalInSeconds" value="14400"></property>  
+    </bean>  -->
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="maxWaitMillis" value="${redis.maxWait}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+		<property name="maxTotal" value="${redis.maxTotal}"/>
+	</bean>
+	<bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+	  	<property name="poolConfig" ref="poolConfig" />
+	    <property name="hostName" value="${redis.host}" />
+	    <property name="password" value="${redis.password}" />
+	    <property name="port" value="${redis.port}" />
+	    <property name="database" value="${redis.db}" />
+	    <property name="timeout" value="${redis.timeout}"/>
+	</bean>
+	
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+	<property name="connectionFactory" ref="connectionFactory" />
+       <property name="keySerializer">
+           <bean
+               class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+       </property>
+       <property name="hashKeySerializer">
+           <bean
+               class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer" />
+       </property>
+       <property name="valueSerializer">
+           <bean
+               class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer" />
+       </property>
+       <property name="hashValueSerializer">
+           <bean
+               class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer" />
+       </property>
+	</bean>
+	<bean id="redisListener" class="com.kuaidu.nms.utils.RedisListener" />
+
+	<bean id="genericJackson2JsonRedisSerializer" class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer"></bean>
+
+	<redis:listener-container connection-factory="connectionFactory">	
+	<!-- the method attribute can be skipped as the default method name is "handleMessage" 
+			topic代表监听的通道，是一个正规匹配 -->
+		<redis:listener ref="redisListener" serializer="genericJackson2JsonRedisSerializer" method="clearBook" topic="clearBook" />
+	<!-- 	<redis:listener ref="redisListener" serializer="genericJackson2JsonRedisSerializer" method="partnerCustomGroupMsg1" topic="partnerCustomGroupMsg1" /> -->
+		<redis:listener ref="redisListener" serializer="genericJackson2JsonRedisSerializer" method="c" topic="c" />
+	</redis:listener-container>
+</beans>

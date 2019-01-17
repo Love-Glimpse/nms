@@ -1,0 +1,92 @@
+package com.kuaidu.nms.partner.proxy.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerPmConfig;
+import com.kuaidu.nms.partner.proxy.serviceImpl.PartnerProxyMapperImpl;
+import com.kuaidu.nms.utils.ResultData;
+
+import net.sf.json.JSONObject;
+
+/** 
+ * @Title UserOrderStatController.java 
+ * partner 代理设置
+ * @description TODO 
+ * @time 2018年9月10日 下午5:37:50 
+ * @author victor 
+ * @version 1.0 
+**/
+@Controller
+@RequestMapping("/partnerProxy")
+public class PartnerProxyController {
+	@Autowired 
+	PartnerProxyMapperImpl pImpl;
+	
+	@RequestMapping("/partnerProxyIndex")
+	public ModelAndView homepageIndex(HttpSession session){
+		ModelAndView mv = new ModelAndView();
+		try {
+			mv.setViewName("partner/proxy/partnerProxy"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+	@ResponseBody
+	@RequestMapping("/getProxy")
+	public String getProxy(HttpSession session,PartnerInfo partnerInfo){
+		String login_flag = (String) session.getAttribute("login_flag");
+		if (login_flag == null||!login_flag.equalsIgnoreCase("partner")) {
+			return null;
+		}
+		Object object = session.getAttribute("partner_user");
+		if (object==null) {
+			return null;
+		}
+		PartnerInfo pInfo = (PartnerInfo)object;
+		partnerInfo.setPartner_id(pInfo.getPartner_id());
+		PageHelper.startPage(partnerInfo.getPage(), partnerInfo.getRows());
+		List<PartnerInfo> list = pImpl.getProxy(partnerInfo);
+		PageInfo<PartnerInfo> partnerGroups = new PageInfo<>(list);
+		return ResultData.toJsonString((int) partnerGroups.getTotal(), list);
+	}
+	@ResponseBody
+	@RequestMapping("/addEditProxy")
+	public JSONObject addEditProxy(HttpSession session,PartnerInfo partnerInfo){
+		JSONObject jsonRet = new JSONObject();
+		String login_flag = (String) session.getAttribute("login_flag");
+		int ret = 0;
+		if (login_flag == null||!login_flag.equalsIgnoreCase("partner")) {
+			jsonRet.put("success", "0");
+			return jsonRet;
+		}
+		Object object = session.getAttribute("partner_user");
+		if (object==null) {
+			jsonRet.put("success", "0");
+			return jsonRet;
+		}
+		PartnerInfo pInfo = (PartnerInfo)object;
+		partnerInfo.setSub_domain(pInfo.getSub_domain());
+		partnerInfo.setParent_id(pInfo.getPartner_id());
+		if (partnerInfo.getPartner_id() > 0) {// 编辑
+			ret = pImpl.updateProxy(partnerInfo);
+		} else {// 添加
+			ret = pImpl.addProxy(partnerInfo);
+		}
+		jsonRet.put("success", ret);
+		return jsonRet;
+		
+	}
+	
+}

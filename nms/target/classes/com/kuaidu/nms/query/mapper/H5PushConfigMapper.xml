@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.H5PushConfigMapper">
+
+	<select id="getH5PushConfigServicebySex" resultType="H5PushConfig">
+		select p.id, p.book_id,p.module_id,p.status,p.created_time,b.book_name,b.small_pic,b.words,m.module_name from 
+		h5_push_config p 
+		left join book_list b on b.book_id = p.book_id 
+		left join h5_module m on p.module_id = m.module_id
+		where 1=1
+		<choose>
+			<when test="moduleId == 6">
+				and p.module_id = #{moduleId} and p.status != -1 
+			</when>
+			<otherwise>
+				<if test="sex != 2">
+					and p.sex = #{sex} 
+				</if>
+				<if test="moduleId != 0">
+					and p.module_id = #{moduleId}
+				</if>
+					and p.status != -1 
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getRankIngs" resultType="ranking">
+		SELECT id, r.book_id,b.words,b.book_name,b.small_pic,r.type,r.create_time FROM ranking r 
+		LEFT JOIN book_list b ON R.book_id = b.book_id
+		
+	</select>
+	
+	<update id="updateCarouselMapUrl">
+		update h5_push_config set records = #{url} where id = #{id} and module_id = 3
+	</update>
+	
+	<update id="updateH5ConfigBook">
+		update h5_push_config set book_id = #{bookId} ,created_time = now() where id = #{id}
+	</update>
+	
+	<update id="updateRanking">
+		update ranking set book_id = #{bookId} where id = #{id}
+	</update>
+
+
+</mapper>

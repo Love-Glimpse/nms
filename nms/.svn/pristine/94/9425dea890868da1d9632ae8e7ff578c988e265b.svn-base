@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.datastaticstics.mapper.StatBookAnalysisMapper">
+	<select id="getBookAnalysis" resultType="StatBookAnalysis">
+		select * from (select ba.book_id,ba.stat_date,SUM(all_read)all_read
+			,SUM(read_original)read_original,(SUM(read_original)/SUM(all_read)) read_original_rate
+		    ,SUM(read_subscribe)read_subscribe ,(SUM(read_subscribe)/SUM(all_read)) read_subscribe_rate
+		    ,SUM(read_free_chapter)read_free_chapter,(SUM(read_free_chapter)/SUM(all_read)) read_free_chapter_rate
+			,SUM(charge_cost_user)charge_cost_user,(SUM(charge_cost_user)/SUM(all_read)) charge_cost_user_rate
+			,SUM(charge_cost_point)charge_cost_point
+			,SUM(nocharge_cost_user)nocharge_cost_user,SUM(nocharge_cost_point)nocharge_cost_point,bl.book_name
+			<if test="parent_id!=null and parent_id>0">
+				,p.partner_name
+			</if>
+			 from stat_book_analysis ba 
+		left join  book_list bl on bl.book_id = ba.book_id
+		 <if test="parent_id!=null and parent_id>0">
+		 	left join partner_info p on ba.parent_id = p.partner_id
+		 </if>
+		 where to_days(stat_date) between to_days(#{start_date}) and   to_days(#{end_date})
+		<if test="parent_id!=null and parent_id>0">
+			and ba.parent_id=#{parent_id}
+		</if>
+		<if test="book_name!=null and book_name!=''">
+			and bl.book_name=#{book_name}
+		</if>
+		
+		group by stat_date,book_id) a
+		where 1 = 1 
+		<if test="all_read !=null and all_read >0">
+			and all_read >=#{all_read}
+		</if>
+		<if test="read_original != null and read_original >0">
+			and read_original_rate*100 >=#{read_original}
+		</if>
+		<if test="read_subscribe!=null and read_subscribe>0">
+			and read_subscribe_rate*100 >=#{read_subscribe}
+		</if>
+		<if test="read_free_chapter!=null and read_free_chapter>0">
+			and read_free_chapter_rate*100 >=#{read_free_chapter}
+		</if>
+		<if test="charge_cost_user!=null and charge_cost_user>0">
+			and charge_cost_user_rate*100 >=#{charge_cost_user}
+		</if>
+		order by stat_date desc, ${sort} ${order} limit #{start_rows},#{rows}
+	</select>
+	<select id="getBookAnalysisCount" resultType="int">
+		select count(0) from (select ba.book_id,ba.stat_date,SUM(all_read)all_read
+			,SUM(read_original)read_original,(SUM(read_original)/SUM(all_read)) read_original_rate
+		    ,SUM(read_subscribe)read_subscribe ,(SUM(read_subscribe)/SUM(all_read)) read_subscribe_rate
+		    ,SUM(read_free_chapter)read_free_chapter,(SUM(read_free_chapter)/SUM(all_read)) read_free_chapter_rate
+			,SUM(charge_cost_user)charge_cost_user,(SUM(charge_cost_user)/SUM(all_read)) charge_cost_user_rate
+			,SUM(charge_cost_point)charge_cost_point
+			,SUM(nocharge_cost_user)nocharge_cost_user,SUM(nocharge_cost_point)nocharge_cost_point,bl.book_name
+			<if test="parent_id!=null and parent_id>0">
+				,p.partner_name
+			</if>
+			 from stat_book_analysis ba 
+		left join  book_list bl on bl.book_id = ba.book_id
+		 <if test="parent_id!=null and parent_id>0">
+		 	left join partner_info p on ba.parent_id = p.partner_id
+		 </if>
+		 where to_days(stat_date) between to_days(#{start_date}) and  to_days(#{end_date})
+		<if test="parent_id!=null and parent_id>0">
+			and ba.parent_id=#{parent_id}
+		</if>
+		<if test="book_name!=null and book_name!=''">
+			and bl.book_name=#{book_name}
+		</if>
+		 
+		group by stat_date,book_id) a
+		where 1 = 1 
+		<if test="all_read !=null and all_read >0">
+			and all_read >=#{all_read}
+		</if>
+		<if test="read_original != null and read_original >0">
+			and read_original_rate*100 >=#{read_original}
+		</if>
+		<if test="read_subscribe!=null and read_subscribe>0">
+			and read_subscribe_rate*100 >=#{read_subscribe}
+		</if>
+		<if test="read_free_chapter!=null and read_free_chapter>0">
+			and read_free_chapter_rate*100 >=#{read_free_chapter}
+		</if>
+		<if test="charge_cost_user!=null and charge_cost_user>0">
+			and charge_cost_user_rate*100 >=#{charge_cost_user}
+		</if>
+	</select>
+</mapper>

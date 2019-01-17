@@ -1,0 +1,10 @@
+package com.kuaidu.nms.partner.config.serviceImpl;
+
+import org.springframework.stereotype.Service;
+/*
+ * 接口实现类
+ * */
+@Service
+public class PartnerwxCfgMapperImpl {
+
+}

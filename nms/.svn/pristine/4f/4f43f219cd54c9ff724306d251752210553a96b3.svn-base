@@ -1,0 +1,53 @@
+package com.kuaidu.nms.utils;
+
+import java.util.List;
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.query.serviceImpl.ChpterServerImpl;
+import com.kuaidu.nms.utils.fastdfs.FastDFSTemplate;
+
+/** 
+ * @Title RedisListener.java 
+ * @description TODO 
+ * @time 2018年10月18日 上午9:21:30 
+ * @author victor 
+ * @version 1.0 
+**/
+/**
+ * redis 订阅
+ * */
+public class RedisListener {
+	@Resource
+	RedisTemplate<String, List<ChapterList>> redisTemplate;
+	@Autowired
+	FastDFSTemplate fastDFSTemplate;
+	private static String ip = Utils.getLocalHostIp();
+	
+	public void b(String json, String channel){
+		System.out.println(json);
+	}
+	public void c(String json, String channel){
+		System.out.println(json);
+	}
+	public void clearBook(String key, String channel){
+		if (ip.matches("69\\.171\\.67\\.171")&&redisTemplate.hasKey(key)){
+		/*if (ip.matches("69\\.171\\.67\\.171")&&redisTemplate.hasKey(key)) {*/
+			Log4jUtil.getBusinessLogger().info(key);
+			List<ChapterList> chapterLists = redisTemplate.opsForList().rightPop(key);
+			Log4jUtil.getBusinessLogger().info(chapterLists);
+			for (ChapterList chapterList : chapterLists) {
+				try {
+					fastDFSTemplate.deleteFile(chapterList.getChapter_filepath_fdfs());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					Log4jUtil.getBusinessLogger().info("清空书籍，删除失败=="+chapterList.getChapter_filepath_fdfs());
+				}
+			}
+			redisTemplate.delete(key);
+		}
+	}
+}

@@ -1,0 +1,78 @@
+package com.kuaidu.nms.entity;
+
+public class user_proposal {
+	private Integer id;
+	private Integer user_id;
+	private String content;
+	private Integer status;
+	private String create_time;
+	private String login_name;
+	private Integer start_rows;  //起始行
+	private Integer end_rows;	//末尾行
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public Integer getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public Integer getStatus() {
+		return status;
+	}
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+	public String getCreate_time() {
+		return create_time;
+	}
+	public void setCreate_time(String create_time) {
+		this.create_time = create_time;
+	}
+	public Integer getStart_rows() {
+		return start_rows;
+	}
+	public void setStart_rows(Integer start_rows) {
+		this.start_rows = start_rows;
+	}
+	public Integer getEnd_rows() {
+		return end_rows;
+	}
+	public void setEnd_rows(Integer end_rows) {
+		this.end_rows = end_rows;
+	}
+	public String getLogin_name() {
+		return login_name;
+	}
+	public void setLogin_name(String login_name) {
+		this.login_name = login_name;
+	}
+	public user_proposal(Integer id, Integer user_id, String content, Integer status, String create_time,
+			String login_name, Integer start_rows, Integer end_rows) {
+		super();
+		this.id = id;
+		this.user_id = user_id;
+		this.content = content;
+		this.status = status;
+		this.create_time = create_time;
+		this.login_name = login_name;
+		this.start_rows = start_rows;
+		this.end_rows = end_rows;
+	}
+	public user_proposal() {
+		super();
+	}
+	
+	
+	
+}

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.user.mapper.UserCostRecordsMapper">
+    <select id="getAllRecords" resultType="UserCost">
+    	SELECT uc.*,ui.nick_name,ui.picture,bl.book_name,cl.chapter_name FROM user_cost uc 
+    	LEFT JOIN user_info ui ON uc.user_id=ui.user_id 
+    	LEFT JOIN book_list bl ON uc.book_id=bl.book_id
+    	LEFT JOIN chapter_list cl ON uc.chapter_id=cl.chapter_id
+    	where 1=1 
+    	<if test="nick_name != null and nick_name != ''">
+			and (uc.user_id like '%${nick_name}%' or ui.login_name like '%${nick_name}%' or ui.nick_name like '%${nick_name}%')
+		</if>
+    	order by id desc limit #{start_rows},#{end_rows}
+    </select>
+    <!-- 分页	 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+       SELECT count(*) FROM user_cost uc 
+	    	LEFT JOIN user_info ui ON uc.user_id=ui.user_id 
+	    	LEFT JOIN book_list bl ON uc.book_id=bl.book_id
+	    	LEFT JOIN chapter_list cl ON uc.chapter_id=cl.chapter_id where 1=1
+    	<if test="nick_name != null and nick_name != ''">
+			and (uc.user_id like '%${nick_name}%' or ui.login_name like '%${nick_name}%' or ui.nick_name like '%${nick_name}%')
+		</if>
+  	</select>
+</mapper>

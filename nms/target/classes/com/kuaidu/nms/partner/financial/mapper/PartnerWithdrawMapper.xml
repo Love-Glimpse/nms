@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+
+
+<mapper namespace="com.kuaidu.nms.partner.financial.mapper.PartnerWithdrawMapper">
+		
+	<resultMap type="com.kuaidu.nms.entity.PartnerWithdraw" id="PartnerWithdrawInfo">
+		<id property="id" column="id"/>
+		<result property="partner_id" column="partner_id"/>
+		<result property="parent_id" column="parent_id"/>
+		<result property="partner_name" column="partner_name"/>
+		<result property="withdraw_price" column="withdraw_price"/>
+		<result property="bank_charge" column="bank_charge"/>
+		<result property="pay_price" column="pay_price"/>
+		<result property="status" column="status"/>
+		<result property="create_time" column="create_time" javaType="java.util.Date"/>
+		<result property="pay_type" column="pay_type"/>
+		<result property="bank_account" column="bank_account"/>
+		<result property="bank_name" column="bank_name"/>
+		<result property="bank_province" column="bank_province"/>
+		<result property="bank_city" column="bank_city"/>
+		<result property="bank_branch" column="bank_branch"/>
+		<result property="payee" column="payee"/>
+		<result property="alipay_account" column="alipay_account"/>
+		<result property="alipay_name" column="alipay_name"/>
+		<result property="wechat_account" column="wechat_account"/>
+		<result property="wechat_name" column="wechat_name"/>
+		<result property="voucher_url" column="voucher_url"/>
+		<result property="transfer_order_number" column="transfer_order_number"/>
+		<result property="pay_time" column="pay_time"/>
+		<collection property="partnerBills" ofType="com.kuaidu.nms.entity.PartnerBill">
+			<id property="id" column="bill_id"/>
+			<result property="order_num" column="order_num"/>
+			<result property="order_price" column="order_price"/>
+			<result property="withdraw_price" column="bill_withdraw_price"/>
+			<result property="partner_accounts_scale" column="partner_accounts_scale"/>
+			<result property="proxy_accounts_scale" column="proxy_accounts_scale"/>
+			<result property="status" column="bill_status"/>
+			<result property="proxy_status" column="proxy_status"/>
+			<result property="create_time" column="bill_create_time" javaType="java.util.Date"/>
+		</collection>
+	</resultMap>
+	
+	
+	<insert id="savePartnerWithAndBill">
+		insert into partner_withdraw_bill(withdraw_id,bill_id) values
+		<foreach collection="list" item="item"  separator=",">
+			(#{id},#{item.id})
+		</foreach>
+	</insert>
+	
+	<select id="getPartnerWithdrawByPartnerId" resultType="partnerWithdraw">
+		select id, withdraw_price,status,create_time from partner_withdraw 
+		where partner_id = #{partnerId} and  to_days(create_time) between to_days(#{start}) and to_days(#{end})
+	</select>
+	
+	<select id="getparentWithdrawByPartnerId" resultType="partnerWithdraw">
+		select id,withdraw_price,bank_charge,pay_price,status,create_time from partner_withdraw 
+		where partner_id = #{partnerId} and  to_days(create_time) between to_days(#{start}) and to_days(#{end})
+	</select>
+	
+	<select id="getPartnerWithAccountByPartnerId" resultType="partnerWithdraw">
+		select partner_id,parent_id,pay_type,bank_account,bank_name,bank_province,bank_city,bank_branch
+			,payee,alipay_account,alipay_name,wechat_account,wechat_name
+ 		from partner_account where partner_id = #{partner_id}
+	</select>
+	
+	<select id="getPartnerWithdrawById" resultMap="PartnerWithdrawInfo">
+		select pw.partner_id,pi.partner_name,pw.withdraw_price,bank_charge,pw.pay_price,pw.status,pw.create_time,pay_type,bank_account,bank_name
+		,bank_province,bank_city,bank_branch,payee,alipay_account,alipay_name,wechat_account,wechat_name,pay_time,pb.order_num
+		,order_price,pb.withdraw_price bill_withdraw_price,pb.create_time bill_create_time,pb.partner_accounts_scale from partner_withdraw pw
+		left join partner_info pi on pw.partner_id = pi.partner_id
+		left join partner_withdraw_bill pwb on pwb.withdraw_id = pw.id
+		left join partner_bill pb on pwb.bill_id = pb.id
+		where pw.id = #{id}
+	</select>
+	
+	<select id="getParentWithdrawById" resultMap="PartnerWithdrawInfo">
+		select pw.id, pw.partner_id,pi.partner_name,pw.withdraw_price,bank_charge,pw.pay_price,pw.status,pw.create_time,pay_type,bank_account,bank_name
+		,bank_province,bank_city,bank_branch,payee,alipay_account,alipay_name,wechat_account,wechat_name,pay_time,pb.order_num
+		,order_price,pb.id bill_id,pb.withdraw_price bill_withdraw_price,pb.create_time bill_create_time,pb.partner_accounts_scale from partner_withdraw pw
+		left join partner_info pi on pw.partner_id = pi.partner_id
+		left join partner_withdraw_bill pwb on pwb.withdraw_id = pw.id
+		left join partner_bill pb on pwb.bill_id = pb.id
+		where pw.id = #{id}
+	</select>
+	
+</mapper>

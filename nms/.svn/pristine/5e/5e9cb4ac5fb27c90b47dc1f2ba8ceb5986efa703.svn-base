@@ -1,0 +1,15 @@
+package com.kuaidu.nms.partner.push.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.PartnerTemplateMsg;
+
+public interface TemplateInformationMapper{
+	List<PartnerTemplateMsg> getTemplateInformation(@Param("start_rows")Integer start_rows, @Param("rows")Integer rows,@Param("partner_id") int partner_id);
+
+	int getTemplateInformationCount();
+
+	void addTemplateMsg(PartnerTemplateMsg partnerTemplateMsg);
+}

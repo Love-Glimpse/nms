@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.BooksQueryMapper">
+	<!--查询所有书籍 	start_rows=开始行        采用模糊搜索	-->
+    <select id="getAllbooks" resultType="Book_list">
+      select a.*,n.type_desc as type_name,
+      	<choose>
+		<!-- 网源不OK -->
+		<when test="isUrlConfig == 2">
+			0 as isUrlConfig
+		</when>
+		<!-- 网源配置 -->
+		<otherwise>
+			s.id as isUrlConfig
+		</otherwise>
+	</choose>
+      	 from book_list a 
+      	<!-- 网源没配置 -->
+    <choose>
+		<!-- 网源不OK -->
+		<when test="isUrlConfig == 2">
+			
+		</when>
+		<!-- 网源配置 -->
+		<otherwise>
+			LEFT JOIN spider_config s ON INSTR(a.book_url,s.main_url)>0 
+		</otherwise>
+	</choose>
+	 LEFT JOIN novel_type n ON  a.type_id = n.type_id
+	   	 where 1=1 
+    <if test="book_name != null and book_name != ''">
+			and (book_name like '%${book_name}%' or book_url like '%${book_name}%' or book_id like "%${book_name}%")
+	</if>
+	<if test="book_id != null and book_id != ''">
+			and book_id=${book_id}
+	</if>
+	<if test="update_flag == 1">
+			and total_chapter_count&gt;downloaded_chapter_count
+	</if>
+	<choose>
+		<when test="isserial == 1">
+			and isserial=0 and total_chapter_count&gt;downloaded_chapter_count
+		</when>
+		<when test="isserial == 2">
+			and isserial=0 and total_chapter_count&lt;=downloaded_chapter_count
+		</when>
+		<when test="isserial == 3">
+			and isserial=1 and total_chapter_count&gt;downloaded_chapter_count
+		</when>
+		<when test="isserial == 4">
+			and isserial=1 and total_chapter_count&lt;=downloaded_chapter_count
+		</when>
+	</choose>
+	
+	<!-- 网源没配置 -->
+	<if test="isUrlConfig == 2">
+	 	and	book_id not in(select a.book_id from book_list a
+		 LEFT JOIN spider_config s ON INSTR(a.book_url,s.main_url)>0 WHERE INSTR(a.book_url,s.main_url))
+	</if>
+		<!-- 网源OK -->
+	<if test="isUrlConfig == 1">
+	 	and INSTR(a.book_url,s.main_url)>0 
+	</if>
+	<if test="type_id >0">
+			and a.type_id=#{type_id}
+	</if>
+	<choose>
+		<when test="checked_ok == 0 ">
+			and checked_ok=0
+		</when>
+		<when test="checked_ok == 1">
+			and checked_ok > 0
+		</when>
+	</choose>
+	<choose>
+		<when test="hot_value >= 80 and hot_value &lt;=100">
+			and hot_value =#{hot_value}
+		</when>
+		<when test="hot_value &lt; 80">
+			and hot_value &lt;80
+		</when>
+	</choose>
+	ORDER BY hot_value DESC,checked_ok desc,book_id 
+	
+	 limit #{start_rows},#{end_rows} 
+    </select>
+    
+    <!-- 查询作者表  返回类型为实体类对象-->
+    <select id="getAllAuthors" resultType="Author">
+    	SELECT * FROM author where 1=1 and author_name=#{author_name}
+    </select>
+    
+    <!-- 查询类型表  返回类型为实体类对象-->
+    <select id="getAllnovel_type" resultType="Novel_type">
+    	SELECT * FROM novel_type
+    </select>
+    
+    
+	<!--增加书籍 -->
+    <insert id="add_bList">
+     	INSERT INTO book_list(type_id,book_url,book_pic_url,book_name,author,author_id,description,update_time_self,pic_path,source_ids,isserial,sex,free_chapter_num) 
+     		VALUES (#{type_id},#{book_url},#{book_pic_url},#{book_name},#{author},#{author_id},#{description},now(),#{pic_path},#{source_ids},#{isserial},#{sex},#{free_chapter_num})
+    </insert>  
+    
+    <!-- 添加新作者 -->
+    <insert id="add_author">
+    	INSERT INTO author(author_name,group_type)VALUES(#{author_name},#{group_type})
+    </insert>
+   <!-- 编辑书籍-->
+   <update id="edit_bList">
+     UPDATE book_list SET type_id=#{type_id}, book_url=#{book_url},total_chapter_count=#{total_chapter_count}, book_name=#{book_name} 
+     	<if test="book_pic_url != null and book_pic_url !=''">
+     		, book_pic_url =#{book_pic_url} 
+     	</if>
+     	<if test="pic_path != null and pic_path !=''">
+     		, pic_path =#{pic_path} 
+     	</if>
+     	,words_min=#{words_min},is_fixed=#{is_fixed}
+     	,remark=#{remark}, author=#{author} ,author_id=#{author_id}, description=#{description}, 
+     	update_time_self=now(),isserial=#{isserial},sex=#{sex},free_chapter_num=#{free_chapter_num}
+     	where book_id=#{book_id}
+   </update>
+   
+    <!-- 删除书籍   for循环实现多行删除-->
+    <!-- item表示集合中每一个元素进行迭代时的别名，
+		index指定一个名字，用于表示在迭代过程中，每次迭代到的位置，
+		open表示该语句以什么开始，
+		separator表示在每次进行迭代之间以什么符号作为分隔符，
+		close表示以什么结束。 -->
+		<!--例子：SELECT * FROM `book_list` WHERE book_id IN (23,24)  -->
+  <delete id="del_bList" parameterType="java.util.List">
+  	 delete from book_list where book_id in 
+   <foreach item="book_id" collection="list" open="(" separator="," close=")">
+     #{book_id}
+    </foreach>
+  </delete>
+
+    <!--count（*）=获取所有记录个数 	用于分页	-->
+    <select id="getCount" resultType="int">
+     select count(*)  from book_list a 
+      	<!-- 网源没配置 -->
+    <choose>
+		<!-- 网源不OK -->
+		<when test="isUrlConfig == 2">
+			
+		</when>
+		<!-- 网源配置 -->
+		<otherwise>
+			LEFT JOIN spider_config s ON INSTR(a.book_url,s.main_url)>0 
+		</otherwise>
+	</choose>
+	 LEFT JOIN novel_type n ON  a.type_id = n.type_id
+	   	 where 1=1 
+    <if test="book_name != null and book_name != ''">
+			and (book_name like '%${book_name}%' or book_url like '%${book_name}%' or book_id like "%${book_name}%")
+	</if>
+	<if test="book_id != null and book_id != ''">
+			and book_id=${book_id}
+	</if>
+	<if test="update_flag == 1">
+			and total_chapter_count&gt;downloaded_chapter_count
+	</if>
+	<choose>
+		<when test="isserial == 1">
+			and isserial=0 and total_chapter_count&gt;downloaded_chapter_count
+		</when>
+		<when test="isserial == 2">
+			and isserial=0 and total_chapter_count&lt;=downloaded_chapter_count
+		</when>
+		<when test="isserial == 3">
+			and isserial=1 and total_chapter_count&gt;downloaded_chapter_count
+		</when>
+		<when test="isserial == 4">
+			and isserial=1 and total_chapter_count&lt;=downloaded_chapter_count
+		</when>
+	</choose>
+	
+	<!-- 网源没配置 -->
+	<if test="isUrlConfig == 2">
+	 	and	book_id not in(select a.book_id from book_list a
+		 LEFT JOIN spider_config s ON INSTR(a.book_url,s.main_url)>0 WHERE INSTR(a.book_url,s.main_url))
+	</if>
+		<!-- 网源OK -->
+	<if test="isUrlConfig == 1">
+	 	and INSTR(a.book_url,s.main_url)>0 
+	</if>
+	<if test="type_id >0">
+			and a.type_id=#{type_id}
+	</if>
+	<choose>
+		<when test="checked_ok == 0 ">
+			and checked_ok=0
+		</when>
+		<when test="checked_ok == 1">
+			and checked_ok > 0
+		</when>
+	</choose>
+	<choose>
+		<when test="hot_value >= 80 and hot_value &lt;=100">
+			and hot_value =#{hot_value}
+		</when>
+		<when test="hot_value &lt; 80">
+			and hot_value &lt;80
+		</when>
+	</choose>
+  	</select>
+  	
+    <!-- 获取同书名同作家记录数		-->
+    <select id="getSameCount" resultType="int">
+      select COUNT(*) from book_list where 1=1 and author=#{author} AND book_name=#{book_name}
+  	</select>
+  	
+  	<update id="updateBookList"><!-- ,total_chapter_count=total_chapter_count+1  -->
+  		update book_list set newest_chapter=(CASE WHEN newest_chapter_num &lt;#{chapter_num} THEN #{chapter_name} ELSE newest_chapter END),
+  		newest_chapter_num=(CASE WHEN newest_chapter_num &lt;#{chapter_num} THEN #{chapter_num} ELSE newest_chapter_num END)
+  		,downloaded_chapter_count=downloaded_chapter_count+1,update_time_self=now(),words=words+#{words}-#{oldWords}
+  		 where book_id=#{book_id}
+  	</update>
+  	<update id="updateBookList_del">
+  		<!-- 删除章节时更新 -->
+  		update book_list set newest_chapter=(CASE WHEN newest_chapter_num =#{chapter_num} THEN (SELECT chapter_name from chapter_list WHERE book_id = #{book_id} ORDER BY chapter_num DESC LIMIT 1) ELSE newest_chapter END),
+  		newest_chapter_num=(CASE WHEN newest_chapter_num =#{chapter_num} THEN (SELECT chapter_num from chapter_list WHERE book_id = 10 ORDER BY chapter_num DESC LIMIT 1) ELSE newest_chapter_num END)
+  		,downloaded_chapter_count=downloaded_chapter_count-1,update_time_self=now(),words=words-#{words}
+  		 where book_id=#{book_id}
+  	</update>
+  	<update id="updateBookList_update">
+  		<!-- 更新章节时更新 -->
+  		update book_list set words = words+(#{words}-#{oldWords})
+  		 where book_id=#{book_id}
+  	</update>
+  	<update id="checkOk">
+  		update book_list set checked_ok = #{checked_ok} where book_id=#{book_id}
+  	</update>
+  	<update id="updateRemark">
+  		update book_list set remark = #{remark} where book_id=#{book_id}
+  	</update>
+  	
+  	<select id="getNoPic" resultType="Book_list">
+  		select book_id ,book_pic_url from book_list where pic_path is NULL or pic_path ='' LIMIT 300
+  	</select>
+  	
+  	<select id="getPicByIds" resultType="Book_list">
+  		select book_id ,book_pic_url from book_list where book_id in (
+  			<foreach collection="array" item="bookId" separator=",">
+  				#{bookId}
+  			</foreach>
+  		)
+  	</select>
+  	
+  	<update id="updateBookPic">
+		update book_list set pic_path = #{path},book_pic_changed=0 where book_id = #{bookId}
+	</update>
+	
+	<update id="updateBooksmallPic">
+		update book_list set small_pic = #{path},book_pic_changed=0 where book_id = #{bookId}
+	</update>
+	
+  	
+  	
+  	<select id="getbookPic" resultType="book_list">
+  		select book_id,book_name ,pic_path,book_pic_url from book_list
+  		<where>
+	  		<if test="changed == 2">
+	  			book_pic_changed = 1
+	  		</if>
+	  		<if test="changed == 3">
+	  			book_pic_changed = 0
+	  		</if>
+  		</where>
+  		 
+  	</select>
+  	
+  	<select id="getBookPicUrl" resultType="string">
+  		select book_pic_url from book_list where book_id = #{id}
+  	</select>
+  	
+  	
+  	
+  	<select id="getNovelTypeBy" resultType="novel_type">
+  		SELECT n.type_id,n.type_desc FROM novel_type n
+		RIGHT JOIN (SELECT DISTINCT(type_id) FROM book_list 
+		<if test="sex != 2">
+			where sex = #{sex}
+		</if>
+		 ) a
+		on n.type_id = a.type_id
+		order by n.type_id desc
+  	</select>
+  	
+  	
+  	<select id="getBooksBycondition" resultType="book_list">
+  		select book_id,sex,book_name,total_chapter_count,newest_chapter,isserial,update_time_self,description,hot_value,small_pic,n.type_desc type_name
+  		from book_list b
+  		left join novel_type n
+  		on b.type_id = n.type_id
+  		<where>
+  			<if test='bookName !=""'>
+  				b.book_name like concat('%','${bookName}','%')
+  			</if>
+  			<if test="sex != 2">
+  				and sex = #{sex} 
+  			</if>
+  			<if test="isserial != 2">
+  				and isserial = #{isserial}
+  			</if>
+  			<if test="typeId != 0">
+  				and b.type_id =#{typeId}
+  			</if>
+  			<if test="hotValue == 1">
+  				and hot_value between 91 and 100
+  			</if>
+  			<if test="hotValue == 2">
+  				and hot_value between 81 and 90
+  			</if>
+  			<if test="hotValue == 3">
+  				and hot_value between 61 and 81
+  			</if>
+  			<if test="hotValue == 4">
+  				and hot_value between 0 and 60
+  			</if>
+  			and status != 2  and downloaded_chapter_count &gt; 20
+  		</where>
+  		order by hot_value desc
+  	</select>
+  	
+  	<select id="getBookInfoBybookId" resultType="book_list">
+  		select book_id,book_name,description,words,small_pic from book_list where book_id = #{bookId}
+  	</select>
+  	
+  	<select id="getBookSmallPic" resultType="string">
+  		select small_pic from book_list where book_id = #{bookId}
+  	</select>
+  	
+  	<select id="getbookPicById" resultType="string">
+  		select pic_path from book_list where book_id = #{bookId}
+  	</select>
+  	
+</mapper>

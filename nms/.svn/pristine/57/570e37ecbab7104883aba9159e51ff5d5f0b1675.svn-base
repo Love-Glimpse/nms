@@ -1,0 +1,81 @@
+package com.kuaidu.nms.user.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.kuaidu.nms.entity.UserProposal;
+import com.kuaidu.nms.user.serviceImpl.UserFeedBackMapperImpl;
+import com.kuaidu.nms.utils.ResultData;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+
+@Controller
+@RequestMapping("/userFeedBack")
+public class UserFeedBackManage {
+	@Autowired
+	private UserFeedBackMapperImpl rImpl;
+	@RequestMapping("/userFeedBackIndex")
+	public ModelAndView userFeedBackManageIndex(HttpSession session){
+			
+			ModelAndView mv = new ModelAndView();
+		try {
+			mv.setViewName("user/userFeedBack");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+	/*
+	 * 使用了分页的话，其框架自身会向后台传递page、rows这个两个属性值。
+	 * 分别表示当前页和当前页显示的记录行数。
+	 * 可以在action中定义好这两个属性，并同样设置getter和setter方法，就可以接受到这些参数了。
+	 * */
+	//查
+	@ResponseBody
+	@RequestMapping("/getAll")
+	public String getAll(HttpServletRequest request,UserProposal userProposal){	
+		String page= request.getParameter("page");	
+		String rows= request.getParameter("rows");
+		Integer start_rows = Integer.parseInt(page)*Integer.parseInt(rows)-Integer.parseInt(rows);
+		userProposal.setStart_rows(start_rows);
+		userProposal.setEnd_rows(Integer.parseInt(rows));
+		List<UserProposal> list = rImpl.getAllRecords(userProposal);
+		int total = rImpl.getCount(userProposal);
+		return ResultData.toJsonString(total, list);
+	}
+	@ResponseBody
+	@RequestMapping("/ignore")
+	public JSONObject ignore(HttpServletRequest request) {
+		JSONObject jsonRet = new JSONObject();
+		String chapterList = request.getParameter("ids");
+		JSONArray idsArray = JSONArray.fromObject(chapterList);
+		List<Integer> chapter_ids = new ArrayList<Integer>();
+		int ret = 0;
+		for (int i = 0; i < idsArray.size(); i++) {
+			chapter_ids.add(idsArray.getInt(i));
+		}
+		ret = rImpl.ignore(chapter_ids);
+		jsonRet.put("result", ret);
+		return jsonRet;
+	}
+	@ResponseBody
+	@RequestMapping("/changeStatus")
+	public JSONObject changeStatus(UserProposal userProposal) {
+		JSONObject jsonRet = new JSONObject();
+		int ret = 0;
+		ret = rImpl.changeStatus(userProposal);
+		jsonRet.put("result", ret);
+		return jsonRet;
+	}
+}

@@ -1,0 +1,95 @@
+package com.kuaidu.nms.quartz;
+
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.kuaidu.nms.entity.WxCustomMsg;
+import com.kuaidu.nms.message.serviceImpl.CustomMsgImpl;
+import com.kuaidu.nms.utils.Log4jUtil;
+import com.kuaidu.nms.utils.MyWxUtils;
+import com.kuaidu.nms.utils.QueueManager;
+import com.kuaidu.nms.utils.Utils;
+
+import net.sf.json.JSONObject;
+
+/** 
+ * @Title SendCustomMsgProcessor.java 
+ * @description TODO 
+ * @time 2018年10月30日 下午4:39:22 
+ * @author victor 
+ * @version 1.0 
+**/
+@Component
+public class SendCustomMsgProcessor extends Thread{
+	private boolean startFlag = false;
+	
+	private static CustomMsgImpl cImpl;
+	
+	public  CustomMsgImpl getcImpl() {
+		return cImpl;
+	}
+	@Autowired
+	public void setcImpl(CustomMsgImpl cImpl) {
+		SendCustomMsgProcessor.cImpl = cImpl;
+	}
+	@Override
+	public void run() {
+		String ip = Utils.getLocalHostIp();
+		if (ip.equals("69.171.67.171")) {
+			while (startFlag) {
+				Utils.threadSleep(10);
+				WxCustomMsg customMsg = getWxCustomMsg();
+				if (customMsg == null) {
+					try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						// TODO: handle exception
+						startFlag = false;
+					}
+				} else {
+					String ret = MyWxUtils.sendCustomMsg(customMsg);
+					/*{ "errcode": 0, "errmsg": "ok" }*/
+					JSONObject jsonRet = JSONObject.fromObject(ret);
+					Log4jUtil.getBusinessLogger().info(jsonRet);
+					int status = jsonRet.optInt("errcode", 11);
+					if (status == 0) {
+						customMsg.setSend_status(2);
+
+					} else if (status == 40001||status == 41001) {//access_token 错误 重新发送
+						customMsg.setSend_status(0);
+					} else {
+						//发送失败
+						customMsg.setSend_status(-1);
+					}
+					if (customMsg.getP_msg_id()>0) {
+						
+					}
+					cImpl.updateMsgStatus(customMsg);
+				}
+			} 
+		}
+	}
+	private static synchronized  WxCustomMsg getWxCustomMsg() {
+		ConcurrentLinkedQueue<WxCustomMsg> wxCustomMsgs = QueueManager.getInstance().getWxCustomMsgs();
+		int size = wxCustomMsgs.size();
+		if (size <= 0) {
+			return null;
+		}
+		Log4jUtil.getBusinessLogger().info("wx_custom_msg queue size===" + size);
+		WxCustomMsg customMsg = wxCustomMsgs.poll();
+		if (customMsg!=null) {
+			return customMsg;
+		}else {
+			return null;
+		}
+	}
+	public boolean isStartFlag() {
+		return startFlag;
+	}
+	public void setStartFlag(boolean startFlag) {
+		this.startFlag = startFlag;
+	}
+
+}

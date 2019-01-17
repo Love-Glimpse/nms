@@ -1,0 +1,38 @@
+package com.kuaidu.nms.entity;
+
+public class Promoters {
+	private Integer id;
+	private String promoters_name;
+	private String keyword;
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getPromoters_name() {
+		return promoters_name;
+	}
+	public void setPromoters_name(String promoters_name) {
+		this.promoters_name = promoters_name;
+	}
+
+	public String getKeyword() {
+		return keyword;
+	}
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
+	
+	
+	public Promoters(Integer id, String promoters_name, String keyword) {
+		super();
+		this.id = id;
+		this.promoters_name = promoters_name;
+		this.keyword = keyword;
+	}
+	public Promoters() {
+		super();
+	}
+
+}

@@ -1,0 +1,82 @@
+package com.kuaidu.nms.partner.push.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.Book_list;
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.entity.PartnerKeyword;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.entity.PromotionActive;
+import com.kuaidu.nms.entity.RecCover;
+import com.kuaidu.nms.entity.RecTitle;
+import com.kuaidu.nms.partner.push.mapper.KeywordReplyMapper;
+
+/** 
+ * @Title KeywordReplyServiceImpl.java 
+ * @time 2018年11月7日 下午2:25:02 
+ * @author victor 
+ * @version 1.0 
+**/
+@Service
+public class KeywordReplyServiceImpl {
+	@Autowired
+	KeywordReplyMapper kMapper;
+
+	public List<PartnerKeyword> getKeywordReply(Integer start_rows, Integer rows, int partner_id) {
+		return kMapper.getKeywordReply(start_rows,rows,partner_id);
+	}
+
+	public int getKeywordReplyCount() {
+		return kMapper.getKeywordReplyCount();
+	}
+
+	 //删除作者
+	public void delKeywords(List<Object> list){
+		kMapper.delKeywords(list);
+	}
+
+	public int addKeyword(PartnerKeyword partnerKeyword) {
+		int ret = 0;
+		try {
+			kMapper.addKeyword(partnerKeyword);
+			ret = 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	public List<Book_list> seachBook(Book_list book_list) {
+		return kMapper.seachBook(book_list);
+	}
+	public List<ChapterList> seaChapter(ChapterList chapter_list) {
+		return kMapper.seaChapter(chapter_list);
+	}
+	public List<RecCover> searchImg(RecCover rec_cover) {
+		return kMapper.searchImg(rec_cover);
+	}
+	public List<RecTitle> AllTitle(RecTitle recTitle) {
+		return kMapper.AllTitle(recTitle);
+	}
+	public List<RecTitle> randTitle(RecTitle recTitle) {
+		return kMapper.randTitle(recTitle);
+	}
+	public List<RecCover> randPic(RecCover rec_cover) {
+		return kMapper.randPic(rec_cover);
+	}
+	/*平台活动*/
+	public List<PromotionActive> platActive(PromotionActive promotionActive) {
+		return kMapper.platActive(promotionActive);
+	}
+	/*渠道活动*/
+	public List<PromotionActive> partActive(PromotionActive promotionActive) {
+		return kMapper.partActive(promotionActive);
+	}
+	/*内推*/
+	public List<PartnerPushUrl> internalPush(PartnerPushUrl partnerPushUrl) {
+		return kMapper.internalPush(partnerPushUrl);
+	}
+}

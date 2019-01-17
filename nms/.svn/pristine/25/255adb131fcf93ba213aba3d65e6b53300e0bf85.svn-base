@@ -1,0 +1,151 @@
+//界面加载完毕执行以下程序
+$(function(){
+
+    /* 复制文案*/
+    $("[data-toggle='copy-text-msg']").on("click",function () {
+        var url = $(this).attr('data-url'),
+            t_name = $(this).parent().parent().parent("tr").find(".promotional-copy").text();
+        var clipboard = new ClipboardJS("[data-toggle='copy-text-msg']",{
+            text: function() {
+                return "<a href="+url+">"+t_name+"</a>";
+            }
+        });
+        clipboard.on('success', function(e) {
+            // 复制成功 执行
+            toastr.success("复制成功");
+    });
+
+        clipboard.on('error', function(e) {
+            // 复制失败 执行
+            toastr.error("复制失败!");
+    });
+    });
+
+    /* 复制url*/
+    $("[data-toggle='copy-link']").on("click",function () {
+        var clipboard = new ClipboardJS("[data-toggle='copy-link']");
+        clipboard.on('success', function(e) {
+            //复制成功 执行
+            toastr.success("复制成功");
+            window.getSelection().empty();
+        });
+        clipboard.on('error', function(e) {
+            //复制失败 执行
+            toastr.error("复制失败!");
+        });
+    });
+
+    /*nav模块*/
+    $(".nav-tabs li").on("click",function () {
+        $(".nav-tabs li").removeClass("active");
+        $(this).addClass("active");
+        var x= $(this).attr("data-tab");
+        $(".activities").hide();
+        $("."+x+"").show();
+    });
+    /*创建*/
+    $("#btn-create").on("click",function () {
+    	var active_name=$("#active_name").val(),
+    		active_type=$("input[type=radio][name='active_type']:checked").val(),
+    		product_id=$("#product_id").val(),
+    		active_description = $("#active_description").val(),
+    		start_time=$("#start_time").val(),
+    		end_time=$("#end_time").val(),
+    		limit_count=$("#limit_count").val(),
+    		active_remark=$("#active_remark").val();
+		$.ajax({
+			//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+			async : false,
+			//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+			cache : false,
+			type : 'POST',
+			data : {
+				active_name : active_name,
+				active_type : active_type,
+				active_description : active_description,
+				product_id:product_id,
+				start_time : start_time,
+				end_time:end_time,
+				limit_count:limit_count,
+				active_remark:active_remark
+			},
+			url : "salesPromotion/createActive",
+			error : function() { //请求失败处理函数  
+				alert('请求失败');
+			},
+			success : function(data) {
+				var ret = eval(data);
+				if(ret.result=='1'){
+					 toastr.success("复制成功");
+				}else{
+					alert("提交失败！");
+				}
+			} //请求成功后处理函数。    
+		});
+    });
+
+    /*创建模态框点击事件*/
+    $(".actions-bar").on("click",function () {
+        var product_name = $(this).parent().parent("tr").find(".product-name").text(),
+         star_time = $(this).parent().parent("tr").find(".star-time").text(),
+         end_time = $(this).parent().parent("tr").find(".end-time").text(),
+         num = $(this).parent().parent("tr").find(".activity1").attr("data-charge"),
+         promotional_copy = $(this).parent().parent("tr").find(".promotional-copy").text(),
+         pay_num = $(this).parent().parent("tr").find(".pay-num").text();
+
+        $("#editor-modal .p-name").val(product_name);
+        $(".activity-money").find("option").eq(num).attr("selected","selected");
+        $("#editor-modal .start-time").val(star_time);
+        $("#editor-modal .end-time").val(end_time);
+        $("#editor-modal .pay-num").find("option").val(pay_num).attr("selected","selected");;
+        $("#editor-modal .promotion_text").val(promotional_copy);
+        //显示模态框
+        $("#create-modal").modal('show');
+    });
+    /*编辑事件*/
+    $(".btn-xs").on("click",function () {
+        var product_name = $(this).parent().parent("tr").find(".product-name").text(),
+         star_time = $(this).parent().parent("tr").find(".star-time").text(),
+         end_time = $(this).parent().parent("tr").find(".end-time").text(),
+         num = $(this).parent().parent("tr").find(".activity1").attr("data-charge"),
+         promotional_copy = $(this).parent().parent("tr").find(".promotional-copy").text(),
+         pay_num = $(this).parent().parent("tr").find(".pay-num").text();
+
+        $("#editor-modal .p-name").val(product_name);
+        $(".activity-money").find("option").eq(num).attr("selected","selected");
+        $("#editor-modal .start-time").val(star_time);
+        $("#editor-modal .end-time").val(end_time);
+        $("#editor-modal .pay-num").find("option").eq(pay_num).attr("selected","selected");;
+        $("#editor-modal .promotion_text").val(promotional_copy);
+        //显示模态框
+        $("#editor-modal").modal('show');
+    });
+
+	$('#data-time1').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm:ss',
+        locale: moment.locale('zh-cn')
+    });
+    $('#data-time2').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm:ss',
+        locale: moment.locale('zh-cn')
+    });
+
+
+    // 提示框设置显示配置
+    var messageOpts = {
+        "closeButton" : true,// 是否显示关闭按钮
+        "debug" : false,// 是否使用debug模式
+        "positionClass" : "toast-bottom-right",// 弹出窗的位置
+        "onclick" : null,
+        "showDuration" : "300",// 显示的动画时间
+        "hideDuration" : "1000",// 消失的动画时间
+        "timeOut" : "2000",// 展现时间
+        "extendedTimeOut" : "1000",// 加长展示时间
+        "preventDuplicates": true,//是否阻止弹出多个消息框
+        "showEasing" : "swing",// 显示时的动画缓冲方式
+        "hideEasing" : "linear",// 消失时的动画缓冲方式
+        "showMethod" : "fadeIn",// 显示时的动画方式
+        "hideMethod" : "fadeOut" // 消失时的动画方式
+    };
+    toastr.options = messageOpts;
+});

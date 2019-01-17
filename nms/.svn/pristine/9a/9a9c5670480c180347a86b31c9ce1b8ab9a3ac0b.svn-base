@@ -1,0 +1,564 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<base href="<%=basePath%>">
+<%@ include file="/WEB-INF/jsp/top.jsp"%>
+<title>章节列表</title>
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+<link rel="stylesheet" href="static/css/bootstrap.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+<link rel="stylesheet" href="static/css/font-awesome.min.css">
+<link rel="stylesheet" href="static/css/ace.min.css">
+<link rel="stylesheet" href="static/css/chapterList.css">
+</head>
+<body style="padding: 0 0 0 0;">
+<div class="page-content">
+    <div class="page-content-area">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <img src="${content.book.small_pic }" style="max-width:100%" />
+                            <h4>${content.book.book_name }</h4>
+                            <div style="line-height: 1.7em;margin-top:10px;" class="text-muted">
+                                字数: ${content.book.words }
+                                <br />
+                            </div>
+                            <div class="text-muted" style="margin-top:10px;line-height: 1.7em;">
+                                ${content.book.description }
+                            </div>
+                            <input id="field_book_id" type="hidden" value="${content.book.book_id}"> 
+                        </div>
+                        <div class="col-sm-9">
+                            <div class="actions-bar">
+                            </div>
+                     <ul class="list-group" style="margin-left:0">
+                    
+	         <c:forEach var="chapter" items="${content.chapters }" begin="0" end="7" varStatus="abc">
+             	<li class="list-group-item chapter-item" > 
+	            	<span style="display:inline-block;min-width:26px;">${chapter.chapter_num }</span> 
+	                <a id="link-${chapter.chapter_id }" data-url="https://c5180.818tu.com/referrals/index/2959879" href="javascript:void(0)" class="chapter-title" data-toggle="view-chapter" index_id="${abc.count }" data-id="${chapter.chapter_id }"> ${chapter.chapter_name } </a> 
+	                <span style="font-size:12px;margin-left:5px"> 
+	                	<span style="color:forestgreen">免费</span>
+	                	<c:if test="${chapter.chapter_num== chapter.read_original_chapter_num}">
+	                		<span style="padding:0 4px;background:orangered;color:white;font-size:12px;">推荐阅读原文章节</span>
+	                	</c:if>
+	                	<c:if test="${chapter.chapter_num == chapter.sub_chapter_num }">
+							<span style="padding:0 4px;background:orangered;color:white;font-size:12px;">推荐关注章节</span>	                	 </c:if>
+	                	<c:if test="${chapter.chapter_num == chapter.partner_sub_chapter_num }">
+							<span class="text-success" title="" data-toggle="tooltip" data-original-title="当前关注章节"><i class="fa fa-check-circle"></i> 当前关注</span>
+	                	 </c:if>
+	                	 <span style="color:#777;margin-left:3px;">${fn:substring(chapter.created_time, 0, 19)}</span> </span> 
+	                <span class="pull-right">
+			           	 <div class="inline position-relative" >
+				            <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+				            	 <i class="fa fa-link"></i> 
+				            	 <span data-toggle="tooltip" title="文案内容到当前章节，原文链接为下一章" data-original-title="文案内容到当前章节，原文链接为下一章">生成推广文案</span>
+				            	 <i class="caret"></i> 
+				           </a>
+			              <ul class="dropdown-menu dropdown-menu-right">
+			             	<li> <a target="_blank" href="partner/wx_editor?book_id=${chapter.book_id }&chapter_num=${chapter.chapter_num }&mode=1"> <i class="fa fa-font"></i> 文字模式 </a> </li>
+			             	<li> <a target="_blank" href="partner/wx_editor?book_id=${chapter.book_id }&chapter_num=${chapter.chapter_num }&mode=2"> <i class="fa fa-file-image-o"></i> 图片模式 </a> </li>
+			             	<%-- <li> <a target="_blank" href="partner/wx_editor/${chapter.book_id }/${chapter.chapter_num }?mode=background"> <i class="fa ace-icon glyphicon fa-file-image-o"></i> 背景图模式 </a> </li> --%>
+			              </ul>
+			             </div> 
+		          	 	 <a class="acquire" title=""  data-toggle="modal" data-chapter-num = "${chapter.chapter_num }"  data-chapter-id = "${chapter.chapter_id }" data-original-title="${chapter.chapter_name }"> <i class="fa fa-link"></i> 获取推广链接 </a>
+		            	 <a class="set-sub-chapter" onclick="setSubChapter(${chapter.book_id},${chapter.chapter_num},'${chapter.chapter_name}')" title=""  >  设为关注章节 </a>
+		            </span>
+	         	</li>
+	         </c:forEach>                   
+                            
+       
+            	 <c:forEach var="chapter" items="${content.chapters }" begin="8" end="20" varStatus="abc">
+                	<li class="list-group-item chapter-item" > 
+                		<span style="display:inline-block;min-width:26px;">${chapter.chapter_num }</span> 
+                		<a href="javascript:void(0)" class="chapter-title" data-toggle="view-chapter" index_id="${abc.count+8 }" data-id="${chapter.chapter_id }"> ${chapter.chapter_name } </a>
+                		<span style="font-size:12px;margin-left:5px"> <span style="color:forestgreen">免费</span> <span style="color:#777;margin-left:3px;">${fn:substring(chapter.created_time, 0, 19)}</span> </span> 
+                		<span class="pull-right"> </span> 
+                	</li>
+            	</c:forEach>
+                 </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--推广链接层-->
+<div class="modal fade" id="create-referral-link-modal" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span id="close" aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" >生成推广链接</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" style=""  novalidate="novalidate">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">入口页面</label>
+                        <div class="col-sm-7">
+                            <p class="form-control-static"> <span >小说阅读页</span></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3"><span class="required" aria-required="true">*</span> 派单渠道名称</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control valid" id="referralName" maxlength="100" name="description" data-val="true" data-val-required="请填写派单渠道名称"  aria-required="true" aria-describedby="description-error" aria-invalid="false" />
+                            <p class="help-block help-block-error field-validation-valid" data-valmsg-for="description" data-valmsg-replace="true"></p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3"><span class="required" aria-required="true">*</span> 渠道类型</label>
+                        <div class="col-sm-7">
+                            <label class="radio-inline">
+                                <input type="radio" name="publish_type" value="1" data-val="true" data-val-required="渠道类型" aria-required="true" aria-describedby="publish_type-error" class="valid" checked>
+                                <span>内推</span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="publish_type" value="2"  class="valid">
+                                <span>外推</span>
+                            </label>
+                            <p class="help-block help-block-error field-validation-valid" data-valmsg-for="publish_type" data-valmsg-replace="true"></p>
+                        </div>
+                    </div>
+                    <div class="outSide" style="display:none;">
+                    	<div class="form-group">
+                        <label class="control-label col-sm-3"><span class="required" aria-required="true">*</span>顶部图片链接：</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control valid"  data-toggle="tooltip" id="head_pic_url" maxlength="100" name="description" data-val="true" data-val-required="请填写派单渠道名称" data-bind="value: description" aria-required="true" aria-describedby="description-error" aria-invalid="false">
+                            <p class="help-block help-block-error field-validation-valid" data-valmsg-for="description" data-valmsg-replace="true"></p>
+                        </div>
+                    	</div>
+                    	
+                    	<div class="form-group">
+                        <label class="control-label col-sm-3"><span class="required" aria-required="true">*</span>回复关键字：</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control valid"  data-toggle="tooltip" id="reply_keyword" maxlength="100" name="description" data-val="true" data-val-required="请填写派单渠道名称" data-bind="value: description" aria-required="true" aria-describedby="description-error" aria-invalid="false">
+                            <p class="help-block help-block-error field-validation-valid" data-valmsg-for="description" data-valmsg-replace="true"></p>
+                        </div>
+                    	</div>
+                    	
+                    	<div class="form-group">
+                        <label class="control-label col-sm-3"><span class="required" aria-required="true">*</span> 底部图片链接：</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control valid"  data-toggle="tooltip" id="foot_pic_url" maxlength="100" name="description" data-val="true" data-val-required="请填写派单渠道名称" data-bind="value: description" aria-required="true" aria-describedby="description-error" aria-invalid="false">
+                            <p class="help-block help-block-error field-validation-valid" data-valmsg-for="description" data-valmsg-replace="true"></p>
+                        </div>
+                    	</div>
+                    	
+                    	<div class="form-group">
+                        <label class="control-label col-sm-3"><span class="required" aria-required="true"></span>跳转链接</label>
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control valid"  data-toggle="tooltip" id="redirect_url" maxlength="100" name="description" data-val="true" data-val-required="请填写派单渠道名称" data-bind="value: description" aria-required="true" aria-describedby="description-error" aria-invalid="false">
+                            <p class="help-block help-block-error field-validation-valid" data-valmsg-for="description" data-valmsg-replace="true"></p>
+                        </div>
+                    	</div>
+                    </div>
+                    <div class="inSide">
+                        <div class="form-group">
+                            <div class="col-sm-7 col-sm-offset-3">
+                                <p class="form-control-static"> <img style="width:80px"  src="${content.book.small_pic }" /> </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">阅读原文章节</label>
+                            <div class="col-sm-7">
+                                <p class="form-control-static"> <strong id="chapter_name" ></strong> </p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="createUrl" type="button" class="btn btn-primary"  >生成链接</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--章节详情层-->
+<div id="view-chapter-modal" class="modal fade" tabindex="-1" role="dialog"  >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" >第001章 新婚夜！ </h4>
+            </div>
+            <div class="modal-body">
+                <div class="chapter-content" style="overflow: auto; height: 555px;" >
+                   
+                    <p>一个不自爱的女人，怎么会害羞！</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="pre" type="button" class="btn " style="">上一章</button>
+                <button id="next" type="button" class="btn btn-primary"  style="">下一章</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--生成推广链接模态框-->
+<div class="modal fade" id="get-referral-link-qrcode-modal" >
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">原文链接</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>原文链接:</strong>
+                            <div id="chapter-url" style="margin:10px 0;word-break:break-all;" class="text-primary link-url" >
+                            </div>
+                            <div style="margin:10px 0;color:red;font-weight:bold;">
+                                <i class="fa fa-info-circle"></i> 请务必使用上方链接作为文案的原文链接，不要使用微信中点开后手工复制的链接
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <!--二维码画布-->
+                            <div id="qrshow" class="container-fluid qrshow qrcode" style="margin: 20px 0 10px 0;">
+                                <img  style="max-width:100%" src="" />
+                                <div class="original-qrcode" style="display:none;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span style="display: none; margin-right: 10px; color: red; vertical-align: middle;" class="copy-success-hint"></span>
+                <button type="button" class="btn btn-primary btn-copy-ref-link"><i class="fa fa-copy"></i> 复制链接</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<script type="text/javascript" src="static/js/scripts/PushChannel/Bootstrap.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.1/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script type="text/javascript" src="static/js/scripts/common/jquery.easyui.min.js"></script>  
+<script type="text/javascript" src="static/js/scripts/PushChannel/chapterList.js"></script>
+<script type="text/javascript">
+	
+		var index = 1;
+	 	var total = Number($(".list-group-item").length);
+		var chapter_url;
+	
+	//创建推广链接
+ 	  $("#createUrl").click(function(){
+		// 内推参数
+		var referralName = $("#referralName").val();	
+		var chapterId = $(this).attr("chapterId");
+		//外推参数
+		var head_pic_url = $("#head_pic_url").val();
+		var reply_keyword = $("#reply_keyword").val();
+		var foot_pic_url = $("#foot_pic_url").val();
+		var redirect_url = $("#redirect_url").val();
+		var book_id = $("#field_book_id").val();
+		var chapter_num = $(this).attr("chapterNum");
+		var radio =  $("input[name='publish_type']:checked").val();
+		if(radio==2){
+				
+			if(head_pic_url.length<=0){
+    		$('#head_pic_url').focus();
+    		$('#head_pic_url').tooltip({
+    			//指定显示时延迟和消失时延迟
+    			delay: {show: 100, hide: 300},
+    			title:"图片链接不能为空，且要正确的图片链接，否则页面将没有图片显示！！",
+    			trigger:"focus"
+    		});
+    		return false;
+      	}else if(reply_keyword.length<=0){
+    		$('#reply_keyword').focus();
+    		$('#reply_keyword').tooltip({
+    			//指定显示时延迟和消失时延迟
+    			delay: {show: 100, hide: 300},
+    			title:"必填！请设置一个回复关键字",
+    			trigger:"focus"
+    		});
+    		return false;
+      	}else if(foot_pic_url.length<=0){
+    		$('#foot_pic_url').focus();
+    		$('#foot_pic_url').tooltip({
+    			//指定显示时延迟和消失时延迟
+    			delay: {show: 100, hide: 300},
+    			title:"图片链接不能为空，且要正确的图片链接，否则页面将没有图片显示！！",
+    			trigger:"focus"
+    		});
+    		return false;
+      	}
+	}
+    		$.post({
+			url:'/nms/partner/pushUrl',
+			data:{
+				'type':0,
+				'name':referralName,
+				'book_id':book_id,
+				'chapter_id':chapterId,
+				'chapter_num':chapter_num,
+				'push_type':radio,
+				'head_pic_url':head_pic_url,
+				'reply_keyword':reply_keyword,
+				'foot_pic_url':foot_pic_url,
+				'redirect_url':redirect_url
+				},
+			dataType:"json",
+			success: function aa(data) {
+				if(data.code == 0){
+					$("#referralName").val("");
+					$("#chapter-url").text(data.msg);
+					 $('#close').trigger("click");
+					 //alert(data.msg.url)
+					 chapter_url = data.msg.url;
+					 $("#chapter-url").text(chapter_url);
+					QRcode(chapter_url);
+			        setTimeout(function(){
+			            $("#get-referral-link-qrcode-modal").modal("toggle");
+			        }, 500);
+					
+				}else{
+					alert("添加失败")
+				}
+			}
+		})
+	})   
+	
+	
+    /*获取推广链接显隐*/
+    $(".acquire").on("click",function () {
+    	
+    	var chapterName = $(this).attr("data-original-title");
+    	var chapterId = $(this).attr("data-chapter-id");
+    	var chapterNum = $(this).attr("data-chapter-num");
+    	$("#createUrl").attr("chapterId",chapterId);
+    	$("#createUrl").attr("chapterNum",chapterNum);
+    	$("#chapter_name").text(chapterName);
+       	$("#create-referral-link-modal").modal("toggle");
+        var chapter_id = $(this).attr('data-article-id');
+        var chapter_url = $("#link-"+chapter_id+"").attr('data-url');
+    });
+    
+    /* nav 切换 */
+    $(".radio-inline .valid").on("click",function(){
+    	var val = $(this).val();
+    	if(val==2){
+    		$(".inSide").hide();
+    		$(".outSide").show();
+    	}else{
+    		$(".outSide").hide();
+    		$(".inSide").show();
+    	}
+    });
+    
+    
+    /*复制二维码链接*/
+    $(".btn-copy-ref-link").on("click",function () {
+        //根据data-toggle="copy-link"获取点击元素
+        var clipboard = new ClipboardJS('.btn-copy-ref-link', {
+            text : function (e) {
+                return $('#chapter-url').text();
+            }
+        });
+
+        clipboard.on('success', function (e) {
+            toastr.success("复制成功");
+        });
+
+        clipboard.on('error', function(e) {
+            toastr.error("复制失败!");
+        });
+    });
+    
+    /*获取章节内容显隐*/
+    $(".chapter-title").on("click",function () {
+    	var chapterId = $(this).attr('data-id');
+    	var chapterName = $(this).text();
+		index = $(this).attr("index_id");
+   		$.get({
+			url:'/nms/partner/content/'+chapterId,
+			async: false,
+			success: function aa(data) {
+				$(".chapter-content").html(data.content);
+     		   	$("#view-chapter-modal").modal("toggle");
+     		   	$("#pre").addClass("btn-primary");
+     		   	$("#pre").attr("onclick","getPre();");
+     		   	$("#next").addClass("btn-primary");
+     		   	$("#next").attr("onclick","getNext();");
+     		   	if(index == 1){
+     		   		$("#pre").removeClass("btn-primary");
+     		   		$("#pre").removeAttr("onclick")
+     		   	}
+     		   	if(index == total){
+     		   		$("#next").removeClass("btn-primary");
+     		   		$("#next").removeAttr("onclick")
+     		   	}
+     		   	$("h4.modal-title").text(chapterName)
+			}
+   		});
+    });
+    
+    
+    
+    
+    function showContent(chapterId,chapterName){
+    	$.get({
+			url:'/nms/partner/content/'+chapterId,
+			async: false,
+			success: function aa(data) {
+				$(".chapter-content").html(data.content);
+     		   	$("#pre").addClass("btn-primary");
+     		   	$("#pre").attr("onclick","getPre();");
+     		   	$("#next").addClass("btn-primary");
+     		   	$("#next").attr("onclick","getNext();");
+     		   	if(index == 1){
+     		   		$("#pre").removeClass("btn-primary");
+     		   		$("#pre").removeAttr("onclick")
+     		   	}
+     		   	if(index == total){
+     		   		$("#next").removeClass("btn-primary");
+     		   		$("#next").removeAttr("onclick")
+     		   	}
+     		   	$("h4.modal-title").text(chapterName)
+			}
+    	});
+    }
+    
+    
+    function getNext(){
+    	index = Number(index)+1;
+    	var start = Number(index) -1;
+     	var chapterId = Number($(".list-group-item:eq("+start+") .chapter-title").attr("data-id"));
+    	var chapterName = $(".list-group-item:eq("+start+") .chapter-title").text();
+    	showContent(chapterId,chapterName); 
+		$(".chapter-content").scrollTop(0);
+    }
+    
+    
+    function getPre(){
+    	index = index-1;
+    	var start = Number(index) -1;
+    	var chapterId = $('.list-group-item:eq('+start+') a.chapter-title').attr("data-id");
+    	var chapterName = $(".list-group-item:eq("+start+") a.chapter-title").text();
+    	showContent(chapterId,chapterName);
+		$(".chapter-content").scrollTop(0);
+    }
+    
+        
+	
+	/**
+	 * 二维码描绘（canvas描绘的）方法。参数：二维码对应链接。
+	 */
+	function QRcode(qrUrl){
+	    /*如果已生成过二维码，则删除二维码img图片和canvas，重新生成；反之，则直接生成二维码*/
+	    if($('#qrshow:has(canvas)').length!=0 ||$('#qrshow:has(img)').length!=0){
+	        $('#qrshow img').remove();
+	        $('#qrshow canvas').remove();
+	    }
+	    /*指定容器内生成二维码，并设置大小颜色，及信息*/
+	    $(".qrshow").qrcode({
+	        width:200,
+	        height:200,
+	        /*foreground: "#C00",
+	          background: "#FFF",*/
+	        text:qrUrl
+	    })
+	    //获取网页中的canvas对象
+	    var mycanvas1=document.getElementsByTagName('canvas')[0];
+	
+	    //将转换后的img标签插入到html中
+	    var img = convertCanvasToImage(mycanvas1);
+	    $('#qrshow').append(img);//imgDiv表示你要插入的容器id
+	    $('#qrshow canvas').remove();
+	}
+
+		
+		/**
+		 * canvas 转换img
+		 * */
+		function convertCanvasToImage(canvas) {
+		    //新Image对象，可以理解为DOM
+		    var image = new Image();
+		    // canvas.toDataURL 返回的是一串Base64编码的URL
+		    // 指定格式PNG
+		    image.src = canvas.toDataURL("image/png");
+		    return image;
+		}
+		
+	  function setSubChapter(book_id,chapter_num,chapter_name) {
+			$.messager.confirm({
+				width : 400,
+				height : 250,
+				title : '操作提示',
+				msg : '是否标记<br><strong>' + chapter_name + '</strong><br>为关注章节',
+				fn : function(r) {
+					if (r) {
+						$.ajax({
+							async : false,
+							cache : false,
+							type : 'POST',
+							data : {
+								chapter_num : chapter_num,
+								book_id : book_id
+							},
+							url : "booksQuery/editSubscribeChapter",
+							error : function() { //请求失败处理函数  
+								alert('请求失败');
+							},
+							success : function(data) {
+								var result = data.result;
+								if (result == "0") {
+									alert_autoClose("提交成功！", "info");
+									 window.location.reload();
+								} else {
+									alert_autoClose("提交失败！", "error");
+								}
+							} //请求成功后处理函数。    
+						});
+					}
+				}
+			});
+
+		}
+	function alert_autoClose(msg, icon) {
+		var interval;
+		var time = 500;
+		var x = 1; //设置时间1*500ms
+		$.messager.alert({
+			width : 400,
+			height : 200,
+			title : '系统提示！',
+			msg : msg,
+			icon : icon,
+			fn : function(r) {
+				interval = setInterval(fun, time);
+				function fun() {
+					--x;
+					if (x == 0) {
+						clearInterval(interval);
+						$(".messager-body").window('close');
+					}
+				}
+				;
+			}
+		})
+	}
+</script>
+</body>
+</html>

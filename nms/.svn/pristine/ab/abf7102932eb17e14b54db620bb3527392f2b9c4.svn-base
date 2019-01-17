@@ -1,0 +1,13 @@
+package com.kuaidu.nms.query.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.user_read_log;
+
+public interface readingRecordsMapper {
+	 //历史记录表查询
+	 public List<user_read_log> getAllRecords(user_read_log rList);
+	 //记录数，用于分页
+	 public int getCount(user_read_log rList);
+	 
+}

@@ -1,0 +1,64 @@
+package com.kuaidu.nms.utils;
+
+import java.util.List;
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.query.serviceImpl.ChpterServerImpl;
+import com.kuaidu.nms.utils.fastdfs.FastDFSTemplate;
+
+/** 
+ * @Title RedisListener.java 
+ * @description TODO 
+ * @time 2018年10月18日 上午9:21:30 
+ * @author victor 
+ * @version 1.0 
+**/
+/**
+ * redis 订阅
+ * */
+public class RedisListener {
+	@Resource
+	RedisTemplate<String, Object> redisTemplate;
+	@Autowired
+	FastDFSTemplate fastDFSTemplate;
+	private static String ip = Utils.getLocalHostIp();
+	
+	public void b(String json, String channel){
+		System.out.println(json);
+	}
+	public void c(String json, String channel){
+		System.out.println(json);
+	}
+	@SuppressWarnings("unchecked")
+	public void clearBook(String key, String channel){
+		//if (ip.matches("69\\.171\\.67\\.171")&&redisTemplate.hasKey(key)){
+		/*if (ip.matches("69\\.171\\.67\\.171")&&redisTemplate.hasKey(key)) {*/
+			Log4jUtil.getBusinessLogger().info(key);
+			Object object = redisTemplate.opsForList().rightPop(key);
+			if (object instanceof List<?>) {
+				Log4jUtil.getBusinessLogger().info(object);
+				List<Object> urls =  (List<Object>) object;
+				for (Object url : urls) {
+					try {
+						fastDFSTemplate.deleteFile(url.toString());
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						Log4jUtil.getBusinessLogger().info("清空书籍，删除失败=="+url);
+					}
+				}
+			}else if (object instanceof String) {
+				try {
+					fastDFSTemplate.deleteFile(object.toString());
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					Log4jUtil.getBusinessLogger().info("清空书籍，删除失败=="+object);
+				}
+			}
+			redisTemplate.delete(key);
+		}
+	//}
+}

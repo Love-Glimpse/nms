@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.partner.push.mapper.PartnerSalesPromotionMapper">
+	<select id="getPromotionProducts" resultType="Product">
+		select product_id,product_desc from product where for_partner=1
+	</select>
+	<insert id="createActive" parameterType="java.util.List">
+		INSERT INTO promotion_active(partner_id,active_name,active_description,active_remark,start_time,end_time,active_type,product_id,point,limit_count,active_url,batch_id)
+		VALUES
+		<foreach item="l" collection="list"  separator=",">
+     		(#{l.partner_id},#{l.active_name},#{l.active_description},#{l.active_remark},#{l.start_time},#{l.end_time},#{l.active_type},#{l.product_id},#{l.point},#{l.limit_count},#{l.active_url},#{l.batch_id})
+    	</foreach>
+	</insert>
+		
+	<select id="getPromotionActiveList" resultType="PromotionActive">
+		<if test="flag==0">
+			SELECT * from promotion_active WHERE 1=1  and partner_id =0 
+			and end_time>now()  and show_flag=1
+			<if test="active_name!=null and active_name!=''">
+				and active_name like '%${active_name}%'  
+			</if>
+		GROUP BY active_id DESC	 limit #{start_rows},#{end_rows}
+		</if>
+		<if test="flag==1">
+			SELECT * from promotion_active WHERE 1=1  
+			and partner_id =#{partner_id}  and show_flag=1
+			<if test="active_name!=null and active_name!=''">
+				and active_name like '%${active_name}%'  
+			</if>
+		GROUP BY active_id DESC	 limit #{start_rows},#{end_rows}
+		</if>
+	</select>
+	<!-- count -->
+	<select id="getPromotionProductsCount" resultType="int">
+		<if test="flag==0">
+			SELECT count(0) from promotion_active WHERE 1=1  and partner_id =0 
+			and end_time>now() 
+			<if test="active_name!=null and active_name!=''">
+				and active_name like '%${active_name}%'
+			</if>
+			 limit #{start_rows},#{end_rows}
+		</if>
+		<if test="flag==1">
+			SELECT count(0)  from promotion_active WHERE 1=1  and partner_id =#{partner_id}
+			<if test="active_name!=null and active_name!=''">
+				and active_name like '%${active_name}%' 
+			</if>
+			 limit #{start_rows},#{end_rows}
+		</if>
+
+  	</select>
+  	<update id="removeActive">
+  		update promotion_active set active_status = 2 where active_id=#{active_id} and partner_id =#{partner_id}
+  	</update>
+  	<select id="getProductDesc" resultType="String">
+  		select product_desc from product where product_id = #{product_id}
+  	</select>
+  	<select id="getActiveCount" resultType="int">
+  		SELECT COUNT(DISTINCT batch_id) from promotion_active WHERE partner_id = #{partner_id}
+  		 and active_type=#{active_type}
+  		 and MONTH(create_time) = MONTH(NOW()) 
+  	</select>
+</mapper>

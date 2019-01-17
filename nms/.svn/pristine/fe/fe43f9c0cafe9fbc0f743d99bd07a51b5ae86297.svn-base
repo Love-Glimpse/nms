@@ -1,0 +1,15 @@
+package com.kuaidu.nms.bizandpush.serviceImpl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.bizandpush.mapper.PushUrlMapper;
+
+@Service
+public class PushUrlServiceImpl {
+	@Autowired
+	PushUrlMapper pMapper;
+
+	
+	
+}

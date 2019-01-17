@@ -1,0 +1,184 @@
+package com.kuaidu.nms.entity;
+
+/** 
+ * @Title PromotionActive.java 
+ * @description TODO 
+ * @time 2018年11月2日 下午2:24:52 
+ * @author victor 
+ * @version 1.0 
+**/
+public class PromotionActive {
+	private Integer active_id;
+	private Integer partner_id;
+	private String active_name;
+	private String active_title;
+	private String active_description;
+	private String active_remark;
+	private String start_time;
+	private String end_time;
+	private String create_time;
+	private Integer active_status;
+	private Integer active_type;
+	private Integer product_id;
+	private Integer point;
+	private Integer flag;
+	private Integer limit_count;
+	private String active_url;
+	private String batch_id;
+	
+	private Integer start_rows;  //起始行
+	private Integer end_rows;	//末尾行
+	public Integer getActive_id() {
+		return active_id;
+	}
+	public void setActive_id(Integer active_id) {
+		this.active_id = active_id;
+	}
+	public Integer getPartner_id() {
+		return partner_id;
+	}
+	public void setPartner_id(Integer partner_id) {
+		this.partner_id = partner_id;
+	}
+	public String getActive_name() {
+		return active_name;
+	}
+	public void setActive_name(String active_name) {
+		this.active_name = active_name;
+	}
+	public String getActive_title() {
+		return active_title;
+	}
+	public void setActive_title(String active_title) {
+		this.active_title = active_title;
+	}
+	public String getActive_description() {
+		return active_description;
+	}
+	public void setActive_description(String active_description) {
+		this.active_description = active_description;
+	}
+	public String getActive_remark() {
+		return active_remark;
+	}
+	public void setActive_remark(String active_remark) {
+		this.active_remark = active_remark;
+	}
+	public String getStart_time() {
+		return start_time;
+	}
+	public void setStart_time(String start_time) {
+		this.start_time = start_time;
+	}
+	public String getEnd_time() {
+		return end_time;
+	}
+	public void setEnd_time(String end_time) {
+		this.end_time = end_time;
+	}
+	public String getCreate_time() {
+		return create_time;
+	}
+	public void setCreate_time(String create_time) {
+		this.create_time = create_time;
+	}
+	public Integer getActive_status() {
+		return active_status;
+	}
+	public void setActive_status(Integer active_status) {
+		this.active_status = active_status;
+	}
+	public Integer getActive_type() {
+		return active_type;
+	}
+	public void setActive_type(Integer active_type) {
+		this.active_type = active_type;
+	}
+	public Integer getProduct_id() {
+		return product_id;
+	}
+	public void setProduct_id(Integer product_id) {
+		this.product_id = product_id;
+	}
+	public Integer getPoint() {
+		return point;
+	}
+	public void setPoint(Integer point) {
+		this.point = point;
+	}
+	public Integer getFlag() {
+		return flag;
+	}
+	public void setFlag(Integer flag) {
+		this.flag = flag;
+	}
+	public Integer getLimit_count() {
+		return limit_count;
+	}
+	public void setLimit_count(Integer limit_count) {
+		this.limit_count = limit_count;
+	}
+	public String getActive_url() {
+		return active_url;
+	}
+	public void setActive_url(String active_url) {
+		this.active_url = active_url;
+	}
+	public String getBatch_id() {
+		return batch_id;
+	}
+	public void setBatch_id(String batch_id) {
+		this.batch_id = batch_id;
+	}
+	public Integer getStart_rows() {
+		return start_rows;
+	}
+	public void setStart_rows(Integer start_rows) {
+		this.start_rows = start_rows;
+	}
+	public Integer getEnd_rows() {
+		return end_rows;
+	}
+	public void setEnd_rows(Integer end_rows) {
+		this.end_rows = end_rows;
+	}
+	public PromotionActive(Integer active_id, Integer partner_id, String active_name, String active_title,
+			String active_description, String active_remark, String start_time, String end_time, String create_time,
+			Integer active_status, Integer active_type, Integer product_id, Integer point, Integer flag,
+			Integer limit_count, String active_url, String batch_id, Integer start_rows, Integer end_rows) {
+		super();
+		this.active_id = active_id;
+		this.partner_id = partner_id;
+		this.active_name = active_name;
+		this.active_title = active_title;
+		this.active_description = active_description;
+		this.active_remark = active_remark;
+		this.start_time = start_time;
+		this.end_time = end_time;
+		this.create_time = create_time;
+		this.active_status = active_status;
+		this.active_type = active_type;
+		this.product_id = product_id;
+		this.point = point;
+		this.flag = flag;
+		this.limit_count = limit_count;
+		this.active_url = active_url;
+		this.batch_id = batch_id;
+		this.start_rows = start_rows;
+		this.end_rows = end_rows;
+	}
+	public PromotionActive() {
+		super();
+	}
+	@Override
+	public String toString() {
+		return "PromotionActive [active_id=" + active_id + ", partner_id=" + partner_id + ", active_name=" + active_name
+				+ ", active_title=" + active_title + ", active_description=" + active_description + ", active_remark="
+				+ active_remark + ", start_time=" + start_time + ", end_time=" + end_time + ", create_time="
+				+ create_time + ", active_status=" + active_status + ", active_type=" + active_type + ", product_id="
+				+ product_id + ", point=" + point + ", flag=" + flag + ", limit_count=" + limit_count + ", active_url="
+				+ active_url + ", batch_id=" + batch_id + ", start_rows=" + start_rows + ", end_rows=" + end_rows + "]";
+	}
+	
+	
+}

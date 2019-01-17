@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.pushchannel.mapper.PushChannelGroupMapper">
+   <select id="getAllChannelGroup" resultType="PartnerGroup">
+     select * from partner_group
+   </select>
+   <update id="updateChannelGroup" parameterType="PartnerGroup">
+   		update partner_group set group_name = #{group_name} ,group_desc=#{group_desc} where group_id=#{group_id}
+   </update>
+   <insert id="addChannelGroup" parameterType="PartnerGroup">
+   		insert into partner_group(group_name,group_desc)
+   			values(#{group_name},#{group_desc})
+   </insert>
+   <delete id="delChannelGroup" parameterType="PartnerGroup">
+   		delete from  partner_group where group_id=#{group_id}
+   </delete>
+   <!-- 树形菜单 -->
+   <select id="getAllTree" resultType="Sys_module">
+    select a.*,IFNULL(b.flag ,0) as flag from partner_module as a LEFT JOIN partner_group_module as b 
+    	ON a.module_id =b.module_id and b.group_id=#{group_id} ORDER BY parent_id ,show_order
+   </select>
+   <delete id="del_group_module">
+   		delete from partner_group_module where group_id =#{group_id}
+   </delete>
+   <insert id="save_authority"  parameterType="java.util.List">
+   		insert into partner_group_module(group_id,module_id) values
+		<foreach collection ="list" item="mList" index= "index" separator =",">
+					(#{mList.group_id},#{mList.module_id})
+         </foreach>
+   </insert>
+</mapper>

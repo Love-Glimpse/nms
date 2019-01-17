@@ -1,0 +1,151 @@
+package com.kuaidu.nms.entity;
+
+public class SearchLog {
+
+	private Integer id;
+
+	private String book_name;
+	
+	private Integer user_id;
+	
+	private String nick_name;
+	
+	private Integer parent_id;
+	
+	private String replay_msg;
+	
+	private String replay_sys_user_name;
+	
+	private Boolean active_status;
+
+	private Integer start_rows; // 起始行
+	
+	private Integer count;
+	private Integer end_rows;
+
+	private String create_date;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	
+	
+
+	public String getNick_name() {
+		return nick_name;
+	}
+
+	public void setNick_name(String nick_name) {
+		this.nick_name = nick_name;
+	}
+
+	public String getBook_name() {
+		return book_name;
+	}
+	
+	
+
+	
+	public String getReplay_msg() {
+		return replay_msg;
+	}
+
+	public void setReplay_msg(String replay_msg) {
+		this.replay_msg = replay_msg;
+	}
+
+	public String getReplay_sys_user_name() {
+		return replay_sys_user_name;
+	}
+
+	public void setReplay_sys_user_name(String replay_sys_user_name) {
+		this.replay_sys_user_name = replay_sys_user_name;
+	}
+
+	public Boolean getActive_status() {
+		return active_status;
+	}
+
+	public void setActive_status(Boolean active_status) {
+		this.active_status = active_status;
+	}
+
+	public Integer getParent_id() {
+		return parent_id;
+	}
+
+	public void setParent_id(Integer parent_id) {
+		this.parent_id = parent_id;
+	}
+
+	public void setBook_name(String book_name) {
+		this.book_name = book_name;
+	}
+
+
+	public Integer getUser_id() {
+		return user_id;
+	}
+
+	public void setUser_id(Integer user_id) {
+		this.user_id = user_id;
+	}
+
+	
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
+	}
+
+	public String getCreate_date() {
+		return create_date;
+	}
+
+	public void setCreate_date(String create_date) {
+		this.create_date = create_date;
+	}
+
+	public Integer getStart_rows() {
+		return start_rows;
+	}
+
+	public void setStart_rows(Integer start_rows) {
+		this.start_rows = start_rows;
+	}
+
+	public Integer getEnd_rows() {
+		return end_rows;
+	}
+
+	public void setEnd_rows(Integer end_rows) {
+		this.end_rows = end_rows;
+	}
+
+	@Override
+	public String toString() {
+		return "SearchLog [id=" + id + ", book_name=" + book_name + ", user_id=" + user_id + ", nick_name=" + nick_name
+				+ ", parent_id=" + parent_id + ", replay_msg=" + replay_msg + ", replay_sys_user_name="
+				+ replay_sys_user_name + ", active_status=" + active_status + ", start_rows=" + start_rows + ", count="
+				+ count + ", end_rows=" + end_rows + ", create_date=" + create_date + "]";
+	}
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+}

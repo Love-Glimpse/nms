@@ -1,0 +1,166 @@
+package com.kuaidu.nms.pushchannel.controller;
+
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.kuaidu.nms.entity.GroupModule;
+import com.kuaidu.nms.entity.PartnerGroup;
+import com.kuaidu.nms.entity.Sys_module;
+import com.kuaidu.nms.pushchannel.serviceImpl.PushChannelGroupMapperImpl;
+import com.kuaidu.nms.utils.ResultData;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+@Controller
+@RequestMapping("/channelGroup")
+public class PushChannelGroupManage {
+	@Autowired
+	PushChannelGroupMapperImpl pcgImpl;
+	
+	public PushChannelGroupMapperImpl getPcgImpl() {
+		return pcgImpl;
+	}
+
+	public void setPcgImpl(PushChannelGroupMapperImpl pcgImpl) {
+		this.pcgImpl = pcgImpl;
+	}
+
+	@RequestMapping("/channelGroupIndex")
+	public ModelAndView login(HttpServletRequest request,HttpSession session){
+		ModelAndView mv = new ModelAndView();
+		
+		try {
+			mv.setViewName("PushChannel/channelGroup"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/getAllChannelGroup")
+	public String getAllChannelGroup(HttpServletRequest request,PartnerGroup partnerGroup){	
+		//获取页数  1
+		String page= request.getParameter("page");	
+		//获取行数	20
+		String rows= request.getParameter("rows");
+		PageHelper.startPage(partnerGroup.getPage(),partnerGroup.getRows());
+		List<PartnerGroup> list = pcgImpl.getAllChannelGroup(partnerGroup);
+		PageInfo<PartnerGroup> partnerGroups = new PageInfo<>(list);
+		return ResultData.toJsonString((int)partnerGroups.getTotal(),list);
+	}
+	@ResponseBody
+	@RequestMapping("/addEditChannelGroup")
+	public JSONObject addEditChannelGroup(HttpServletRequest request,PartnerGroup partnerGroup){	
+		JSONObject jsonRet = new JSONObject();
+		try {
+			if (partnerGroup.getGroup_id()>0) {//编辑
+				pcgImpl.updateChannelGroup(partnerGroup);
+			}else {//添加
+				pcgImpl.addChannelGroup(partnerGroup);
+			}
+			jsonRet.put("success", 0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			jsonRet.put("success", 1);
+		}
+		return jsonRet;
+	}
+	@ResponseBody
+	@RequestMapping("/delChannelGroup")
+	public JSONObject delChannelGroup(HttpServletRequest request,PartnerGroup partnerGroup){	
+		JSONObject jsonRet = new JSONObject();
+		try {
+			pcgImpl.delChannelGroup(partnerGroup);
+			jsonRet.put("success", 0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			jsonRet.put("success", 1);
+		}
+		return jsonRet;
+	}
+	/*
+	 * 树形菜单
+	 */
+	@ResponseBody
+	@RequestMapping("/getAllTree")
+	public String getAllTree(HttpServletRequest request,PartnerGroup partnerGroup) throws UnknownHostException{
+		JSONObject json1 = new JSONObject();
+		JSONObject json2 = new JSONObject();
+		JSONArray jArray1 = new JSONArray();
+		JSONArray jArray2 = new JSONArray();
+         List<Sys_module> list = pcgImpl.getAllTree(partnerGroup.getGroup_id());
+         json1.put("id", "0");
+         json1.put("text", "根节点");
+
+         for (Sys_module sys_module : list) {
+        	 if(sys_module.getParent_id()==0){//模块根节点
+				 json2.put("id", sys_module.getModule_id());
+				 json2.put("text", sys_module.getModule_name());
+				 
+				 JSONArray jArray3 = new JSONArray();
+				 for (Sys_module module : list) {
+					if(module.getParent_id()==sys_module.getModule_id()&&module.getParent_id()!=0){
+						JSONObject json3 = new JSONObject();
+						json3.put("id", module.getModule_id());
+						json3.put("text", module.getModule_name());
+						if(module.getFlag()!=null&&module.getFlag()>0){
+							json3.put("checked", "true");
+						}
+						jArray3.add(json3);
+					}
+				}
+				 json2.put("children", jArray3);
+				 jArray2.add(json2);
+        	 }
+		}
+         json1.put("children", jArray2);
+         jArray1.add(json1.toString());
+         return jArray1.toString();
+	}
+	
+	/*
+	 * 修改分组权限
+	 */
+	@ResponseBody
+	@RequestMapping("/save_authority")
+	public String save_authority(HttpServletRequest request,HttpSession session){
+		Integer group_id = Integer.parseInt(request.getParameter("group_id"));
+		String node = request.getParameter("node");
+		JSONObject jsonObject = new JSONObject();
+		try {
+			//删除模块权限
+			pcgImpl.del_group_module(group_id);
+			JSONArray jsonArray = JSONArray.fromObject(node);
+			List<GroupModule> gModules = new ArrayList<GroupModule>();
+	        for(int i=0;i<jsonArray.size();i++){
+	        	GroupModule gModule = new GroupModule();
+	        	gModule.setGroup_id(group_id);
+	        	gModule.setModule_id(jsonArray.getInt(i));
+	        	gModules.add(gModule);
+	        }
+	        pcgImpl.save_authority(gModules);
+	        jsonObject.put("result", "0");
+		} catch (Exception e) {
+			jsonObject.put("result", "1");
+			e.printStackTrace();
+			
+		}
+		return jsonObject.toString();
+	}
+}

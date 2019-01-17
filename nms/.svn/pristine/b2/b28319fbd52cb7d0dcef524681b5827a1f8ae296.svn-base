@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.spider.mapper.WebSpiderMapper">
+	<select id="getSpiderConfig" resultType="SpiderConfig">
+		select * from spider_config where INSTR(#{url},main_url)>0
+	</select>
+	<select id="getCheckCount" resultType="Integer">
+		select count(*) from chapter_list where chapter_name=#{chapter_name} and content_upload_flag=1
+	</select>
+	<!-- 章节信息完成的 -->
+	<select id="getAllChapterList" resultType="ChapterList">
+		select * from chapter_list where book_id=#{book_id} 
+		<!-- 手动获取时选出已上传的章节和不可用的章节 将其过滤掉 -->
+		<if test="content_upload_flag==1">
+			and (content_upload_flag=1 or status=0);
+		</if>
+		
+	</select>
+	<select id="getReplaces" resultType="ReplaceConfig">
+		select * from replace_config where type=1 and   ((source_id=0 and book_id=0) or book_id = #{book_id} OR 
+		(book_id = 0 and source_id in 
+			(SELECT s.id from book_list b LEFT JOIN spider_config s ON INSTR(b.book_url,s.main_url)>0  WHERE b.book_id = #{book_id} )))
+	</select>
+	<select id="getBooksInfo" parameterType="java.util.Set" resultType="java.util.HashMap">
+		SELECT b.type_id,b.book_id,b.book_url,s.method,b.words_min,b.hot_value from book_list b 
+					LEFT JOIN spider_config s ON INSTR(b.book_url,s.main_url)>0 
+						WHERE b.book_url IS NOT NULL and INSTR(b.book_url,s.main_url)>0 
+						and ( s.should_filter = 0 or (b.downloaded_chapter_count >= b.free_chapter_num  and b.downloaded_chapter_count > 5))
+						and (isserial=0 or total_chapter_count>downloaded_chapter_count)
+						and INSTR(b.book_url,'c49683.818tu.com') &lt;=0 
+					  and status = 0 
+					<if test="set !=null and set.size()>0">
+	                		and book_id not in 
+		                <foreach item="book_id" index="index" collection="set" open="(" separator="," close=")">  
+		                    #{book_id, jdbcType=INTEGER}  
+		                </foreach>
+            		</if>
+<!-- 					  and NOT EXISTS (
+							SELECT book_id from task_config WHERE `status` = 1 
+						  and day_time=DATE_FORMAT(NOW(), '%Y-%m-%d') 
+							and INSTR(b.book_url,domain)>0 
+							)  -->
+						and NOT EXISTS (SELECT SUM(down_count) as count_sum from task_config 
+							WHERE  day_time=DATE_FORMAT(NOW(), '%Y-%m-%d')  and  book_id = b.book_id
+							and INSTR(b.book_url,domain)>0
+							GROUP BY book_id,domain  HAVING count_sum>0
+							) 
+					    ORDER BY RAND() LIMIT 1
+	</select>
+	<select id="getNovelType" resultType="Integer">
+		select count(*) from novel_type where type_desc = #{type_name}
+	</select>
+	<insert id="saveNovel">
+		insert into novel_type(type_desc,created_time)values(#{type_name},now())
+	</insert>
+	<select id="getTypeId" resultType="Integer">
+		select type_id from novel_type where type_desc = #{type_name}
+	</select>
+	<insert id="saveBookInfo" parameterType="Book_list">
+		insert into book_list(book_name,type_id,book_url,book_pic_url,total_chapter_count,description,isserial,sex,hot_value,update_time_self,created_time)
+			values(#{book_name},#{type_id},#{book_url},#{book_pic_url},#{total_chapter_count},#{description},#{isserial},#{sex},#{hot_value},now(),now())
+	</insert>
+	<update id="updateBook">
+		update book_list set book_id=book_id
+		<if test="total_chapter_count != null and total_chapter_count != ''">
+			,total_chapter_count=#{total_chapter_count}
+		</if>
+		<if test="isserial != null">
+			,isserial=#{isserial}
+		</if>
+		<if test="sex != null">
+			,sex=#{sex}
+		</if>
+		<if test="hot_value != null">
+			,hot_value=#{hot_value}
+		</if>
+		<if test="book_pic_changed != null and book_pic_changed!=''">
+			,book_pic_changed=#{book_pic_changed}
+		</if>
+		
+		<if test="description != null and description != ''">
+			,description=#{description}
+		</if>
+		<if test="free_chapter_num != null and free_chapter_num!=''">
+			,free_chapter_num=#{free_chapter_num}
+		</if>
+		<if test="book_pic_url != null and book_pic_url !=''">
+			,book_pic_url=#{book_pic_url}
+		</if>
+		<if test="book_url!=null and book_url != ''">
+		 ,book_url = (case when book_url is  NULL THEN #{book_url}  ELSE book_url END)
+		</if>
+		<if test="newest_chapter !=null and newest_chapter != ''">
+		 ,newest_chapter = (case when newest_chapter is  NULL THEN #{newest_chapter}  ELSE newest_chapter END)
+		</if>
+		 where book_name=#{book_name} and checked_ok>0
+	</update>
+	<select id="getDownChapterCount" resultType="int">
+		select IFNULL(MAX(chapter_num),0) from chapter_list where book_id=#{book_id}
+	</select>
+	<select id="getChapterInfo" resultType="ChapterList">
+		select * from chapter_list 
+		where (TRIM(REPLACE(chapter_name_old," ",""))=TRIM(REPLACE(#{chapter_name}," ","")) or TRIM(REPLACE(chapter_name_old," ",""))=TRIM(REPLACE(#{chapter_name_old}," ","")))
+		 and book_id=#{book_id} limit 1;
+	</select>
+	<insert id="saveChapterDown" parameterType="java.util.List">
+		insert into chapter_list(type_id,book_id,chapter_num,chapter_name,chapter_name_old,chapter_url,created_time)
+		values
+		<foreach collection ="list" item="chapterList" index= "index" separator =",">
+					(#{chapterList.type_id},#{chapterList.book_id},#{chapterList.chapter_num},#{chapterList.chapter_name},#{chapterList.chapter_name_old},#{chapterList.chapter_url},now())
+         </foreach >
+	</insert>
+	<update id="updateFdfsPath">
+		update chapter_list set content_upload_flag=1,chapter_filepath_fdfs=#{chapter_filepath_fdfs}
+			,words=#{words},created_time=now()
+		 where book_id=#{book_id} and REPLACE(chapter_name,' ','')=REPLACE(#{chapter_name},' ','')
+	</update>
+	<update id="updateDownBooKChapterCount">
+		update book_list set downloaded_chapter_count=downloaded_chapter_count+1,
+				words=words+#{words} where book_id=#{book_id}
+	</update>
+	<update id="updateBookNewestChapter">
+		update book_list set newest_chapter=(CASE WHEN newest_chapter_num &lt;#{newest_chapter_num} THEN #{newest_chapter} ELSE newest_chapter END),
+  			newest_chapter_num=(CASE WHEN newest_chapter_num &lt;#{newest_chapter_num} THEN #{newest_chapter_num} ELSE newest_chapter_num END)
+			where book_id=#{book_id}
+	</update>
+	<update id="updateBookStatus">
+		update book_list set status=#{status} where book_id=#{book_id}
+	</update>
+	<update id="updateBookStatusAll">
+		update book_list set status=0 where status &lt;2
+	</update>
+	<update id="updateTaskConfig">
+		update task_config set status=0 where ip_address=#{ip_address}
+	</update>
+	<insert id="saveTaskConfig">
+		INSERT INTO task_config(ip_address,domain,book_id,down_count,status,day_time,created_time)
+			VALUES(#{ip_address},#{domain},#{book_id},1,1,left(NOW(),10),NOW()) 
+			ON DUPLICATE KEY UPDATE down_count=down_count+1 ,STATUS = 1
+	</insert>
+	<select id="getBooksInfo818" resultType="Book_list">
+		SELECT * from book_list b
+				WHERE b.book_url IS NOT NULL and INSTR(b.book_url,'c49683.818tu.com')>0 
+				and b.downloaded_chapter_count &lt; 5
+				and checked_ok>=1 
+			  and status = 0
+			  and NOT EXISTS (
+					SELECT book_id from task_config WHERE `status` = 1 
+					and book_id = b.book_id 
+					) 
+				and NOT EXISTS (SELECT SUM(down_count) as count_sum from task_config 
+					WHERE  TO_DAYS(created_time)=TO_DAYS(NOW()) and  book_id = b.book_id
+					GROUP BY book_id,domain  HAVING count_sum>2 
+					) 
+			  order by rand() LIMIT 10
+	</select>
+	<select id="getWordsMin" resultType="int">
+		select words_min from book_list where book_id = #{book_id}
+	</select> 
+	<select id="getBookList" resultType="Book_list">
+		select book_name,book_pic_url,free_chapter_num,is_fixed from book_list where book_name=#{book_name} limit 1
+	</select>
+</mapper>

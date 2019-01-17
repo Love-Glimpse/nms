@@ -1,0 +1,81 @@
+package com.kuaidu.nms.homepageManage.controller;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.kuaidu.nms.entity.Sys_module;
+import com.kuaidu.nms.entity.Sys_user;
+import com.kuaidu.nms.homepage.serviceImpl.HomepageMapperImpl;
+import com.kuaidu.nms.login.serviceImpl.loginMapperImpl;
+import com.kuaidu.nms.utils.Utils;
+
+@Controller
+@RequestMapping("/homepage")
+public class HomepageManage {
+	@Autowired
+	private HomepageMapperImpl hImpl;
+	
+	public HomepageMapperImpl gethImpl() {
+		return hImpl;
+	}
+
+	public void sethImpl(HomepageMapperImpl hImpl) {
+		this.hImpl = hImpl;
+	}
+	@Autowired
+	private loginMapperImpl lImpl;
+	
+	
+	public loginMapperImpl getlImpl() {
+		return lImpl;
+	}
+
+	public void setlImpl(loginMapperImpl lImpl) {
+		this.lImpl = lImpl;
+	}
+	/**
+	 * 系统管理员登陆成功后跳转
+	 * */
+	@RequestMapping("/homepageIndex")
+	public ModelAndView homepageIndex(HttpSession session){
+		ModelAndView mv = new ModelAndView();
+		try {
+			Sys_user sUser = Utils.getSysUserFromSession(session);
+			if (sUser==null) {
+				return mv;
+			}
+			List<Sys_module> list = hImpl.getAll(sUser.getGroup_id());
+			mv.addObject("user_name", sUser.getUser_name());
+			mv.addObject("user_id", sUser.getUser_id());
+			mv.addObject("list", list);
+			mv.setViewName("Homepage/menu"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+
+	//注销
+
+	@RequestMapping("/logout")
+	public void logout(HttpSession session,HttpServletResponse response) throws IOException{
+		Sys_user sUser = Utils.getSysUserFromSession(session);
+		if (sUser==null) {
+			response.sendRedirect("/nms/index.jsp");
+		}
+	    lImpl.updateUserStatus(sUser);
+		session.removeAttribute("user");
+		session.removeAttribute("login_flag");
+		session.invalidate();
+		response.sendRedirect("/nms/index.jsp");
+	}
+	
+}

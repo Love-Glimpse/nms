@@ -1,0 +1,311 @@
+   /*
+   * 初始化表格
+   */
+    initGrid();
+    function initGrid() {
+	$('#grid').datagrid({
+		columns : [ [
+			//js代码创建的datagrid本身已经添加了checkbox列，就是第一列。checkbox列将会自适应宽度。
+			{
+				field : 'ck',
+				checkbox : true,
+				align : 'center'
+			},
+			{
+				field : 'user_id',
+				title : '用户ID',
+				width : 100,
+				align : 'center',
+				hidden:true
+			},
+			{
+				field : 'nick_name',
+				title : '用户名',
+				width : 100,
+				align : 'center',
+				formatter : function(value, row, index) {
+					var ret ="";
+					var nick_name = row.nick_name;
+					if(nick_name == null){
+						nick_name = "";
+					}
+					var nick_name1 = nick_name.replace("\'", "\\\'").replace("\"", "\\\"");
+					var ret	 =  "<span >" +"<img style=\"width:18px;margin-right:5px;vertical-align: middle;\" src=\""+row.picture+"\">"
+						+"<a href=\"javascript:void(0)\"  onclick=\"self.parent.addTab(\'" + nick_name1+"("+row.user_id+")"
+						+ "\',\'userManagement/userDetailInfo?user_id=" + row.user_id +"\',\'icon-add\')\"\>"
+						+"<span>"+nick_name+"</span>"
+						+"<span>("+row.user_id+")</span>"
+						+"</a>";
+					return ret;
+				}
+			},
+			{
+				field : 'book_name',
+				title : '书名',
+				width : 100,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.book_name==''){
+						return '--';
+					}else{
+						return row.book_name;
+					}
+				}
+			},
+			{
+				field : 'chapter_name',
+				title : '章节名',
+				width : 100,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.chapter_name==''){
+						return '--';
+					}else{
+						return row.chapter_name;
+					}
+				}
+			},
+			{
+				field : 'content',
+				title : '用户建议',
+				width : 400,
+				align : 'center'
+			},
+			{
+				field : 'status',
+				title : '处理结果',
+				width : 100,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.status==1){
+						return "赠送50书币";
+					}else if(row.status==2){
+						return "已忽略";
+					}else{
+						return "<input type=\"image\" src=\"static/images/gem_remove.png\"" +
+								"title=\"解决问题后提交，提交后给用户增加50书币！\""+
+								"onclick=\"changeStatus(\'"+row.id+"\',\'"+row.user_id+"\')\"/>";
+					}
+				}
+			},
+			{
+				field : 'create_time',
+				title : '反馈时间',
+				width : 100,
+				align : 'center'
+			}
+		] ],
+		//同action提交.提交的类型是jason
+		url : ' userFeedBack/getAll',
+		method : 'post',
+		collapsible : true,
+		//rownumber列的配置是在全局设置的
+		//如果设置为true则会在开头第一列来添加一列来显示行号。
+		rownumbers : false,
+		//如果为true，则只允许选择一行。
+		singleSelect : false,
+		toolbar : '#tb',
+		fitColumns : true,
+		pageNumber : 1,
+		pageSize : 50,
+		pageList : [ 50, 100, 200 ],
+		//pagination:是否启动分页，true，这样一来我们的datagrid底部就会出现一个分页工具栏
+		//datagrid在请求数据的时候会自动的添加分页的信息：
+		//page：当前请求的页码
+		//rows：每页要显示的行数
+		pagination : true,
+		onLoadSuccess : function(data) { //加载成功   
+			//要判断或者执行的代码
+			//sysy
+		}
+	});
+    }   
+    /**
+     * 查询
+     * load:加载新的数据
+     */
+    //加载新的数据 含（book_name = 用户输出的值    的书名)
+  $("#search").click(function(e) {
+  	$('#grid').datagrid('load',{
+  		nick_name:$('#nick_name').val(),
+  		book_name:$('#book_name').val(),
+  		status:$('#status').val()
+  	});
+  });
+  $("#ignore").click(function(e) {
+	  	//获取选中行
+		var rows = $('#grid').datagrid('getChecked');
+		if (rows.length < 1) {
+			alert_autoClose("请选择一条！！", "error");
+			return false;
+		}
+		var ids = new Array();
+		for(var i=0,j=0;i<rows.length;i++){
+			if(rows[i].status==0){
+				ids[j]=rows[i].id;
+				j++;
+			}
+		}
+		if(ids.length==0){
+			alert_autoClose("请选择没有处理的！！", "error");
+			return false;
+		}
+		$.messager.confirm({
+			width : 400,
+			height : 250,
+			title : '操作提示',
+			msg : '确定提交？',
+			fn : function(r) {
+				if (r) {
+					$.ajax({
+						async : false,
+						cache : false,
+						type : 'POST',
+						data : {
+							ids: JSON.stringify(ids),
+						},
+						url : "userFeedBack/ignore",
+						error : function() { //请求失败处理函数  
+							alert('请求失败');
+						},
+						success : function(data) {
+							var result = data.result;
+							if (result == "1") {
+								$('#grid').datagrid('reload');
+								$('#dialog').dialog('close');
+								alert_autoClose("操作成功！", "info");
+							} else {
+								$('#dialog').dialog('close');
+								alert_autoClose("操作失败！", "error");
+							}
+						} //请求成功后处理函数。    
+					});
+				} else {
+
+				}
+			}
+		});
+  });
+  
+  $("#addPoint").click(function(e) {
+	  	//获取选中行
+		var rows = $('#grid').datagrid('getChecked');
+		if (rows.length < 1) {
+			alert_autoClose("请选择一条！！", "error");
+			return false;
+		}
+		var ids = new Array();
+		var userIds = new Array();
+		for(var i=0,j=0;i<rows.length;i++){
+			if(rows[i].status==0){
+				ids[j]=rows[i].id;
+				userIds[j]=rows[i].user_id;
+				j++;
+			}
+		}
+		if(ids.length==0){
+			alert_autoClose("请选择没有处理的！！", "error");
+			return false;
+		}
+		$.messager.confirm({
+			width : 400,
+			height : 250,
+			title : '操作提示',
+			msg : '确定提交？',
+			fn : function(r) {
+				if (r) {
+					$.ajax({
+						async : false,
+						cache : false,
+						type : 'POST',
+						data : {
+							ids: JSON.stringify(ids),
+							userIds:JSON.stringify(userIds)
+						},
+						url : "userFeedBack/addPoint",
+						error : function() { //请求失败处理函数  
+							alert('请求失败');
+						},
+						success : function(data) {
+							var result = data.result;
+							if (result == "1") {
+								$('#grid').datagrid('reload');
+								$('#dialog').dialog('close');
+								alert_autoClose("操作成功！", "info");
+							} else {
+								$('#dialog').dialog('close');
+								alert_autoClose("操作失败！", "error");
+							}
+						} //请求成功后处理函数。    
+					});
+				} else {
+
+				}
+			}
+		});
+});
+  /**
+   * 刷新功能
+   */
+  $("#reload").click(function(e) {
+ 	 $('#grid').datagrid('reload');
+    });
+  
+  function changeStatus(id,user_id){
+		$.messager.confirm({
+			width : 400,
+			height : 250,
+			title : '操作提示',
+			msg : '是否确定处理反馈？',
+			fn : function(r) {
+				if (r) {
+					$.ajax({
+						async : false,
+						cache : false,
+						type : 'POST',
+						data : {
+							id: id,
+							user_id:user_id
+						},
+						url : "userFeedBack/changeStatus",
+						error : function() { //请求失败处理函数  
+							alert('请求失败');
+						},
+						success : function(data) {
+							var result = data.result;
+							if (result == "1") {
+								$('#grid').datagrid('reload');
+								$('#dialog').dialog('close');
+								//alert_autoClose("操作成功！", "info");
+							} else {
+								$('#dialog').dialog('close');
+								alert_autoClose("操作失败！", "error");
+							}
+						} //请求成功后处理函数。    
+					});
+						} else {
+
+				}
+			}
+		});
+  }
+  
+ 	/*
+ 	 *系统提示函数：alert_autoclose
+ 	 */
+ 	function alert_autoClose(msg,icon){  
+ 		 var interval;  
+ 		 var time=1000;  
+ 		 var x=2;    //设置时间2s
+ 		$.messager.alert("系统提示",msg,icon,function(){
+ 			
+ 		});  
+ 		 interval=setInterval(fun,time);  
+ 		        function fun(){  
+ 		      --x;  
+ 		      if(x==0){  
+ 		          clearInterval(interval);  
+ 		  $(".messager-body").window('close');    
+ 		       }  
+ 		}; 
+ 		}

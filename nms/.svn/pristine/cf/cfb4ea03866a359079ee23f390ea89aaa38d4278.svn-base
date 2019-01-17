@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.datastaticstics.mapper.StatOrderPushMapper">
+	<select id="getStatOrders" resultType="StatOrderPush">
+		SELECT a.*,IFNULL(b.parent_id,0) parent_id ,IFNULL(b.partner_id,0) partner_id,IFNULL(b.push_id,0) push_id,IFNULL(b.amount,0) amount
+			 from (SELECT day_time stat_date,#{sub_date} sub_date from assist_day 
+			 	WHERE  TO_DAYS(day_time) BETWEEN  TO_DAYS(#{sub_date}) and  TO_DAYS(NOW())-1)a
+			LEFT JOIN 
+			(SELECT stat_date,sub_date,parent_id ,partner_id,push_id,SUM(product_price*pay_count) amount
+			from stat_order_push WHERE sub_date = #{sub_date} GROUP BY stat_date)b
+			ON a.stat_date = b.stat_date and a.sub_date = b.sub_date
+	</select>
+</mapper>

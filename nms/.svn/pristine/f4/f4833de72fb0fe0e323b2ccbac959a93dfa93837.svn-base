@@ -1,0 +1,273 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+ <head>
+    <base href="<%=basePath%>">
+    <%@ include file="../top.jsp"%>
+    <title>书库管理</title>
+    
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+	<meta http-equiv="description" content="This is my page">
+	<link rel="stylesheet" type="text/css" href="static/css/chapter.css">
+<style type="text/css">		
+	      html, body {
+            width:100%;
+            height:100%;
+            margin:0px;
+            padding:0px;
+			background-color:#fff;
+        }
+        .button{
+			width: 200px;
+		    padding: 8px;
+		    background-color: #95B8E7;
+		    border-color: #95B8E7;
+		    color: #000;
+		    border-radius: 25px;
+		    text-align: center;
+		    vertical-align: middle;
+		    border: 1px solid transparent;
+		    font-weight: 500;
+		    font-size: 100%;
+		    margin: 17px 73px;
+		}
+        .font_size{
+	        color: #444;
+	        font-size: 14px;
+
+        }
+        .text{
+        
+        width: 345px;
+    	text-indent: 10px;
+    	font-size: 16;
+    	height: 30px;
+        border: 1px solid #95B8E7;
+        border-radius: 5px 5px 5px 5px;
+        }
+       
+        .td{
+        	width:340px;
+       		text-align: left;
+		    text-indent:  10px;
+        	border: 1px solid #95B8E7;
+        	border-radius: 5px 5px 5px 5px;
+        	font-size: 16;
+    		height: 30px;
+        }
+        textarea{
+        	font-size: 15px;
+			/*首行缩进2个字  */
+    		/* text-indent: 2em; */
+        	resize: none;
+        }
+		
+		</style>
+  </head>
+  <body>
+     <div style="width: 100%;"></div>
+		<div id="tb" style="padding:5px;height:auto">
+		<div style="margin-bottom:5px">
+			<span style="color: #444">上传</span>
+			<select class="txt_content" name="content_upload_flag"
+				style="width:6%;height:25px;vertical-align:middle;" id="content_upload_flag">
+				<option value="2" selected="selected">全部</option>
+				<option value="0">没上传</option>
+				<option value="1">已上传</option>
+			</select>
+			<span style="color: #444">状态</span>
+			<select class="txt_content" name="status"
+				style="width:6%;height:25px;vertical-align:middle;" id="status">
+				<option value="2" selected="selected">全部</option>
+				<option value="1">OK</option>
+				<option value="0">不可用</option>
+			</select>
+			<span style="color: #444">审核</span>
+			<select class="chapter_checked" name="chapter_checked"
+				style="width:6%;height:25px;vertical-align:middle;" id="chapter_checked">
+				<option value="2" selected="selected">全部</option>
+				<option value="1">审核过</option>
+				<option value="0">未审核</option>
+			</select>
+			<span style="color: #444">计费</span>
+			<select class="vip_flag" name="vip_flag"
+				style="width:6%;height:25px;vertical-align:middle;" id="vip_flag">
+				<option value="2" selected="selected">全部</option>
+				<option value="1">收费</option>
+				<option value="0">免费</option>
+			</select>
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" id="search">搜索</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add"  plain="true" onclick="dialog('add')">新增</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dialog1('edit')">编辑</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="del()">删除</a>
+			<!-- <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-reload'" id="reload">刷新</a> -->
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-save'" id="save" onclick="check_chapter()">审核</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-cut'" id="save" onclick="move_chapter()">章节号码移动</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-cut'" id="save" onclick="fix_chapter()">章节号码修正</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-tip'" id="read_original" onclick="read_original()">阅读原文</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-tip'" id="subscribe_chapter" onclick="subscribe_chapter()">关注章节</a>
+		
+		</div>
+	</div>
+	<table  title="章节列表" style="width:100%;height:99%;" id="grid">
+			<thead>
+				<tr>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+					<th></th>
+				</tr>
+				</thead>
+	</table>
+	<div id="dialog" class="easyui-dialog" closed="true" style=" display:table-cell;vertical-align:middle;text-align: center;"  >
+        <!-- 章节添加 -->
+        <div id="chapter_add" style="display: none" align="center">
+          		<div class="chapter_message" align="center">
+          			<table align="center">
+          				<tr align="right" >
+			                <td class="font_size"></td>
+			                <td class="font_size"><h2 id="h2_book_name" style="text-align: center;margin-right:100px"></h2></td>
+		                </tr>
+		                <tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">上一章节数：</td>
+			                <td class="td"><label class="label" id ="l1"></label> </td>
+		            	</tr>
+		                <tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">上一章节名：</td>
+			                <td class="td"><label class="label" id ="l2"></label></td>
+		            	</tr>
+		                <tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">追加章节数：</td>
+			                <td><input class="text" id ="add_chapter_num"></input></td>
+		            	</tr>
+		            	<tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">追加章节名：</td>
+			                <td><input class="text" id ="add_chapter_name"></input></td>
+		            	</tr>
+		                <tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">选项：</td>
+			                <td><select class="checkbox"style="width:170px;height:30px;" id="add_vip_flag" >
+									<option value="1" selected="selected">收费</option>
+									<option value="0">免费</option>
+								</select>
+								<select class="checkbox"style="width:170px;height:30px;" id="add_chapter_insert" >
+									<option value="yes">插入</option>
+									<option value="no" selected="selected">追加</option>
+								</select>
+							</td>
+							
+		            	</tr>
+          			</table>
+          		</div>
+          		<!-- 内容区 -->
+	          	<div id="add_txt_chapter" style="font-size: 14px;">
+	          		 <div style="padding:8px;font-size: 16;">章节内容</div>
+	          		  <div><textarea rows="24" cols="100" id="add_chapter_txt"></textarea></div>
+	          	</div>
+          </div>
+            <!-- 章节编辑 -->
+          <div id="chapter_edit" style="display: none" align="center">
+          		<div class="chapter_message" align="center">
+          			<table align="center">
+          				<tr align="right" >
+			                <td class="font_size"></td>
+			                <td class="font_size"><h2 id="h2_book_name" style="text-align: center;margin-right:100px"></h2></td>
+		                </tr>
+		                <tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">本章节数：</td>
+			                <td><input type="text" class="text" id="edit_chapter_num"> </td>
+		            	</tr>
+		                <tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">本章节名：</td>
+			                <td><input type="text" class="text" id="edit_chapter_name"></td>
+		            	</tr>
+		                <tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">上次更新时间：</td>
+			                <td class="td"><label class="label" id ="edit_created_time"></label></td>
+		            	</tr>
+		                <tr align="right" style="margin-top: 10px;">
+			                <td class="font_size">选项：</td>
+			                <td><select class="checkbox"style="width:170px;height:30px;" id="edit_vip_flag" >
+									<option value="1" selected="selected">收费</option>
+									<option value="0">免费</option>
+								</select>
+								<select class="checkbox"style="width:170px;height:30px;" id="edit_chapter_insert" >
+									<option value="no" selected="selected">更新</option>
+									<option value="yes">移动</option>
+								</select>
+							</td>
+							
+		            	</tr>
+          			</table>
+          		</div>
+          		<!-- 内容区 -->
+	          	<div id="edit_txt_chapter" style="font-size: 14px;">
+	          		 <div style="padding:8px;font-size: 16;">章节内容</div>
+	          		  <div><textarea rows="24" cols="100" id="text_chapter"></textarea></div>
+	          		  	    <input type="button" class="button" id="Previous_chapter" value="上一章" onclick="chapterlist_prev_next('Previous')">
+	          		  		<input id="ck_text_chapter" type="checkbox" style="display:  none; margin-top: 10px;margin-left: -30px" value="1">
+	          		  			<span style="font-size:  17px;color:  red;margin: 0 0 0 5px;display:  none;">通过审核</span>
+	          		  		<input type="button" class="button" id="Next_ chapter" value="下一章" onclick="chapterlist_prev_next('Next')">
+	          	</div>
+          </div>
+          <div id="chapter_move" style="display: none" align="center">	
+          		<table align="center">
+	                <tr align="right" style="margin-top: 10px;">
+		                <td class="font_size">章节号码：</td>
+		                <td><input type="text" style="width:170px;"  class="text" id="move_chapter_num">及以上 </td>
+	            	</tr>
+	            	<tr align="right" style="margin-top: 10px;">
+	            		<td class="font_size">移动方式：</td>
+	            	 	<td>
+							<select class="checkbox"style="width:170px;height:30px;" id="move_mode" >
+								<option value="1" selected="selected">编号加</option>
+								<option value="2">编号减</option>
+							</select>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						</td>
+	            	</tr>
+	            	<tr align="right" style="margin-top: 10px;">
+	            		<td class="font_size">移动位数：</td>
+	            	 	<td>
+	            	 		<input type="text" style="width:170px;" value="1" class="text" id="move_count">
+	            	 		&nbsp;位&nbsp;&nbsp;&nbsp;&nbsp;
+						</td>
+	            	</tr>
+		       </table>
+          </div>
+          <div id="chapter_num_fix" style="display: none" align="center">	
+          		<span style="color:red;size:25px;"> 根据章节名截取，只适合部分章节名编号
+          		如：('第100章 我收拾她'或'100 我收拾她'或'第一百章 我收拾她')</span>
+          		<table align="center">
+          		    <tr align="right" style="margin-top: 10px;">
+		                <td class="font_size">书编号：</td>
+		                <td><input type="text" style="width:170px;" readonly="readonly" class="text" id="f_book_id"> </td>
+	            	</tr>
+	                <tr align="right" style="margin-top: 10px;">
+		                <td class="font_size">开始字符：</td>
+		                <td><input type="text" style="width:170px;" value="第"  class="text" id="start_char"> </td>
+	            	</tr>
+	            	<tr align="right" style="margin-top: 10px;">
+	            		<td class="font_size">结束字符：</td>
+		                <td><input type="text" style="width:170px;"value="章"  class="text" id="end_char"></td>
+	            	</tr>
+		       </table>
+          </div>
+    </div>
+		<script type="text/javascript" src="static/js/scripts/Query/chapterEdit.js"></script>
+  </body>
+
+</html>

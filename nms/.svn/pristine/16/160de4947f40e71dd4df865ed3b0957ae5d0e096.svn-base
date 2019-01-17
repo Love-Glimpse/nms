@@ -1,0 +1,39 @@
+package com.kuaidu.nms.quartz;
+
+
+import org.quartz.DisallowConcurrentExecution;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.kuaidu.nms.query.serviceImpl.ChpterServerImpl;
+
+
+/**
+ * 获取书标签
+ * */
+/*@Component
+@DisallowConcurrentExecution*/
+public class DeleteChapterListJob {
+	@Autowired
+	ChpterServerImpl cImpl;
+	 
+	
+	/**
+	 * 每10分钟执行一次
+	 * */
+/*	@Scheduled(cron="0/1 * * * * ?")
+	public void getBookLabels() {
+		String ip = Utils.getLocalHostIp();
+		if (ip.equals("69.171.67.171")) {
+			List<ChapterList> chapterLists = cImpl.getNeedClearChapterList();
+			if (chapterLists.size()==0) {
+				Utils.threadSleep(10000);
+				return;
+			}
+			for (ChapterList chapterList : chapterLists) {
+				//删除
+				cImpl.del_cList(chapterList);
+			}
+		}
+	}*/
+}

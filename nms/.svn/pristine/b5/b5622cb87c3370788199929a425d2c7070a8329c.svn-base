@@ -1,0 +1,69 @@
+package com.kuaidu.nms.quartz;
+
+
+import java.util.List;
+
+import org.quartz.DisallowConcurrentExecution;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import com.kuaidu.nms.entity.BookLabel;
+import com.kuaidu.nms.entity.Label;
+import com.kuaidu.nms.spider.controller.serviceImpl.WebSpiderImpl;
+import com.kuaidu.nms.utils.Utils;
+import net.sf.json.JSONObject;
+
+
+/**
+ * 获取书标签
+ * */
+@Component
+@DisallowConcurrentExecution
+public class GetBookLabelsJob {
+	@Autowired
+	WebSpiderImpl wImpl ;
+	 
+	
+	/**
+	 * 每10分钟执行一次
+	 * */
+	@Scheduled(cron="0 0/10 * * * ?")
+	public void getBookLabels() {
+		String ip = Utils.getLocalHostIp();
+		if (ip.equals("192.168.1.111")) {
+			List<BookLabel> bookLabels = wImpl.getBookLabels();
+			if (bookLabels.size()==0) {
+				Utils.threadSleep(10000);
+				return;
+			}
+			for (BookLabel bookLabel : bookLabels) {
+				String url = "https://c49683.818tu.com/v1/novels/"+bookLabel.getZ_book_id();
+				String strRet = Utils.getHtmlcodeWithoutHeader(url, "utf-8");
+				JSONObject jsonRet = JSONObject.fromObject(strRet);
+				if (jsonRet.containsKey("data")) {
+					String roles = jsonRet.getJSONObject("data").optString("roles");
+					String [] tags = jsonRet.getJSONObject("data").optString("tags").trim()
+							.replaceAll("[\\[|\\]|\"]", "").split(",");
+					String labelIds = "";
+					if (tags.length>0) {
+						for (String tag : tags) {
+							if (tag.length()>0) {
+								Label label =  wImpl.getLabelByName(tag);
+								if (label==null) {
+									label = new Label();
+									label.setTag(tag);
+									wImpl.saveLabel(label);
+								}
+								labelIds = labelIds +label.getLabel_id()+",";
+							}
+						}
+					}
+					bookLabel.setRoles(roles);
+					bookLabel.setLabels(labelIds);
+				}
+			}
+			wImpl.updateBookLables(bookLabels);
+		}
+	}
+}

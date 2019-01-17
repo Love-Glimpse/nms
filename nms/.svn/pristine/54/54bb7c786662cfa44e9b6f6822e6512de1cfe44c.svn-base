@@ -1,0 +1,6 @@
+package com.kuaidu.nms.bizandpush.mapper;
+
+public interface PushUrlMapper {
+
+
+}

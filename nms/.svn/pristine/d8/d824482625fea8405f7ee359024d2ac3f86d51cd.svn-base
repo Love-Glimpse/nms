@@ -1,0 +1,29 @@
+package com.kuaidu.nms.config;
+
+import java.io.File;
+
+import com.kuaidu.nms.utils.OsInfo;
+
+public class Config {
+	/**小说封面图片存储地址**/
+	public static String PIC_PATH = "";
+	/**设置保存当地文件夹路径,章节保存目录**/
+	public static String CHAPTER_PATH = "";
+	/**从fdfs下载章节临时保存文件目录，每天清除*/
+	public static String TEM_PATH = "";
+	static{
+		if(OsInfo.isWindows()){
+			PIC_PATH = "D:"+File.separator+"novels"+File.separator+"image"+File.separator;
+			CHAPTER_PATH = "D:"+File.separator+"novels"+File.separator+"novel_content"+File.separator;
+			TEM_PATH = "D:"+File.separator+"tmp"+File.separator;
+		}else{
+			PIC_PATH = "/novel/novels/novel_image/";
+			CHAPTER_PATH = "/novel/novels/novel_content/";
+			TEM_PATH ="/tmp/";
+		}
+	}
+	/***userAgent，webMagic设置**/
+	public static String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36";
+	//public static String USER_AGENT ="Mozilla/5.0 (Linux; Android 7.1.1; vivo Xplay6 Build/NMF26F; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/62.0.3202.84 Mobile Safari/537.36 VivoBrowser/5.5.2.1";
+	public static String CHAPTER_FILTER_REGEX = "\\s|\t|\r|\n|：|，|\"";
+}

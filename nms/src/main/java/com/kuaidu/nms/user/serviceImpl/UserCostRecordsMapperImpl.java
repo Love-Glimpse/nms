@@ -1,0 +1,37 @@
+package com.kuaidu.nms.user.serviceImpl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kuaidu.nms.entity.UserCost;
+import com.kuaidu.nms.user.mapper.UserCostRecordsMapper;
+/*
+ * 接口实现类
+ * */
+@Service
+@Transactional 
+public class UserCostRecordsMapperImpl {
+	@Resource
+	private UserCostRecordsMapper rMapper;
+
+	public UserCostRecordsMapper getrMapper() {
+		return rMapper;
+	}
+
+	public void setrMapper(UserCostRecordsMapper rMapper) {
+		this.rMapper = rMapper;
+	}
+	//查询书籍
+	public List<UserCost> getAllRecords(UserCost rList) {
+		return rMapper.getAllRecords(rList);
+	}
+	//获取书籍记录总行数
+	public int getCount(UserCost rList) {
+		return rMapper.getCount(rList);
+	}
+
+}

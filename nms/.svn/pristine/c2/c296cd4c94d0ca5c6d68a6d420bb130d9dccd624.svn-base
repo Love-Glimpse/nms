@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.user.mapper.UserFeedBackMapper">
+    <select id="getAllRecords" resultType="UserProposal">
+    	SELECT up.*,ui.nick_name,ui.picture,bl.book_name,cl.chapter_name FROM user_proposal up 
+    		LEFT JOIN user_info ui ON up.user_id=ui.user_id
+    		LEFT JOIN book_list bl ON up.book_id=bl.book_id
+    		LEFT JOIN chapter_list cl ON up.chapter_id=cl.chapter_id
+    			 where 1=1 
+    	<if test="status == 0 or status == 1"> 	
+    		and up.status = #{status}
+    	</if>
+    	<if test="nick_name != null and nick_name != ''">
+			and (up.user_id like '%${nick_name}%' or ui.login_name like '%${nick_name}%' or ui.nick_name like '%${nick_name}%')
+		</if>
+		<if test="book_name != null and book_name != ''">
+			and bl.book_name like '%${book_name}%'
+		</if>
+    	order by id desc limit #{start_rows},#{end_rows}
+    </select>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+    	SELECT count(*) FROM user_proposal up 
+    		LEFT JOIN user_info ui ON up.user_id=ui.user_id
+    		LEFT JOIN book_list bl ON up.book_id=bl.book_id
+    		LEFT JOIN chapter_list cl ON up.chapter_id=cl.chapter_id
+    			 where 1=1 
+    	<if test="status == 0 or status == 1"> 	
+    		and up.status = #{status}
+    	</if>
+    	<if test="nick_name != null and nick_name != ''">
+			and (up.user_id like '%${nick_name}%' or ui.login_name like '%${nick_name}%' or ui.nick_name like '%${nick_name}%')
+		</if>
+		<if test="book_name != null and book_name != ''">
+			and bl.book_name like '%${book_name}%'
+		</if>
+  	</select>
+  	<update id="ignore">
+  		update user_proposal set status=1 where id in (
+  		<foreach collection ="list" item="id" index= "index" separator =",">
+					#{id}
+         </foreach >
+         )
+  	</update>
+</mapper>

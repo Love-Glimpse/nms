@@ -1,0 +1,46 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kuaidu.nms.entity.Promoters;
+import com.kuaidu.nms.entity.UserInfo;
+import com.kuaidu.nms.query.mapper.RegisterQueryMapper;
+
+@Service
+@Transactional 
+public class RegisterQueryMapperImpl {
+	@Resource
+	private RegisterQueryMapper rMapper;
+
+	public RegisterQueryMapper getrMapper() {
+		return rMapper;
+	}
+
+	public void setrMapper(RegisterQueryMapper rMapper) {
+		this.rMapper = rMapper;
+	}
+
+	public List<UserInfo> getAll(UserInfo uInfo) {
+		return rMapper.getAll(uInfo);
+	}
+
+	public List<Promoters> getAllpromoters() {
+		return rMapper.getAllpromoters();
+	}
+
+	public void del(List<Object> list) {
+		rMapper.del(list);
+	}
+
+	public Integer getCount(UserInfo uInfo) {
+		return rMapper.getCount(uInfo);
+	}
+
+   
+	
+	
+}

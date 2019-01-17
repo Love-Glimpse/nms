@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.query.mapper.userFeedBackMapper">
+    <!-- 查询作者表  返回类型为实体类对象-->
+    <select id="getAllRecords" resultType="user_proposal">
+    	SELECT * FROM user_proposal where 1=1 
+    	<if test="user_id != null and user_id != ''">
+			and user_id like '${user_id}'
+		</if>
+    	order by id desc limit #{start_rows},#{end_rows}
+    </select>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+      select COUNT(*) from user_proposal where 1=1
+  	</select>
+</mapper>

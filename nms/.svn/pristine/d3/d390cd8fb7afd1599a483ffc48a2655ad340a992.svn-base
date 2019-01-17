@@ -1,0 +1,13 @@
+package com.kuaidu.nms.query.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.user_info;
+
+public interface userManagementMapper {
+	 //历史记录表查询
+	 public List<user_info> getAllRecords(user_info rList);
+	 //记录数，用于分页
+	 public int getCount(user_info rList);
+	 
+}

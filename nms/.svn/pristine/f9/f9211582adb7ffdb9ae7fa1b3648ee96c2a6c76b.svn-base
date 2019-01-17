@@ -1,0 +1,160 @@
+package com.kuaidu.read.entity;
+
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UserLoginLog {
+
+	private Integer id;
+
+	private Integer userId;
+
+	private String mail;
+	
+	private Integer signId;
+	
+	private String ip; 
+	
+	private String modle;// 手机型号
+
+	private String browser;// 浏览器
+	
+	private String osName; // 操作系统
+
+	private String address;
+	
+	private Integer onlineTime;
+	
+	private Integer readTime;
+	
+	private String loginTime;
+	
+	private Date createTime;
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+
+	public String getMail() {
+		return mail;
+	}
+
+	public void setMail(String mail) {
+		this.mail = mail;
+	}
+
+	public Integer getSignId() {
+		return signId;
+	}
+
+	public void setSignId(Integer signId) {
+		this.signId = signId;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
+
+	public String getModle() {
+		return modle;
+	}
+
+	public void setModle(String modle) {
+		this.modle = modle;
+	}
+
+	public String getBrowser() {
+		return browser;
+	}
+
+	public void setBrowser(String browser) {
+		this.browser = browser;
+	}
+
+	public String getOsName() {
+		return osName;
+	}
+
+	public void setOsName(String osName) {
+		this.osName = osName;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public Integer getOnlineTime() {
+		return onlineTime;
+	}
+
+	public void setOnlineTime(Integer onlineTime) {
+		this.onlineTime = onlineTime;
+	}
+
+	public Integer getReadTime() {
+		return readTime;
+	}
+
+	public void setReadTime(Integer readTime) {
+		this.readTime = readTime;
+	}
+	
+	
+
+	public String getLoginTime() {
+		return loginTime;
+	}
+
+	public void setLoginTime(String loginTime) {
+		this.loginTime = loginTime;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	@Override
+	public String toString() {
+		return "UserLoginLog [id=" + id + ", userId=" + userId + ", mail=" + mail + ", signId=" + signId + ", ip=" + ip
+				+ ", modle=" + modle + ", browser=" + browser + ", osName=" + osName + ", address=" + address
+				+ ", onlineTime=" + onlineTime + ", readTime=" + readTime + ", loginTime=" + loginTime + ", createTime="
+				+ createTime + "]";
+	}
+
+	
+		
+	
+	
+	
+	
+	
+	
+	
+	
+
+}

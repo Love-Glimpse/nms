@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.system.mapper.SystemGroupMapper">
+  <select id="getAll" resultType="Sys_group">
+  	select * from sys_group
+  </select>
+  
+   <!-- 新增用户 -->
+   <insert id="save_group">
+   	<!-- 账号 用户名 密码 邮箱 -->
+     INSERT INTO sys_group(group_name,group_desc,created_time)VALUES(#{group_name},#{group_desc},now())
+   </insert>
+   
+  <!-- 删除用户 -->
+  <delete id="del_group" parameterType="java.util.List">
+   delete from sys_group where group_id in 
+   <foreach item="group_id" collection="list" open="(" separator="," close=")">
+     #{group_id}
+    </foreach>
+  </delete>
+  
+   <!-- 编辑用户 -->
+   <update id="edit_group">
+     UPDATE sys_group SET group_name=#{group_name}, group_desc=#{group_desc} ,created_time=now() where group_id=#{group_id}
+   </update>
+   
+   <!-- 树形菜单 -->
+   <select id="getAllTree" resultType="Sys_module">
+    select a.*,IFNULL(b.flag ,0) as flag from sys_module as a LEFT JOIN sys_group_module as b 
+    	ON a.module_id =b.module_id and b.group_id=#{group_id} ORDER BY parent_id ,show_order
+   </select>
+   <insert id="save_authority"  parameterType="java.util.List">
+   		insert into sys_group_module(group_id,module_id) values
+		<foreach collection ="list" item="mList" index= "index" separator =",">
+					(#{mList.group_id},#{mList.module_id})
+         </foreach>
+   </insert>
+   
+   <delete id="del_group_module">
+      delete from sys_group_module where group_id=${group_id}
+   </delete>
+</mapper>

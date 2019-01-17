@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.message.mapper.CustomMsgMapper">
+	<select id="createCustomMsg" statementType="CALLABLE">
+		<!-- 客服消息 -->
+		CALL create_readlog_custom_msg();
+		<!-- CALL create_sign_custom_msg(); -->
+		<!-- CALL create_sub_custom_msg(); -->
+		<!-- CALL create_first_order_custom_msg(); -->
+		
+	</select>
+	<update id="updateMsgStatus">
+		update wx_custom_msg set send_status = #{send_status} where id=#{id};
+	</update>
+	<update id="updateCustomMsg">
+		update wx_custom_msg set send_status = 1 where id in (
+  		<foreach collection ="list" item="msg" index= "index" separator =",">
+					#{msg.id}
+         </foreach >
+         )
+	</update>
+	<select id="loadCustomMsg" resultType="WxCustomMsg">
+		select * from wx_custom_msg where send_status=0 and send_time &lt;= now() limit 1000
+	</select>
+	<insert id="saveCustomMsg" parameterType="WxCustomMsg">
+		INSERT INTO wx_custom_msg(partner_id,p_msg_id,user_id,book_id,to_user,type,msg_type,title,description,url,pic_url,send_status,send_time)
+		VALUES(#{partner_id},#{p_msg_id},#{user_id},#{book_id},#{to_user},#{type},#{msg_type},#{title},#{description},#{url},#{pic_url},#{send_status},now())
+
+	</insert>
+	<insert id="batchInsertCustomMsg" parameterType="java.util.List">
+		INSERT INTO wx_custom_msg(partner_id,p_msg_id,user_id,book_id,to_user,type,msg_type,title,description,url,pic_url,send_time,is_last)VALUES
+		<foreach collection ="list" item="m" index= "index" separator =",">
+					(#{m.partner_id},#{m.p_msg_id},#{m.user_id},#{m.book_id},#{m.to_user},#{m.type},#{m.msg_type},#{m.title},#{m.description},#{m.url},#{m.pic_url},#{m.send_time},#{m.is_last})
+         </foreach >
+	</insert>
+	<select id="getAutoSendPartner" resultType="PartnerCustomMsgConfig">
+		SELECT p.*,IFNULL(pcmc.`status`,1)status 
+			from (SELECT partner_id,6 type FROM partner_info  WHERE partner_gradation = 1 and partner_id !=2 ) p
+			LEFT JOIN  partner_custom_msg_config pcmc
+			ON p.partner_id = pcmc.partner_id and p.type = pcmc.type
+			<!-- WHERE p.partner_id = 2569 -->
+	</select>
+	<select id="getCustomMsgInfoByUserId" statementType="CALLABLE" resultType="String">
+		select getCustomMsgInfoByUserId(#{userId});
+	</select>
+	<select id="getReadBookIdByUserID" resultType="java.util.Map">
+		SELECT a.*,b.labels FROM (SELECT book_id,COUNT(DISTINCT chapter_id) cc from user_read_log
+			WHERE user_id = #{user_id} and book_id IS NOT NULL
+		GROUP BY book_id ORDER BY cc desc LIMIT 1) a
+		 LEFT JOIN book_labels b ON a.book_id =b.book_id
+		 WHERE b.labels IS NOT NULL ;
+	</select>
+	<select id="getSimilarBookIds" resultType="int">
+		SELECT bc.book_id from book_custom_msg_config bc
+				LEFT JOIN book_labels bl ON bc.book_id = bl.book_id
+				WHERE bl.labels LIKE CONCAT('%',#{labelId},',%') and bc.book_id!=#{rBookId} 
+				AND NOT EXISTS (SELECT book_id FROM wx_custom_msg 
+			WHERE user_id = #{userId} and book_id = bc.book_id  and TO_DAYS(create_time)>=TO_DAYS(NOW())-15);
+	</select>
+	<select id="getCustomMsgInfoByBookId" resultType="String">
+		select getCustomMsgInfoByBookId(#{partnerId},#{bookId});
+	</select>
+	<select id="loadPartnerCustomMsg" resultType="PartnerCustomMsg">
+		SELECT * from partner_custom_msg WHERE send_status  = 0 and send_time &lt;= now() and partner_id>0
+	</select>
+	<update id="updatePartnerCustomMsgsStatus">
+		update partner_custom_msg set send_status = 1 where p_msg_id in (
+  		<foreach collection ="list" item="msg" index= "index" separator =",">
+					#{msg.p_msg_id}
+         </foreach >
+         )
+	</update>
+	<update id="updatePartnerCustomMsgStatusByMsgId">
+		update partner_custom_msg set send_status = #{send_status} where p_msg_id = #{p_msg_id}
+	</update>
+	<update id="updateSendMsgCount">
+		<if test="send_status==2">
+			UPDATE partner_custom_msg SET send_success = send_success +1 WHERE p_msg_id = #{p_msg_id} ;
+		</if>
+		<if test="send_status!=2">
+			UPDATE partner_custom_msg SET send_failed = send_failed +1 WHERE p_msg_id = #{p_msg_id};
+		</if>
+	</update>
+</mapper>

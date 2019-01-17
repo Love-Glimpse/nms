@@ -1,0 +1,333 @@
+package com.kuaidu.nms.entity;
+
+import java.math.BigDecimal;
+
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+public class PartnerPushUrl {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer push_id;
+	
+	private String name;
+	
+	private Integer type;
+	
+	private Integer partner_id;
+	
+	private Integer chapter_id;
+	
+	private String book_name;
+	
+	private Integer book_id;
+	
+	private String chapter_name;
+	
+	private Integer chapter_num;
+	
+	private Integer rec_cover_id;
+	
+	private String title;
+	
+	private Integer rec_title_id;
+	
+	private String rec_source_url;
+	
+	private Integer mode;
+	
+	private Integer hits;
+	
+	private Integer text_template;
+	
+	private String lead_template_url;
+	
+	private Integer qr_code_template;
+	
+	private String source_url;
+	
+	private String open_str;
+	
+	private String expiry_date;
+	
+	private Integer status;
+	
+	private String created_time;
+
+	private BigDecimal price;
+	
+	private Integer order_count;
+	
+	private Integer user_count;
+
+	public Integer getPush_id() {
+		return push_id;
+	}
+
+	public void setPush_id(Integer push_id) {
+		this.push_id = push_id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public Integer getPartner_id() {
+		return partner_id;
+	}
+
+	public void setPartner_id(Integer partner_id) {
+		this.partner_id = partner_id;
+	}
+
+	public Integer getChapter_id() {
+		return chapter_id;
+	}
+
+	public void setChapter_id(Integer chapter_id) {
+		this.chapter_id = chapter_id;
+	}
+
+	public String getBook_name() {
+		return book_name;
+	}
+
+	public void setBook_name(String book_name) {
+		this.book_name = book_name;
+	}
+	
+	
+
+	
+
+	
+
+	public Integer getQr_code_template() {
+		return qr_code_template;
+	}
+
+	public void setQr_code_template(Integer qr_code_template) {
+		this.qr_code_template = qr_code_template;
+	}
+
+	public String getLead_template_url() {
+		return lead_template_url;
+	}
+
+	public void setLead_template_url(String lead_template_url) {
+		this.lead_template_url = lead_template_url;
+	}
+
+	public Integer getText_template() {
+		return text_template;
+	}
+
+	public void setText_template(Integer text_template) {
+		this.text_template = text_template;
+	}
+
+	public Integer getBook_id() {
+		return book_id;
+	}
+
+	public void setBook_id(Integer book_id) {
+		this.book_id = book_id;
+	}
+
+	public String getChapter_name() {
+		return chapter_name;
+	}
+
+	public void setChapter_name(String chapter_name) {
+		this.chapter_name = chapter_name;
+	}
+
+	public Integer getChapter_num() {
+		return chapter_num;
+	}
+
+	public void setChapter_num(Integer chapter_num) {
+		this.chapter_num = chapter_num;
+	}
+
+	public Integer getRec_cover_id() {
+		return rec_cover_id;
+	}
+
+	public void setRec_cover_id(Integer rec_cover_id) {
+		this.rec_cover_id = rec_cover_id;
+	}
+
+	public Integer getRec_title_id() {
+		return rec_title_id;
+	}
+
+	public void setRec_title_id(Integer rec_title_id) {
+		this.rec_title_id = rec_title_id;
+	}
+	
+	
+	
+
+	public Integer getMode() {
+		return mode;
+	}
+
+	public void setMode(Integer mode) {
+		this.mode = mode;
+	}
+
+	public Integer getHits() {
+		return hits;
+	}
+
+	public void setHits(Integer hits) {
+		this.hits = hits;
+	}
+
+	public String getSource_url() {
+		return source_url;
+	}
+
+	public void setSource_url(String source_url) {
+		this.source_url = source_url;
+	}
+
+	
+	
+	
+	
+	
+	
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getRec_source_url() {
+		return rec_source_url;
+	}
+
+	public void setRec_source_url(String rec_source_url) {
+		this.rec_source_url = rec_source_url;
+	}
+
+	public String getOpen_str() {
+		return open_str;
+	}
+
+	public void setOpen_str(String open_str) {
+		this.open_str = open_str;
+	}
+
+	
+
+	public String getExpiry_date() {
+		return expiry_date;
+	}
+
+	public void setExpiry_date(String expiry_date) {
+		this.expiry_date = expiry_date;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+
+	public String getCreated_time() {
+		return created_time;
+	}
+
+	public void setCreated_time(String created_time) {
+		this.created_time = created_time;
+	}
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+
+	public Integer getOrder_count() {
+		return order_count;
+	}
+
+	public void setOrder_count(Integer order_count) {
+		this.order_count = order_count;
+	}
+
+	public Integer getUser_count() {
+		return user_count;
+	}
+
+	public void setUser_count(Integer user_count) {
+		this.user_count = user_count;
+	}
+
+	@Override
+	public String toString() {
+		return "PartnerPushUrl [push_id=" + push_id + ", name=" + name + ", type=" + type + ", partner_id=" + partner_id
+				+ ", chapter_id=" + chapter_id + ", book_name=" + book_name + ", book_id=" + book_id + ", chapter_name="
+				+ chapter_name + ", chapter_num=" + chapter_num + ", rec_cover_id=" + rec_cover_id + ", title=" + title
+				+ ", rec_title_id=" + rec_title_id + ", rec_source_url=" + rec_source_url + ", mode=" + mode + ", hits="
+				+ hits + ", text_template=" + text_template + ", lead_template_url=" + lead_template_url
+				+ ", qr_code_template=" + qr_code_template + ", source_url=" + source_url + ", open_str=" + open_str
+				+ ", expiry_date=" + expiry_date + ", status=" + status + ", created_time=" + created_time + ", price="
+				+ price + ", order_count=" + order_count + ", user_count=" + user_count + "]";
+	}
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+	
+	
+}

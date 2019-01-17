@@ -1,0 +1,111 @@
+package com.kuaidu.nms.queryManage.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.kuaidu.nms.entity.ReplaceConfig;
+import com.kuaidu.nms.query.serviceImpl.ReplaceConfigMapperImpl;
+import com.kuaidu.nms.utils.ResultData;
+
+import net.sf.json.JSONObject;
+
+//spiderConfig/spiderConfigIndex
+@Controller
+@RequestMapping("/replaceConfig")
+public class ReplaceConfigManage {
+	@Autowired
+	private ReplaceConfigMapperImpl rImpl;
+
+	public ReplaceConfigMapperImpl getrImpl() {
+		return rImpl;
+	}
+
+	public void setrImpl(ReplaceConfigMapperImpl rImpl) {
+		this.rImpl = rImpl;
+	}
+
+	@RequestMapping("/replaceConfigIndex")
+	public ModelAndView authorsQueryManageIndex(HttpSession session) {
+
+		ModelAndView mv = new ModelAndView();
+
+		try {
+			mv.setViewName("Query/replaceConfig");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+
+	@ResponseBody
+	@RequestMapping("/getAllConfigs")
+	public String getAll(HttpServletRequest request,ReplaceConfig replaceConfig){	
+		Integer page = Integer.parseInt(request.getParameter("page"));
+		Integer rows = Integer.parseInt(request.getParameter("rows"));
+		
+		Integer start_rows = (page-1)*rows;
+		replaceConfig.setStart_rows(start_rows);
+		replaceConfig.setRows(rows);
+		List<ReplaceConfig> list = rImpl.getAllConfigs(replaceConfig);
+		int total = rImpl.getCount(replaceConfig);
+		//list.size()=10
+		return ResultData.toJsonString(total, list);
+	}
+	/*
+	 * 新增
+	 */
+	@ResponseBody
+	@RequestMapping("/add_rConfig")
+	public String add_rConfig(HttpServletRequest request,ReplaceConfig replaceConfig){
+		JSONObject json = new JSONObject();
+		try {
+			rImpl.add_rConfig(replaceConfig);
+			json.put("result", "0");
+		} catch (Exception e) {
+			json.put("result", "1");
+			e.printStackTrace();
+		}
+		return json.toString();
+	}
+	
+	/*
+	 * 删除
+	 */
+	@ResponseBody
+	@RequestMapping("/del_rConfig")
+	public String del_rConfig(HttpServletRequest request,ReplaceConfig replaceConfig){
+		JSONObject json = new JSONObject();
+		try {
+			rImpl.del_rConfig(replaceConfig);
+			json.put("result", "0");
+		} catch (Exception e) {
+			json.put("result", "1");
+			e.printStackTrace();
+		}
+		return json.toString();
+	}
+	/*
+	 * 修改
+	 */
+	@ResponseBody
+	@RequestMapping("/update_rConfig")
+	public String update_rConfig(HttpServletRequest request,ReplaceConfig replaceConfig){
+		JSONObject json = new JSONObject();
+		try {
+			rImpl.update_rConfig(replaceConfig);
+			json.put("result", "0");
+		} catch (Exception e) {
+			json.put("result", "1");
+			e.printStackTrace();
+		}
+		return json.toString();
+	}
+}

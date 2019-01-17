@@ -1,0 +1,30 @@
+package com.kuaidu.nms.pay.serviceImpl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.user_order;
+import com.kuaidu.nms.pay.mapper.UserOrderMapper;
+
+@Service
+public class UserOrderServiceImpl {
+	@Autowired
+	UserOrderMapper userOrderMapper;
+
+	public List<user_order> getUserOrder(Integer orderId, String mail) {
+		if(orderId != null) {
+			user_order user_order =  userOrderMapper.getUserOrderByOrderId(orderId);
+			List<user_order> list = new ArrayList<>();
+			list.add(user_order);
+			return list;
+		}
+		if (mail != null) {
+			return userOrderMapper.getUserOrderByMail(mail);
+		}
+		return new ArrayList<user_order>();
+	}
+
+}

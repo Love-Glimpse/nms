@@ -1,0 +1,88 @@
+package com.kuaidu.nms.partner.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.entity.RestReturn;
+import com.kuaidu.nms.partner.mapper.PartnerPushUrlMapper;
+import com.kuaidu.nms.query.mapper.ChapterMapper;
+
+@Service
+public class PartnerPushUrlServiceImpl {
+	
+	//跳转连接
+	String returnUrl = "http://mzshu.com/kdread/";
+	//推广连接
+	String referralUrl = "http://mzshu.com/kdread/referral/";
+	
+	@Autowired
+	PartnerPushUrlMapper partnerPushUrlMapper;
+	@Autowired
+	ChapterMapper chapterMapper;
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	
+
+	
+
+
+
+	public RestReturn savePartnerPushUrl(Integer partner_id, String name,Integer type,Integer chapterId) {
+		//添加推广章节url
+		PartnerPushUrl partnerPushUrl = new PartnerPushUrl();
+		//章节推广
+		if (type == 0) { 
+			if (chapterId == null) {
+				return RestReturn.fail();
+			}
+			partnerPushUrl.setChapter_id(chapterId);
+			partnerPushUrl.setSource_url("http://mzshu.com/kdread/chapter/"+chapterId);
+		//首页推广
+		}else if(type == 1){
+			partnerPushUrl.setSource_url("http://mzshu.com/kdread/index");
+		}
+		partnerPushUrl.setType(type);
+		partnerPushUrl.setName(name);
+		partnerPushUrl.setPartner_id(partner_id);
+		partnerPushUrlMapper.savePartnerPushUrl(partnerPushUrl);
+		return RestReturn.success(referralUrl+partnerPushUrl.getPush_id());
+		
+	}
+
+
+
+	public PageInfo<PartnerPushUrl> getPushUrlInfo(int partner_id, Integer pn, Integer ps, String name) {
+		PageHelper.startPage(pn, ps);
+		List<PartnerPushUrl> list  = partnerPushUrlMapper.getPushUrlInfo(partner_id,name);
+		
+		PageInfo<PartnerPushUrl> pageInfo = new PageInfo<PartnerPushUrl>(list, 5);
+		return pageInfo;
+	}
+
+
+
+	public RestReturn deletePartnerPushUrl(Integer pushId) {
+		 int num = partnerPushUrlMapper.deletePartnerPushUrl(pushId);
+		 if (num > 0) {
+			return RestReturn.success();
+		}
+		 return RestReturn.fail();
+	}
+
+
+
+	public RestReturn updatePartnerPushUrl(Integer pushId, String name) {
+		 int num = partnerPushUrlMapper.updatePartnerPushUrl(pushId,name);
+		 if (num > 0) {
+			return RestReturn.success();
+		}
+		 return RestReturn.fail();
+	}
+
+}

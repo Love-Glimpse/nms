@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.user.mapper.SearchLogMapper">
+
+	<select id="getAllRecords" resultType="searchLog">
+		select id,book_name,s.user_id,nick_name,create_date from search_log s
+		left join user_info u on s.user_id =u.user_id 
+		<where>
+			<if test="user_id != null">
+				and s.user_id = #{user_id}
+			</if>
+			<if test="book_name != null or book_name != '' ">
+				and book_name like '%${book_name}%'
+			</if>
+		</where>
+		order by id desc limit #{start_rows},#{end_rows}
+	</select>
+	
+	<delete id="deleteSearchLog">
+		delete from search_log where id in
+		<foreach collection="list" item="id" open="(" close=")" separator=",">
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="getCount" resultType="int">
+		select count(0) from search_log 
+	</select>
+	
+	
+	<select id="getSortCount" resultType="int">
+		SELECT count(0) FROM  (SELECT count(0) count FROM search_log GROUP BY book_name )a
+	</select>
+	
+	<select id="getSortAllRecords" resultType="searchLog">
+		SELECT book_name, count(0) count FROM search_log 
+		<where>
+			<if test="book_name != ''">
+				and book_name = #{book_name}
+			</if>
+			<if test="user_id != null">
+				and user_id = #{user_id}
+			</if>
+		</where>
+		
+		GROUP BY book_name ORDER BY count desc
+	</select>
+
+	
+</mapper>

@@ -1,0 +1,24 @@
+package com.kuaidu.nms.user.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.UserInfo;
+
+public interface UserManagementMapper {
+	 //历史记录表查询
+	 public List<UserInfo> getAllRecords(UserInfo rList);
+	 //记录数，用于分页
+	 public int getCount(UserInfo rList);
+	 //给反馈用户增加50积分
+	 public void addUserPoint50(@Param("user_id")Integer user_id);
+	 
+	 public List<UserInfo> getActiveUsersByPartnerId(@Param("partner_id")Integer partner_id);
+	 	
+	 public UserInfo getUserInfoByUserId(@Param("user_id")Integer user_id);
+	 
+	public List<UserInfo> getUserInfosByIds(@Param("ids")List<Integer> ids, @Param("userInfo")UserInfo userInfo);
+	public Integer getOnlineCountUserInfosByIds(@Param("ids")List<Integer> ids,@Param("userInfo")UserInfo userInfo);
+	 
+}

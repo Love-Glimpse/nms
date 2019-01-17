@@ -1,0 +1,335 @@
+package com.kuaidu.nms.spider.down;
+
+import java.io.File;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.kuaidu.nms.config.Config;
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.entity.ReplaceConfig;
+import com.kuaidu.nms.entity.SpiderConfig;
+import com.kuaidu.nms.query.serviceImpl.ChpterServerImpl;
+import com.kuaidu.nms.spider.controller.serviceImpl.WebSpiderImpl;
+import com.kuaidu.nms.utils.Log4jUtil;
+import com.kuaidu.nms.utils.Utils;
+import com.kuaidu.nms.utils.fastdfs.FastDFSException;
+import com.kuaidu.nms.utils.fastdfs.FastDFSTemplate;
+import com.kuaidu.nms.utils.fastdfs.FastDfsInfo;
+import com.kuaidu.nms.utils.spider.SpiderStart;
+
+import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.processor.PageProcessor;
+
+/**
+ * 网站小说爬取
+ **/
+@Component
+public class DownChapterSpider implements PageProcessor {
+	public static WebSpiderImpl wImpl;
+
+	public WebSpiderImpl getwImpl() {
+		return wImpl;
+	}
+
+	@Autowired
+	public void setwImpl(WebSpiderImpl wImpl) {
+		DownChapterSpider.wImpl = wImpl;
+	}
+
+	public static ChpterServerImpl cImpl;
+
+	public ChpterServerImpl getcImpl() {
+		return cImpl;
+	}
+
+	@Autowired
+	public void setcImpl(ChpterServerImpl cImpl) {
+		DownChapterSpider.cImpl = cImpl;
+	}
+	private static FastDFSTemplate fastDFSTemplate;
+
+	public FastDFSTemplate getFastDFSTemplate() {
+		return fastDFSTemplate;
+	}
+	@Resource(name = "fastDFSTemplate")
+	public void setFastDFSTemplate(FastDFSTemplate fastDFSTemplate) {
+		DownChapterSpider.fastDFSTemplate = fastDFSTemplate;
+	}
+	private volatile static Spider spider;
+	
+	private static SpiderConfig sConfig;
+	
+	private static  List<ReplaceConfig> replaces;
+	public static Spider getSpider(String bookUrl, List<ReplaceConfig> replaces) {
+		sConfig = wImpl.getSpiderConfig(bookUrl.toString());
+		DownChapterSpider.replaces = replaces;
+		synchronized (DownChapterSpider.class) {
+			if (spider == null) {
+				spider = new Spider(new DownChapterSpider());
+			}
+		}
+		if (sConfig.getSpider_user_charset()==1) {//使用数据库配置
+			spider.getSite().setCharset(sConfig.getCharset());
+		}
+		return spider;
+	}
+
+	public static void setSpider(Spider spider) {
+		DownChapterSpider.spider = spider;
+	}
+
+	private Site site = Site.me().setRetryTimes(1).setTimeOut(10000).setSleepTime(1000)
+			.setAcceptStatCode(SpiderStart.AcceptStatCode)
+			.addCookie("Hm_lpvt_5eb81c3b57ea700d51556a83f9cebcfe", System.currentTimeMillis() + "")
+			.addCookie("Hm_lvt_5eb81c3b57ea700d51556a83f9cebcfe", "1531206622")
+			// 添加请求头，有些网站会根据请求头判断该请求是由浏览器发起还是由爬虫发起的
+			.addHeader("User-Agent",
+					"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36")
+			.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+			.addHeader("Accept-Encoding", "gzip, deflate, br").addHeader("Accept-Language", "zh-CN,zh;q=0.8")
+			.addHeader("Connection", "keep-alive").addHeader("Upgrade-Insecure-Requests", "1");
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public void process(Page page) {
+		try {
+			String pageUrl = page.getUrl().toString();
+			Log4jUtil.getBusinessLogger().info((Thread.currentThread().getName()+",aliveThread=="+spider.getThreadAlive()+","+pageUrl + "==" + page.getStatusCode())+",charset=="+page.getCharset());
+			String statusCode = String.valueOf(page.getStatusCode());
+			if (statusCode.startsWith("2") || statusCode.startsWith("3")) {
+				Map<String, Object> extras = page.getRequest().getExtras();
+				Log4jUtil.getBusinessLogger().info(extras.toString());
+				String sbook_id = extras.get("book_id")+"";
+				String stype_id = (String) extras.get("type_id");
+				Integer words_min = Integer.parseInt(extras.get("words_min")+"");
+				String t = (String) extras.get("t");
+				int book_id = 0, type_id = 0;
+				if (null == t) {
+					return;
+				}
+
+				if (t.equalsIgnoreCase("1")) {// 书本连接
+					Integer dc =  Integer.parseInt(extras.get("dc")+"");
+					String newestChapterName = "";//最新章节名称
+					Integer newestChapterNum = 0;
+					if (null == stype_id || null == sbook_id) {
+						return;
+					} else {
+						book_id = Integer.parseInt(sbook_id);
+						type_id = Integer.parseInt(stype_id);
+					}
+					Set<String> set = new HashSet<String>();
+					List<String> chapterNames = page.getHtml().xpath(sConfig.getChapter_reg()).all();
+					List<String> chapterUrls = page.getHtml().xpath(sConfig.getChapter_url_reg()).links().all();
+					List<Request> chapterUrlsRequests = new ArrayList<Request>();
+					if (sConfig.getOrderby() == 1) {//倒序翻转
+						Collections.reverse(chapterNames);
+						Collections.reverse(chapterUrls);
+						Collections.reverse(chapterUrlsRequests);
+					}
+					// 需要下载的章节
+					List<ChapterList> saveLists = new ArrayList<ChapterList>();
+					int size = chapterNames.size();
+					int chapter_num_tmp = 0;
+					List<ChapterList> cLists = wImpl.getAllChapterList(book_id,0);
+					Map<String, ChapterList> map = new HashMap<String, ChapterList>();
+					if (chapterNames.size() > 0) {
+						for (ChapterList cList : cLists) {//数据库已有的章节信息
+							map.put(cList.getChapter_name_old().replaceAll(Config.CHAPTER_FILTER_REGEX, ""), cList);
+						}
+					}
+					for (int i = sConfig.getBefore_count(); i < size - sConfig.getAfter_count(); i++) {
+						if (set.add(chapterNames.get(i).replaceAll(Config.CHAPTER_FILTER_REGEX, "").trim())) {// 用set去重
+							ChapterList chapterList = new ChapterList();
+							String chapterNameOld = chapterNames.get(i);
+							chapterList.setChapter_name_old(chapterNameOld);
+							String chapterName = Utils.getReplaceChapterName(chapterNameOld,"章");
+							chapterList.setChapter_name(chapterName);
+							chapterList.setBook_id(book_id);
+							//对chapterUrls进行处理
+							String chapter_url = chapterUrls.get(i).replaceAll (Config.CHAPTER_FILTER_REGEX, "" );
+							if (chapterUrls.get(i).contains("kayege")) {//kayege https报错
+								chapter_url = chapter_url.replace("https", "http");
+							}
+							if (chapterUrls.get(i).contains("rzlib.net")) {
+								chapter_url = chapter_url.replaceAll("/b/\\d+", "/b/txt222");
+							}
+							if (!map.containsKey(chapterNameOld.replaceAll(Config.CHAPTER_FILTER_REGEX, ""))) {// 章节信息不存在,需要添加到数据库
+								chapterList.setChapter_num(dc+ chapter_num_tmp + 1);
+								//System.out.println("chapter_num=="+chapterList.getChapter_num());
+								chapter_num_tmp++;
+								chapterList.setBook_id(book_id);
+								chapterList.setType_id(type_id);
+								chapterList.setChapter_url(chapter_url);
+								saveLists.add(chapterList);
+								newestChapterName = chapterName;
+								newestChapterNum = chapterList.getChapter_num();
+								chapter_url = chapter_url + "?t=2&ct="+System.currentTimeMillis()+"&book_id=" + sbook_id 
+										+ "&cn=" + URLEncoder.encode(chapterName)+"&words_min="+words_min;
+								Map<String, Object> extras_chapter = Utils.URLRequest2(chapter_url);
+								Request request = Utils.createRequest(extras_chapter, chapter_url, sConfig.getMethod()+"");
+								//spider.addRequest(request);
+								//添加链接，下载内容
+								chapterUrlsRequests.add(request);
+							} else{//章节信息存在
+								ChapterList chList = map.get(chapterNameOld.replaceAll(Config.CHAPTER_FILTER_REGEX, ""));
+								if (chList.getContent_upload_flag()==0&&chList.getStatus()==1) {// 章节内容没有下载,并且是有效章节
+									//添加链接，下载内容
+									chapter_url = chapter_url + "?t=2&ct="+System.currentTimeMillis()+"&book_id=" + sbook_id 
+											+ "&cn=" + URLEncoder.encode(chapterName)+"&words_min="+words_min;
+									Map<String, Object> extras_chapter = Utils.URLRequest2(chapter_url);
+									Request request = Utils.createRequest(extras_chapter, chapter_url, sConfig.getMethod()+"");
+									//spider.addRequest(request);
+									//添加链接，下载内容
+									chapterUrlsRequests.add(request);
+								}
+							}
+						}
+						// 一次500个章节任务或者遍历结束后提交 或者到尾部
+						if (chapterUrlsRequests.size()>=4000 || (i == size - sConfig.getAfter_count() - 1)) {
+							if (saveLists.size()>0) {
+								wImpl.saveChapterDown(saveLists);
+								saveLists.clear();
+							}
+							break;
+						}
+						
+					}
+					wImpl.updateBookNewestChapter(book_id,newestChapterName,newestChapterNum);
+					Request[] requests = new Request[chapterUrlsRequests.size()];
+					spider.addRequest(chapterUrlsRequests.toArray(requests));
+					//page.addTargetRequests(chapterUrlsNew);
+					//释放
+					set = null;
+					chapterNames = null;
+					chapterUrls = null;
+					map = null;
+					saveLists = null;
+					cLists = null;
+					chapterUrlsRequests  = null;
+					requests = null;
+				} else if (t.equalsIgnoreCase("2")) {// 章节连接
+					
+					String cn =(String) extras.get("cn");//获取章节名称
+					if (null!=cn) {
+						cn = URLDecoder.decode(cn);
+					}else {
+						Log4jUtil.getBusinessLogger().error("cn="+pageUrl);
+						return;
+					}
+					String url = page.getUrl().toString();
+					String pre_url = url.substring(0,url.lastIndexOf('/')+1);
+					StringBuilder chapterContent = new StringBuilder(500);
+					List<String> chapterContents = page.getHtml().xpath(sConfig.getContent_reg()).all();
+					Log4jUtil.getBusinessLogger().info(cn+"===get first page");
+					
+					if (chapterContents.size() <= 0) {
+						return;
+					}
+					chapterContent.append(Utils.replace(chapterContents.get(0), replaces).trim());
+					//Log4jUtil.getBusinessLogger().info(cn+"===begin next page, words_min=="+words_min);
+					if (sConfig.getHave_next_content()==1&&null != sConfig.getContent_next_page_name_reg()
+							&& null != sConfig.getContent_next_page_reg() && null != sConfig.getChapter_name()
+							&& !sConfig.getContent_next_page_name_reg().equals("")
+							&& !sConfig.getContent_next_page_reg().equals("")
+							&& !sConfig.getChapter_name().equals("")) {
+						List<String> next_page_name = page.getHtml().xpath(sConfig.getContent_next_page_name_reg())
+								.all();
+						List<String> next_page_url = page.getHtml().xpath(sConfig.getContent_next_page_reg()).links()
+								.all();
+						List<String> chapter_names = page.getHtml().xpath(sConfig.getChapter_name()).all();
+						
+						if (next_page_name.size() <= 0 || next_page_url.size() <= 0 || chapter_names.size() <= 0) {//下一页规则不正确
+							//Log4jUtil.getSimpleErrorLogger().error(cn+"=== next page regex error!");
+							chapterContent.delete( 0, chapterContent.length() );
+						}else { 
+							Utils.threadSleep(200);
+							String nextChapterContent = Utils.getNextPageContent(next_page_url, next_page_name, sConfig, replaces,
+									cn,pre_url);
+							if (nextChapterContent==null) {
+								//有有一个下一页加载失败
+								//清空每一页内容
+								//Log4jUtil.getSimpleErrorLogger().error(cn+"=== next page load failed!");
+								chapterContent.delete( 0, chapterContent.length() );
+							}else {
+								chapterContent.append(nextChapterContent);
+							}
+						}
+					}
+					String content = Utils.replace(chapterContent.toString(), replaces).replace(cn, "").trim();
+					
+					
+					if (null!=content&&content.length()>=words_min) {
+						ChapterList chapterList = new ChapterList();
+						chapterList.setWords(content.replaceAll(Config.CHAPTER_FILTER_REGEX, "").length());
+						chapterList.setBook_id(Integer.parseInt(sbook_id));
+						chapterList.setChapter_name(cn);
+						String fileName = Utils.MD5(cn, 16);
+						boolean b = Utils.ZipFile(Config.CHAPTER_PATH, fileName, content);
+						if (b) {
+							byte[] contentBytes;
+							try {
+								//Log4jUtil.getBusinessLogger().info(cn+"===save content");
+								contentBytes = Utils.fileToBytes(Config.CHAPTER_PATH + fileName + ".zip");
+								chapterList.setChapter_filepath(Config.CHAPTER_PATH + fileName + ".zip");
+								FastDfsInfo fastDfsInfo = fastDFSTemplate.upload(contentBytes, "zip");
+								chapterList.setChapter_filepath_fdfs(fastDfsInfo.getFileAbsolutePath());
+								//Log4jUtil.getBusinessLogger().info(cn+"===upload content end!"+fastDfsInfo.getPath());
+								wImpl.updateFdfsPath(chapterList);
+								//Log4jUtil.getBusinessLogger().info(cn+"===update content end!"+fastDfsInfo.getPath());
+								//wImpl.updateDownBooKChapterCount(Integer.parseInt(sbook_id), content.length());
+							} catch (FastDFSException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							contentBytes = null;
+							// 上传完删除旧的文件
+							FileUtils.deleteQuietly(new File(Config.CHAPTER_PATH + fileName + ".zip"));
+						} 
+					}else {
+						Log4jUtil.getSimpleErrorLogger().error(cn+" content length less then "+words_min+",length == "+content.length());
+					}
+					content = null;
+					chapterContent = null;
+					//Log4jUtil.getBusinessLogger().info(cn+" get content end!");
+				}
+				extras = null;
+				Utils.threadSleep(sConfig.getSleep_mills());
+				return;
+			} else if (statusCode.startsWith("4") || statusCode.startsWith("5")) {
+				// 连接不正确
+				Utils.threadSleep(10000);
+				return;
+			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally {
+			
+		}
+	}
+
+
+
+	@Override
+	public Site getSite() {
+		return site;
+	}
+}

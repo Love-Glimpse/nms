@@ -1,0 +1,105 @@
+package com.kuaidu.nms.user.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.alibaba.fastjson.JSON;
+import com.kuaidu.nms.entity.RestReturn;
+import com.kuaidu.nms.entity.UserInfo;
+import com.kuaidu.nms.user.serviceImpl.UserManagementMapperImpl;
+import com.kuaidu.nms.utils.HttpUtil;
+import com.kuaidu.nms.utils.Log4jUtil;
+import com.kuaidu.nms.utils.MyWxUtils;
+
+import net.sf.json.JSONObject;
+
+@Controller
+@RequestMapping("/userManagement")
+public class UserManagementManage {
+	@Autowired
+	private UserManagementMapperImpl uImpl;
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+
+	@RequestMapping("/userManagementIndex")
+	public ModelAndView userManagementManageIndex(HttpSession session) {
+
+		int num = uImpl.getOnlineNum();
+
+		ModelAndView mv = new ModelAndView();
+		try {
+			mv.setViewName("user/userManagement");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		mv.addObject("onlineNum", num);
+		return mv;
+	}
+
+	@RequestMapping("/userDetailInfo")
+	public ModelAndView userDetailInfoIndex(HttpSession session, @RequestParam(required = true) Integer user_id) {
+		ModelAndView mv = new ModelAndView();
+		UserInfo userInfo = uImpl.getUserInfoByUserId(user_id);
+		try {
+			mv.addObject("userInfo", userInfo);
+			mv.setViewName("user/userDetailInfo");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+
+	/*
+	 * 使用了分页的话，其框架自身会向后台传递page、rows这个两个属性值。 分别表示当前页和当前页显示的记录行数。
+	 * 可以在action中定义好这两个属性，并同样设置getter和setter方法，就可以接受到这些参数了。
+	 */
+	// 查
+	@ResponseBody
+	@RequestMapping("/getAll")
+	public String getAll(HttpServletRequest request, UserInfo rList, @RequestParam(required = false) Integer isOnline) {
+
+		return uImpl.getAll(rList, isOnline, request);
+
+	}
+
+	@ResponseBody
+	@RequestMapping("/removeUser")
+	public JSONObject removeUser(HttpServletRequest request) {
+		String userArray = request.getParameter("userArray");
+		JSONObject jsonRet = new JSONObject();
+		int ret = uImpl.clearUsers(userArray);
+		jsonRet.put("result", ret);
+		return jsonRet;
+	}
+
+	@ResponseBody
+	@RequestMapping("checkSubscribe")
+	public Object checkSubScribe(String ids) {
+		String[] split = ids.split("-");
+		List<UserInfo> list = uImpl.getUnSubScuribeOpenIdAndParentId(split);
+		if (list.size() > 0) {
+			for (UserInfo userInfo : list) {
+				com.alibaba.fastjson.JSONObject jsonObject = new com.alibaba.fastjson.JSONObject();
+				jsonObject.put("openid", userInfo.getOpenid());
+				jsonObject.put("parentId", userInfo.getParent_id());
+				String jsonString = jsonObject.toJSONString();
+				Log4jUtil.getBusinessLogger().info("新增普通用户存入查询队列：" + jsonString);
+				redisTemplate.convertAndSend("getWxUserInfo", jsonString);
+			}
+			return RestReturn.success("正在验证");
+		}
+		
+		return RestReturn.success("没有要验证的");
+		
+	}
+}

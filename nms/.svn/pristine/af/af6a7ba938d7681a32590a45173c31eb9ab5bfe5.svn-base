@@ -1,0 +1,1393 @@
+var rows = null; //所有内容
+var current_row = null;
+var row_index = 0; //当前行index
+var row_chapter_name_old = null;
+var book_id = 0;
+function getBookID(){
+	book_id = getParam("book_id");
+};
+var words_min = 800;
+function getWordsMin(){
+	words_min = getParam("words_min");
+};
+
+
+
+/*
+   * 初始化表格
+   */
+initGrid();
+function initGrid() {
+	getBookID();
+	getWordsMin();
+	$('#grid').datagrid({
+		columns : [ [
+			//js代码创建的datagrid本身已经添加了checkbox列，就是第一列。checkbox列将会自适应宽度。
+			{
+				field : 'ck',
+				checkbox : true,
+				align : 'center'
+			},
+			{
+				field : 'chapter_id',
+				title : '章节id',
+				width : 30,
+				align : 'center',
+				hidden : true
+			},
+			{
+				field : 'chapter_num',
+				title : '章节号码',
+				width : 30,
+				align : 'center'
+			},
+			{
+				field : 'chapter_name',
+				title : '章节名',
+				width : 90,
+				align : 'center'
+			},
+			{
+				field : 'chapter_subscribe',
+				title : '阅读原文/关注',
+				width : 50,
+				align : 'center',
+				formatter : function(value, row, index) {
+					var ret = "";
+					if(row.chapter_num==row.read_original_chapter_num){
+						ret = ret + "<font color=\"green\">推荐阅读原文</font>";
+					}
+					if(row.chapter_num==row.sub_chapter_num){
+						ret = ret + "<font color=\"red\">(关注)</font>";
+					}
+					return ret;
+				}
+			},
+			{
+				field : 'book_id',
+				title : '书号',
+				width : 30,
+				align : 'center',
+				hidden : true
+			},
+			{
+				field : 'vip_flag',
+				title : '是否收费',
+				width : 30,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if (row.vip_flag == 0) {
+						return "<button  style=\" border:none;background: transparent; width: 50px;height: 30px;color: green\" onclick=\"changeStatus(\'vip\',\'"+row.chapter_id+"\',\'"+row.status+"\',\'"+row.chapter_checked+"\',\'"+row.vip_flag+"\')\">免费</button>";
+					} else {
+						return "<button  style=\" border:none;background: transparent; width: 50px;height: 30px;color: red\" onclick=\"changeStatus(\'vip\',\'"+row.chapter_id+"\',\'"+row.status+"\',\'"+row.chapter_checked+"\',\'"+row.vip_flag+"\')\">收费</button>";
+					}
+				}
+			},
+			{
+				field : 'chapter_checked',
+				title : '审核',
+				width : 30,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.chapter_checked==1){
+						return "<input type=\"image\" src=\"static/images/gem_okay.png\" onclick=\"changeStatus(\'check\',\'"+row.chapter_id+"\',\'"+row.status+"\',\'"+row.chapter_checked+"\',\'"+row.vip_flag+"\')\"/>";
+					}else{
+						return "<input type=\"image\" src=\"static/images/gem_remove.png\" onclick=\"changeStatus(\'check\',\'"+row.chapter_id+"\',\'"+row.status+"\',\'"+row.chapter_checked+"\',\'"+row.vip_flag+"\')\"/>";
+					}
+				}
+			},
+			{
+				field : 'status',
+				title : '状态',
+				width : 30,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.status==1){
+						return "<input type=\"image\" src=\"static/images/gem_okay.png\" onclick=\"changeStatus(\'status\',\'"+row.chapter_id+"\',\'"+row.status+"\',\'"+row.chapter_checked+"\',\'"+row.vip_flag+"\')\"/>";
+					}else{
+						return "<input type=\"image\" src=\"static/images/gem_remove.png\" onclick=\"changeStatus(\'status\',\'"+row.chapter_id+"\',\'"+row.status+"\',\'"+row.chapter_checked+"\',\'"+row.vip_flag+"\')\"";
+					}
+				}
+			},
+			{
+				field : 'chapter_filepath_fdfs',
+				title : '连接地址',
+				width : 100,
+				align : 'center'
+			},
+			{
+				field : 'words',
+				title : '字数',
+				width : 40,
+				align : 'center',
+				formatter : function(value, row, index) {
+					var rows = $('#grid').datagrid('getRows'); 
+					if(index>1&&row.words==rows[index-1].words){
+						return "<font color='red'>"+row.words+"</font>";
+					}else{
+						return row.words;
+					}
+				}
+			},
+			{
+				field : 'created_time',
+				title : '更新日期',
+				width : 60,
+				align : 'center'
+			}
+		] ],
+		//同action提交.提交的类型是json
+		url : 'chapterEdit/getAll?book_id='+book_id,
+		method : 'post',
+		collapsible : true,
+		//rownumber列的配置是在全局设置的
+		//如果设置为true则会在开头第一列来添加一列来显示行号。
+		rownumbers : false,
+		//如果为true，则只允许选择一行。
+		singleSelect : false,
+		toolbar : '#tb',
+		fitColumns : true,
+		pageSize : 50,
+		pageList : [ 10,20,50,100, 200,400 ],
+		//pagination:是否启动分页，true，这样一来我们的datagrid底部就会出现一个分页工具栏
+		//datagrid在请求数据的时候会自动的添加分页的信息：
+		//page：当前请求的页码
+		//rows：每页要显示的行数
+		pagination : true,
+		rowStyler:function(index,row){
+			rows = $('#grid').datagrid('getRows'); 
+			if(row.words==0||(index>1&&row.words==rows[index-1].words)
+					||(index>1&&row.chapter_num==rows[index-1].chapter_num)
+						){
+				return 'background-color:rgba(225, 0, 255, 0.4);color:blue;font-weight:bold;';
+			}
+			if(index>1&&row.chapter_num-rows[index-1].chapter_num>1){
+				return 'background-color:rgba(0, 0, 255, 0.4);color:blue;font-weight:bold;';
+			}
+		},
+		onLoadSuccess : function(data) { //加载成功   
+			//要判断或者执行的代码
+			//一行执行一次
+			rows = $('#grid').datagrid('getRows');
+		}
+	});
+}
+
+
+/**
+ * 刷新功能
+ */
+$("#reload").click(function(e) {
+	$('#grid').datagrid('reload');
+});
+/**
+ * 查询
+ * load:加载新的数据
+ */
+//加载新的数据 含（book_name = 用户输出的值    的书名)
+$("#search").click(function(e) {
+	book_id = getParam("book_id")
+	var content_upload_flag=$("#content_upload_flag").val();
+	var status=$("#status").val();
+	var chapter_checked=$("#chapter_checked").val();
+	var vip_flag=$("#vip_flag").val();
+	$('#grid').datagrid('load', {
+		book_id : book_id,
+		content_upload_flag:content_upload_flag,
+		status:status,
+		chapter_checked:chapter_checked,
+		vip_flag:vip_flag
+		
+	});
+});
+/**
+ * 添加章节
+ */
+function dialog(parameter) {
+	//title:添加界面的标题
+	//icon:标题的图标
+	//bookid：书id
+	var title = "",
+		icon = "",
+		chapter_id = "";
+	//隐藏chapter_table		none
+	$('#chapter_num_fix').css("display", "none");
+	$('#chapter_move').css("display", "none");
+	$('#chapter_edit').css("display", "none");
+	if (parameter == "add") {
+		title = "章节新增";
+		icon = "icon-add";
+		$.ajax({
+			//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+			async : false,
+			//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+			cache : false,
+			type : 'POST',
+			data : {
+				book_id : book_id
+			},
+			url : "chapterEdit/selectNew",
+			error : function() { //请求失败处理函数  
+				alert('请求失败');
+			},
+			success : function(data) {
+				var results = data.result,
+					a = "",
+					b = "",
+					c = "";
+				for (var i = 0; i < results.length; i++) {
+					//data[i]表示获得第i个json对象即JSONObject
+					//data[i]通过.字段名称即可获得指定字段的值
+					a = results[i].book_name;
+					$("#h2").text(a);
+					b = results[i].newest_chapter_num;
+					$("#l1").text(b);
+					c = results[i].newest_chapter;
+					$("#l2").text(c);
+					$("#add_chapter_num").val(b + 1);
+				}
+			} //请求成功后处理函数。    
+		});
+		$("input[ id='add_chapter_name' ] ").val("");
+		$("#add_chapter_txt").val("");
+
+	}
+	//显示dialog_table		block
+
+	$('#chapter_num_fix').css("display", "none");
+	$('#chapter_move').css("display", "none");
+	$('#chapter_add').css("display", "block");
+	$('#add_txt_chapter').css("display", "block");
+	//创建一个对话框
+	$('#dialog').dialog({
+		//title="新增";
+		//icon="icon-add";
+		//对话框窗口标题文本
+		title : title,
+		//
+		iconCls : icon,
+		//定义是否显示可折叠按钮。默认为false
+		collapsible : true,
+		//定义是否显示最大化按钮，默认没false
+		maximizable : true,
+		//定义定义是否可以改变对话框窗口大小。默认为false
+		resizable : true,
+		//窗口宽度
+		width : 970,
+		//窗口高度
+		height : 780,
+		//定义窗口是不是模态（modal）窗口。有遮布
+		modal : true,
+		//定义是否可以关闭窗口
+		closed : false,
+		align : 'center',
+		//定义窗口关闭函数
+		onClose : function() {
+			$('#dialog').dialog('close');
+		},
+		buttons : [ {
+			//定义按钮value值
+			text : '确定',
+			//icon  √
+			iconCls : 'icon-ok',
+			//按钮事件（处理者）
+			handler : function() {
+				var chapter_name = $("#add_chapter_name").val(),
+					chapter_num = $("#add_chapter_num").val(),
+					chapter_insert = $("#add_chapter_insert").val(),
+					vip_flag = $("#add_vip_flag").val(),
+					type_id = getParam("type_id"),
+					newChapterNum = getParam("newest_chapter_num"),
+					content = $("#add_chapter_txt").val();
+				if (chapter_name.length <= 0) {
+					$("#add_chapter_name").tips({
+						//提示消息的显示位置，1234，代表上下左右。默认1.
+						side : 1,
+						//提示内容
+						msg : '章节名不能为空!!!!',
+						//字体背景颜色
+						bg : '#FF3C3C',
+						//自动关闭事件
+						time : 3
+					});
+					return false;
+				}
+				if (content.length < words_min) {
+					$("#add_chapter_txt").tips({
+						//提示消息的显示位置，1234，代表上下左右。默认1.
+						side : 1,
+						//提示内容
+						msg : '内容不能小于'+words_min+"字,当前"+content.length,
+						//字体背景颜色
+						bg : '#FF3C3C',
+						//自动关闭事件
+						time : 3
+					});
+					return false;
+				}
+				//下面的代码中应用了转义字符"\"输出一个字符"/"
+				var Expression = /^[0-9]+.?[0-9]*$/;
+				//创建一个正则表达式对象
+				var objExp = new RegExp(Expression);
+				if (chapter_num.length <= 0 || !objExp.test(chapter_num)) {
+					$("#add_chapter_num").tips({
+						//提示消息的显示位置，1234，代表上下左右。默认1.
+						side : 1,
+						//提示内容
+						msg : '章节数不能为空且为数字',
+						//字体背景颜色
+						bg : '#FF3C3C',
+						//自动关闭事件
+						time : 3
+					});
+					return false;
+				}
+
+				$.ajax({
+					//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+					async : false,
+					//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+					cache : false,
+					type : 'POST',
+					data : {
+						chapter_name : chapter_name,
+						type_id : type_id,
+						book_id : book_id,
+						chapter_num : chapter_num,
+						content : content,
+						chapter_insert : chapter_insert,
+						vip_flag : vip_flag
+					},
+					url : "chapterEdit/addChapter",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+
+						var result = data.result;
+
+						if (result == "1") {
+							//title:窗口标题
+							//信息弹出框，
+							$.messager.show({
+								title : title,
+								msg : title + '成功！',
+								showSpeed : 100,
+								timeout : 1000,
+								showType : 'show',
+								//弹出框的样式。
+								style : {
+									right : '',
+									top : document.body.scrollTop + document.documentElement.scrollCenter,
+									bottom : ''
+								}
+							});
+							//更新完刷新表格
+							$('#grid').datagrid('reload');
+							//关闭对话框
+							$('#dialog').dialog('close');
+						} else if (result == "2") {
+							alert_autoClose(title + "章节名或编号已存在", "error");
+							$('#dialog').dialog('close');
+						} else {
+							alert_autoClose(title + "失败！", "error");
+							$('#dialog').dialog('close');
+						}
+					} //请求成功后处理函数。    
+				}); //Ajax end
+
+			} //按钮事件end
+		}, //按钮END
+			{
+				text : '取消',
+				iconCls : 'icon-cancel',
+				handler : function() {
+					$('#dialog').dialog('close');
+				}
+			} ]
+	}); //对话框End
+	//窗口居中
+	$('#dialog').window('center');
+}
+
+/**
+ * 章节删除，checkbox改成单选，一次删除一个
+ */
+function del() {
+	//获取行，包括 author_id,author_name 之类的存为string数组
+	var rows = $('#grid').datagrid('getChecked');
+	if (rows.length < 1) {
+		alert_autoClose("请选择一条！！", "error");
+		return false;
+	}else if(rows.length >100){
+		alert_autoClose("最多100条！！", "error");
+		return false;
+	}
+	$.messager.confirm({
+		width : 400,
+		height : 250,
+		title : '操作提示',
+		msg : '是否确定删除该章节？',
+		fn : function(r) {
+			var chapter=new Array()
+ 
+			if (r) {
+				$.ajax({
+					async : false,
+					cache : false,
+					type : 'POST',
+					data : {
+/*						words:rows[0].words,
+						chapter_num : rows[0].chapter_num,
+						book_id : rows[0].book_id,
+						chapter_id : rows[0].chapter_id,
+						chapter_filepath_fdfs : rows[0].chapter_filepath_fdfs*/
+						chapter_list: JSON.stringify(rows) 
+					},
+					url : "chapterEdit/del_cList",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						var result = data.result;
+						if (result == "0") {
+							$('#grid').datagrid('reload');
+							$('#dialog').dialog('close');
+							alert_autoClose("删除成功！", "info");
+						} else {
+							$('#dialog').dialog('close');
+							alert_autoClose("删除失败！", "error");
+						}
+					} //请求成功后处理函数。    
+				});
+			} else {
+
+			}
+		}
+	});
+}
+
+/**
+ * 章节编辑
+ */
+function dialog1(parameter) {
+	//title:添加界面的标题
+	//icon:标题的图标
+	//chapterid：章节id
+	//隐藏显示的dialog_table
+	$('#chapter_move').css("display", "none");
+	$('#chapter_add').css("display", "none");
+	$('#add_txt_chapter').css("display", "none");
+	$('#chapter_num_fix').css("display", "none");
+	var title = "",
+		icon = "",
+		chapter_id = "";
+	if (parameter == "edit") {
+		title = "章节编辑";
+		icon = "icon-edit";
+		//datagrid('getChecked'):获取被选中的行数
+		var rows_select = $('#grid').datagrid('getChecked');
+		if (rows_select.length == 1) {
+			for (var i = 0; i < rows_select.length; i++) {
+				row_index = $('#grid').datagrid('getRowIndex',rows_select[i]);//当前行的index
+				current_row = rows[row_index];
+				chapter_id = current_row.chapter_id;
+				//隐藏传递的五个参数
+				var content_upload_flag = current_row.content_upload_flag,
+					content_exist_flag = current_row.content_exist_flag,
+					chapter_filepath_fdfs = current_row.chapter_filepath_fdfs,
+					chapter_filepath = current_row.chapter_filepath,
+			 		oldWords=current_row.words,
+					vip_flag = current_row.vip_flag;
+
+				$.ajax({
+					//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+					async : false,
+					//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+					cache : false,
+					type : 'POST',
+					data : {
+						content_upload_flag : content_upload_flag,
+						content_exist_flag : content_exist_flag,
+						chapter_filepath_fdfs : chapter_filepath_fdfs,
+						chapter_filepath : chapter_filepath
+					},
+					url : "chapterEdit/getChapterContent",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						//console.log(data);
+						//返回object对象：{content：内容}
+						//获取object的key，content的值
+						var content = data.content;
+						$("#text_chapter").val(content);
+					} //请求成功后处理函数。    
+				});
+				var x = decodeURI(getParam("book_name"))
+
+				$("#h2_book_name").text(x);
+				$("#edit_created_time").text(current_row.created_time);
+				$("#edit_chapter_name").val(current_row.chapter_name);
+				$("#edit_chapter_num").val(current_row.chapter_num);
+				$("#edit_vip_flag").val(vip_flag);
+				if(current_row.chapter_checked==1){
+					$("#ck_text_chapter").prop("checked",true);
+				}else{
+					$("#ck_text_chapter").prop("checked",false);
+				}
+				
+			}
+		} else if (rows_select.length == 0) {
+			alert_autoClose("请勾选需要添加章节的书籍！！！只能选一个！！！！", "error");
+			return false;
+		} else if (rows_select.length > 1) {
+			alert_autoClose("一次只能编辑一章！！！", "error");
+			return false;
+		}
+	}
+
+	//显示隐藏的chapter_table
+	$('#chapter_edit').css("display", "block");
+
+	//创建一个对话框
+	$('#dialog').dialog({
+		//对话框窗口标题文本
+		title : title,
+		iconCls : icon,
+		//定义是否显示可折叠按钮。默认为false
+		collapsible : true,
+		//定义是否显示最大化按钮，默认没false
+		maximizable : true,
+		//定义定义是否可以改变对话框窗口大小。默认为false
+		resizable : true,
+		//窗口宽度
+		width : 970,
+		//窗口高度
+		height : 780,
+		//定义窗口是不是模态（modal）窗口。有遮布
+		modal : true,
+		//定义是否可以关闭窗口
+		closed : false,
+		align : 'center',
+		//定义窗口关闭函数
+		onClose : function() {
+			$('#dialog').dialog('close');
+		},
+		buttons : [
+			{
+				text : '重置',
+				iconCls : 'icon-reload',
+				handler : function() {
+					var rows = $('#grid').datagrid('getChecked');
+					if (rows.length == 1) {
+						for (var i = 0; i < rows.length; i++) {
+							chapter_id = current_row.chapter_id;
+							$.ajax({
+								//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+								async : false,
+								//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+								cache : false,
+								type : 'POST',
+								data : {
+									content_upload_flag : current_row.content_upload_flag,
+									content_exist_flag : current_row.content_exist_flag,
+									chapter_filepath_fdfs : current_row.chapter_filepath_fdfs,
+									chapter_filepath : current_row.chapter_filepath
+								},
+								url : "chapterEdit/getChapterContent",
+								error : function() { //请求失败处理函数  
+									alert('请求失败');
+								},
+								success : function(data) {
+									//console.log(data);
+									//返回object对象：{content：内容}
+									//获取object的key，content的值
+									var content = data.content;
+									$("#text_chapter").val(content);
+								} //请求成功后处理函数。    
+							});
+
+							$("#edit_created_time").val(current_row.created_time);
+							$("#edit_chapter_name").val(current_row.chapter_name);
+							$("#edit_chapter_num").val(current_row.chapter_num);
+							$("#edit_chapter_charge").val(current_row.vip_flag);
+						}
+					}
+				}
+			},
+			{
+				//定义按钮value值
+				text : '确定',
+				//icon  √
+				id: "okBtn",
+				iconCls : 'icon-ok',
+				//按钮事件（处理者）
+				handler : function() {
+					$("#okBtn").linkbutton('disable');
+					var chapter_num = $("#edit_chapter_num").val(),
+						chapter_name = $("#edit_chapter_name").val(),
+						editType = $("#ck_text_chapter").prop('checked'),
+						newTime = CurentTime(),
+						created_time = newTime,
+						vip_flag = $("#edit_vip_flag").val(),
+						chapter_insert = $("#edit_chapter_insert").val(),
+						content = $("#text_chapter").val();
+					if (editType) {
+						editType = "1"
+					}else{
+						editType = "0"
+					}
+					if (chapter_num.length <= 0) {
+						$("#edit_chapter_num").tips({
+							//提示消息的显示位置，1234，代表上下左右。默认1.
+							side : 1,
+							//提示内容
+							msg : '章节编号不能为空！',
+							//字体背景颜色
+							bg : '#FF3C3C',
+							//自动关闭事件
+							time : 3
+						});
+						$("#okBtn").linkbutton('enable');
+						return false;
+					}
+					if (chapter_name.length <= 0) {
+						$("#edit_chapter_name").tips({
+							//提示消息的显示位置，1234，代表上下左右。默认1.
+							side : 1,
+							//提示内容
+							msg : '章节名不能为空！',
+							//字体背景颜色
+							bg : '#FF3C3C',
+							//自动关闭事件
+							time : 3
+						});
+						$("#okBtn").linkbutton('enable');
+						return false;
+					}
+					if (content.length < words_min) {
+						$("#text_chapter").tips({
+							//提示消息的显示位置，1234，代表上下左右。默认1.
+							side : 1,
+							//提示内容
+							msg : '内容不能小于'+words_min+"字,当前"+content.length,
+							//字体背景颜色
+							bg : '#FF3C3C',
+							//自动关闭事件
+							time : 3
+						});
+						$("#okBtn").linkbutton('enable');
+						return false;
+					}
+					$.ajax({
+						//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+						async : false,
+						//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+						cache : false,
+						type : 'POST',
+						data : {
+							oldWords : current_row.oldWords,
+							chapter_num : chapter_num,
+							chapter_name : chapter_name,
+							created_time : created_time,
+							chapter_id : current_row.chapter_id,
+							book_id : current_row.book_id,
+							content_upload_flag : current_row.content_upload_flag,
+							content_exist_flag : current_row.content_exist_flag,
+							chapter_filepath_fdfs : current_row.chapter_filepath_fdfs,
+							chapter_filepath : current_row.chapter_filepath,
+							content : content,
+							editType : editType,
+							vip_flag : vip_flag,
+							chapter_insert:chapter_insert,
+							old_chapter_num:current_row.chapter_num
+						},
+						url : "chapterEdit/editChapter",
+						error : function() { //请求失败处理函数  
+							alert('请求失败');
+						},
+						success : function(data) {
+
+							var result = data.result;
+
+							if (result == "10"||result == "11") {
+								//title:窗口标题
+								//信息弹出框，
+								$.messager.show({
+									title : title,
+									msg : title + '成功！',
+									showSpeed : 100,
+									timeout : 500,
+									showType : 'show',
+									//弹出框的样式。
+									style : {
+										right : '',
+										top : document.body.scrollTop + document.documentElement.scrollCenter,
+										bottom : ''
+									}
+								});
+
+								//chapterlist_prev_next('Next');
+								// 在数据加载成功的时候触发
+								$('#grid').datagrid({
+										//刷新完成后触发
+							            onLoadSuccess: function (data) {
+											chapterlist_prev_next('Next');
+							            }
+							    });
+
+							}else if(result == "14"){
+								alert_autoClose("章节编号重复", "error");
+							}else {
+								alert_autoClose(title + "失败！", "error");
+								//更新完刷新表格
+								//$('#grid').datagrid('reload');
+								//$('#dialog').dialog('close');
+							}
+							$("#okBtn").linkbutton('enable');
+						} //请求成功后处理函数。    
+					});
+				}
+			},
+			{
+				text : '取消',
+				iconCls : 'icon-cancel',
+				handler : function() {
+					$("#okBtn").linkbutton('enable');
+					$('#dialog').dialog('close');
+				}
+			
+			} ] //button End
+	}); //对话框End
+	//窗口居中
+
+	var div = document.getElementById('text_chapter');
+	div.scrollTop = div.scrollHeight;
+	$('#dialog').window('center');
+}
+function move_chapter(){
+	var rows = $('#grid').datagrid('getChecked');
+	if(rows.length >1){
+		alert_autoClose("只能选择一个！！", "error");
+		return false;
+	}else if(rows.length == 1){
+		$('#move_chapter_num').val(rows[0].chapter_num)
+	}
+	$('#chapter_num_fix').css("display", "none");
+	$('#chapter_edit').css("display", "none");
+	$('#chapter_add').css("display", "none");
+	$('#chapter_move').css("display", "block");
+	//创建一个对话框
+	$('#dialog').dialog({
+		//title="新增";
+		//icon="icon-add";
+		//对话框窗口标题文本
+		title : "章节移动",
+		//
+		iconCls : "icon-cut",
+		//定义是否显示可折叠按钮。默认为false
+		collapsible : true,
+		//定义是否显示最大化按钮，默认没false
+		maximizable : true,
+		//定义定义是否可以改变对话框窗口大小。默认为false
+		resizable : true,
+		//窗口宽度
+		width : 500,
+		//窗口高度
+		height : 400,
+		//定义窗口是不是模态（modal）窗口。有遮布
+		modal : true,
+		//定义是否可以关闭窗口
+		closed : false,
+		align : 'center',
+		//定义窗口关闭函数
+		onClose : function() {
+			$('#dialog').dialog('close');
+		},
+		buttons : [ {
+			//定义按钮value值
+			text : '确定',
+			//icon  √
+			iconCls : 'icon-ok',
+			//按钮事件（处理者）
+			handler : function() {
+				var chapter_num = $('#move_chapter_num').val();
+				var move_mode = $('#move_mode').val();
+				var move_count = $('#move_count').val();
+				var regNum = /\d+$/; // 非负整数
+				if(!regNum.test(chapter_num)){
+					$("#move_chapter_num").tips({
+						//提示消息的显示位置，1234，代表上下左右。默认1.
+						side : 1,
+						//提示内容
+						msg : '输入正确章节号码！',
+						//字体背景颜色
+						bg : '#FF3C3C',
+						//自动关闭事件
+						time : 2
+					});
+					return false;
+				}
+				if(!regNum.test(move_mode)){
+					$("#move_mode").tips({
+						//提示消息的显示位置，1234，代表上下左右。默认1.
+						side : 1,
+						//提示内容
+						msg : '移动方式不正确！',
+						//字体背景颜色
+						bg : '#FF3C3C',
+						//自动关闭事件
+						time : 2
+					});
+					return false;
+				}
+				if(!regNum.test(move_count)){
+					$("#move_count").tips({
+						//提示消息的显示位置，1234，代表上下左右。默认1.
+						side : 1,
+						//提示内容
+						msg : '输入正确移动位数！',
+						//字体背景颜色
+						bg : '#FF3C3C',
+						//自动关闭事件
+						time : 2
+					});
+					return false;
+				}
+				$.ajax({
+					//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+					async : false,
+					//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+					cache : false,
+					type : 'POST',
+					data : {
+						chapter_num : chapter_num,
+						move_mode : move_mode,
+						move_count : move_count,
+						book_id:book_id
+					},
+					url : "chapterEdit/moveChapterNum",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						var result = data.result;
+						if (result == "1") {
+							//信息弹出框，
+							$.messager.show({
+								title : '移动章节',
+								msg : '移动成功！',
+								showSpeed : 100,
+								timeout : 500,
+								showType : 'show',
+								//弹出框的样式。
+								style : {
+									right : '',
+									top : document.body.scrollTop + document.documentElement.scrollCenter,
+									bottom : ''
+								}
+							});
+							//更新完刷新表格
+							$('#grid').datagrid('reload');
+							//关闭对话框
+							$('#dialog').dialog('close');
+
+						}else{
+							//信息弹出框，
+							$.messager.show({
+								title : '移动章节',
+								msg : '移动失败！',
+								showSpeed : 100,
+								timeout : 500,
+								showType : 'show',
+								//弹出框的样式。
+								style : {
+									right : '',
+									top : document.body.scrollTop + document.documentElement.scrollCenter,
+									bottom : ''
+								}
+							});
+						}
+					} //请求成功后处理函数。    
+				});
+			} 
+		}, //按钮END
+			{
+				text : '取消',
+				iconCls : 'icon-cancel',
+				handler : function() {
+					$('#dialog').dialog('close');
+				}
+			} ]
+	}); //对话框End
+	//窗口居中
+	$('#dialog').window('center');
+}
+
+function fix_chapter(){
+	$('#f_book_id').val(book_id);
+	$('#chapter_edit').css("display", "none");
+	$('#chapter_add').css("display", "none");
+	$('#chapter_move').css("display", "none");
+	$('#chapter_num_fix').css("display", "block");
+	
+	//创建一个对话框
+	$('#dialog').dialog({
+		//对话框窗口标题文本
+		title : "章节号码修正",
+		//
+		iconCls : "icon-cut",
+		//定义是否显示可折叠按钮。默认为false
+		collapsible : true,
+		//定义是否显示最大化按钮，默认没false
+		maximizable : true,
+		//定义定义是否可以改变对话框窗口大小。默认为false
+		resizable : true,
+		//窗口宽度
+		width : 500,
+		//窗口高度
+		height : 400,
+		//定义窗口是不是模态（modal）窗口。有遮布
+		modal : true,
+		//定义是否可以关闭窗口
+		closed : false,
+		align : 'center',
+		//定义窗口关闭函数
+		onClose : function() {
+			$('#dialog').dialog('close');
+		},
+		buttons : [ {
+			//定义按钮value值
+			text : '确定',
+			//icon  √
+			iconCls : 'icon-ok',
+			//按钮事件（处理者）
+			handler : function() {
+				var start_char = $('#start_char').val();
+				var end_char = $('#end_char').val();
+				$.ajax({
+					//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+					async : false,
+					//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+					cache : false,
+					type : 'POST',
+					data : {
+						book_id : book_id,
+						start_char : start_char,
+						end_char : end_char
+					},
+					url : "chapterEdit/fixChapterNum",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						var result = data.result;
+						if (result == "1") {
+							//信息弹出框，
+							$.messager.show({
+								title : '章节号码修正',
+								msg : '修正成功！',
+								showSpeed : 100,
+								timeout : 500,
+								showType : 'show',
+								//弹出框的样式。
+								style : {
+									right : '',
+									top : document.body.scrollTop + document.documentElement.scrollCenter,
+									bottom : ''
+								}
+							});
+							//更新完刷新表格
+							$('#grid').datagrid('reload');
+							//关闭对话框
+							$('#dialog').dialog('close');
+
+						}else{
+							//信息弹出框，
+							$.messager.show({
+								title : '章节号码修正',
+								msg : '修正失败！',
+								showSpeed : 100,
+								timeout : 500,
+								showType : 'show',
+								//弹出框的样式。
+								style : {
+									right : '',
+									top : document.body.scrollTop + document.documentElement.scrollCenter,
+									bottom : ''
+								}
+							});
+						}
+					} //请求成功后处理函数。    
+				});
+			} 
+		}, //按钮END
+			{
+				text : '取消',
+				iconCls : 'icon-cancel',
+				handler : function() {
+					$('#dialog').dialog('close');
+				}
+			} ]
+	}); //对话框End
+	//窗口居中
+	$('#dialog').window('center');
+}
+function chapterlist_prev_next(param){
+	if(param=='Previous'){
+		if (row_index - 1 < 0) {
+			$.messager.alert('系统提示', '已经是第一章！', 'error');
+			return false;
+		}
+		//取出上一行
+		row_index = row_index-1;
+		current_row = rows[row_index];
+		$("#edit_created_time").text(current_row.created_time);
+		$("#edit_chapter_name").val(current_row.chapter_name);
+		$("#edit_chapter_num").val(current_row.chapter_num);
+		$("#edit_vip_flag").val(current_row.vip_flag);
+		
+		
+	}else if(param=="Next"){
+		if (row_index + 1 >= rows.length) {
+			$.messager.alert('系统提示', '已经是最后一章。', 'error');
+			return false;
+		}
+		//取出下一行
+		row_index = row_index+1;
+		current_row = rows[row_index];
+		$("#edit_created_time").text(current_row.created_time);
+		$("#edit_chapter_name").val(current_row.chapter_name);
+		$("#edit_chapter_num").val(current_row.chapter_num);
+		$("#edit_vip_flag").val(current_row.vip_flag);
+	}
+	$.ajax({
+		//默认值: true。默认设置下，所有请求均为异步请求。如果需要发送同步请求，请将此选项设置为 false。
+		async : false,
+		//默认值: true，dataType 为 script 和 jsonp 时默认为 false。设置为 false 将不缓存此页面。
+		cache : false,
+		type : 'POST',
+		data : {
+			content_upload_flag : current_row.content_upload_flag,
+			content_exist_flag : current_row.content_exist_flag,
+			chapter_filepath_fdfs : current_row.chapter_filepath_fdfs,
+			chapter_filepath : current_row.chapter_filepath
+		},
+		url : "chapterEdit/getChapterContent",
+		error : function() { //请求失败处理函数  
+			alert('请求失败');
+		},
+		success : function(data) {
+			var content = data.content;
+			$("#text_chapter").val(content);
+			var div = document.getElementById('text_chapter');
+			div.scrollTop = div.scrollHeight;
+		} //请求成功后处理函数。    
+	});
+}
+function check_chapter(){
+	var rows = $('#grid').datagrid('getChecked');
+	if (rows.length < 1) {
+		alert_autoClose("请选择一条！！", "error");
+		return false;
+	}
+	var chapters = new Array();
+	for(var i=0;i<rows.length;i++){
+		chapters[i]=rows[i].chapter_id;
+	}
+	$.messager.confirm({
+		width : 400,
+		height : 250,
+		title : '操作提示',
+		msg : '是否确定审核章节？',
+		fn : function(r) {
+			var chapter=new Array()
+ 
+			if (r) {
+				$.ajax({
+					async : false,
+					cache : false,
+					type : 'POST',
+					data : {
+						chapter_ids: JSON.stringify(chapters),
+						book_id:book_id
+					},
+					url : "chapterEdit/check_chapter",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						var result = data.result;
+						if (result == "0") {
+							$('#grid').datagrid('reload');
+							$('#dialog').dialog('close');
+							alert_autoClose("审核成功！", "info");
+						} else {
+							$('#dialog').dialog('close');
+							alert_autoClose("审核失败！", "error");
+						}
+					} //请求成功后处理函数。    
+				});
+			} else {
+
+			}
+		}
+	});
+}
+//阅读原文
+function read_original(){
+	var rows = $('#grid').datagrid('getChecked');
+	if (rows.length != 1) {
+		alert_autoClose("请选择一条！！", "error");
+		return false;
+	}
+	var chapter_num = 0;
+	for(var i=0;i<rows.length;i++){
+		chapter_num=rows[0].chapter_num;
+		if(chapter_num>10){
+			alert_autoClose("请选择前10章的章节！", "error");
+			return false;
+		}
+	}
+	$.messager.confirm({
+		width : 400,
+		height : 250,
+		title : '操作提示',
+		msg : '是否标记<br><strong>'+rows[0].chapter_name+'</strong><br>为阅读原文章节',
+		fn : function(r) {
+			var chapter=new Array()
+ 
+			if (r) {
+				$.ajax({
+					async : false,
+					cache : false,
+					type : 'POST',
+					data : {
+						chapter_num: chapter_num,
+						book_id:book_id
+					},
+					url : "booksQuery/editReadOriginalChapter",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						var result = data.result;
+						if (result == "0") {
+							$('#grid').datagrid('reload');
+							$('#dialog').dialog('close');
+							alert_autoClose("提交成功！", "info");
+						} else {
+							$('#dialog').dialog('close');
+							alert_autoClose("提交失败！", "error");
+						}
+					} //请求成功后处理函数。    
+				});
+			} else {
+
+			}
+		}
+	});
+}
+//关注章节
+function subscribe_chapter(){
+	var rows = $('#grid').datagrid('getChecked');
+	if (rows.length != 1) {
+		alert_autoClose("请选择一条！！", "error");
+		return false;
+	}
+	var chapter_num = 0;
+	for(var i=0;i<rows.length;i++){
+		chapter_num=rows[0].chapter_num;
+		if(chapter_num>10){
+			alert_autoClose("请选择前10章的章节！", "error");
+			return false;
+		}
+	}
+	$.messager.confirm({
+		width : 400,
+		height : 250,
+		title : '操作提示',
+		msg : '是否标记<br><strong>'+rows[0].chapter_name+'</strong><br>为关注章节',
+		fn : function(r) {
+			if (r) {
+				$.ajax({
+					async : false,
+					cache : false,
+					type : 'POST',
+					data : {
+						chapter_num: chapter_num,
+						book_id:book_id
+					},
+					url : "booksQuery/editSubscribeChapter",
+					error : function() { //请求失败处理函数  
+						alert('请求失败');
+					},
+					success : function(data) {
+						var result = data.result;
+						if (result == "0") {
+							$('#grid').datagrid('reload');
+							$('#dialog').dialog('close');
+							alert_autoClose("提交成功！", "info");
+						} else {
+							$('#dialog').dialog('close');
+							alert_autoClose("提交失败！", "error");
+						}
+					} //请求成功后处理函数。    
+				});
+			} else {
+
+			}
+		}
+	});
+
+
+	
+}
+function changeStatus(flag,chapter_id,status,chapter_checked,vip_flag){
+	if(flag=="vip"){
+		if(vip_flag==0){
+			vip_flag=1;
+		}else if(vip_flag==1){
+			vip_flag=0;
+		}
+	}else if(flag=="check"){
+		if(chapter_checked==0){
+			chapter_checked=1;
+		}else if(chapter_checked==1){
+			chapter_checked=0;
+		}
+	}else if(flag=="status"){
+		if(status==0){
+			status=1;
+		}else if(status==1){
+			status=0;
+		}
+	}
+	
+	$.messager.defaults = {
+			ok : "确定",
+			cancel : "取消"
+		};
+		$.messager.confirm({
+			width : 400,
+			height : 250,
+			title : '操作提示',
+			msg : '是否确定修改状态？',
+			fn : function(r) {
+				if (r) {
+					$.ajax({
+						async : false,
+						cache : false,
+						type : 'POST',
+						data : {
+							book_id:book_id,
+							chapter_id:chapter_id,
+							vip_flag:vip_flag,
+							status:status,
+							chapter_checked:chapter_checked
+						},
+						url : "chapterEdit/changefee",
+						error : function() { //请求失败处理函数  
+							alert('请求失败');
+						},
+						success : function(data) {
+							var result = data.result;
+							if (result == "0") {
+								$.messager.show({
+									title : '操作提示',
+									msg : '修改成功！',
+									showSpeed : 100,
+									timeout : 1000,
+									showType : 'show',
+									//弹出框的样式。
+									style : {
+										right : '',
+										top : document.body.scrollTop + document.documentElement.scrollCenter,
+										bottom : ''
+									}
+								});
+								$('#grid').datagrid('reload');
+							} else {
+								alert_autoClose("修改失败！", "error");
+							}
+						} //请求成功后处理函数。    
+					});
+				} else {
+
+				}
+			}
+		});
+}
+//*系统提示函数：alert_autoclose
+
+function alert_autoClose(msg, icon) {
+	var interval;
+	var time = 500;
+	var x = 1; //设置时间1*500ms
+	$.messager.alert({
+		width : 400,
+		height : 200,
+		title : '系统提示！',
+		msg : msg,
+		icon : icon,
+		fn : function(r) {
+			interval = setInterval(fun, time);
+			function fun() {
+				--x;
+				if (x == 0) {
+					clearInterval(interval);
+					$(".messager-body").window('close');
+				}
+			}
+			;
+		}
+	})
+}
+
+
+
+function CurentTime() {
+	var now = new Date();
+
+	var year = now.getFullYear(); //年
+	var month = now.getMonth() + 1; //月
+	var day = now.getDate(); //日
+
+	var hh = now.getHours(); //时
+	var mm = now.getMinutes(); //分
+	var ss = now.getSeconds(); //秒
+
+	var clock = year + "-";
+
+	if (month < 10)
+		clock += "0";
+
+	clock += month + "-";
+
+	if (day < 10)
+		clock += "0";
+
+	clock += day + " ";
+
+	if (hh < 10)
+		clock += "0";
+
+	clock += hh + ":";
+	if (mm < 10)
+		clock += '0';
+	clock += mm + ":";
+	if (ss < 10)
+		clock += '0';
+	clock += ss
+	return (clock);
+}
+//截取url参数方法。例：（book_id=8, paramName=book_id    ,return 8）
+function getParam(paramName) {
+	paramValue = "", isFound = !1;
+	if (this.location.search.indexOf("?") == 0 && this.location.search.indexOf("=") > 1) {
+		arrSource = unescape(this.location.search).substring(1, this.location.search.length).split("&"), i = 0;
+		while (i < arrSource.length && !isFound) arrSource[i].indexOf("=") > 0 && arrSource[i].split("=")[0].toLowerCase() == paramName.toLowerCase() && (paramValue = arrSource[i].split("=")[1], isFound = !0), i++
+	}
+	return paramValue == "" && (paramValue = null), paramValue
+}

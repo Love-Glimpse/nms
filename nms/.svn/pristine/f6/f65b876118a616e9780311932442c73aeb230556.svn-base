@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.partner.push.mapper.CustomerServiceInfoMapper">
+ 	<select id="getCustomerServiceInfo" resultType="PartnerCustomMsg">
+ 		select * from partner_custom_msg where partner_id=#{partner_id} limit #{start_rows},#{rows}
+ 	</select>
+ 	<select id="getCustomerServiceInfoCount" resultType="int">
+ 		select count(0) from partner_custom_msg where partner_id=#{partner_id}
+ 	</select>
+ 	
+	<!-- 删除记录 -->
+ 	<delete id="delCustomerServiceInfo" parameterType="java.util.List">
+  		 delete from partner_custom_msg where p_msg_id in 
+		<foreach item="p_msg_id" collection="list" open="(" separator="," close=")">
+	     #{p_msg_id}
+	    </foreach>
+	</delete>
+ 	
+ 	<!-- 添加partner_custom_msg记录 -->
+ 	<insert id="addCustomerServiceInfo" useGeneratedKeys="true" keyProperty="p_msg_id" parameterType="PartnerCustomMsg" >
+		INSERT INTO partner_custom_msg(partner_id,task_name,type,msg_type,url,pic_url,title,description,vip_type,sex,send_time,create_time)
+		VALUES(#{partner_id},#{task_name},#{type},#{msg_type},#{url},#{pic_url},#{title},#{description},#{vip_type},#{sex},#{send_time},now())
+ 	</insert>
+
+</mapper>

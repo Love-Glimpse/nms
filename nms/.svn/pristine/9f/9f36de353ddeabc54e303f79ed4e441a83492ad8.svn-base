@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.datastaticstics.mapper.StatBookAnalysisMapper">
+	<select id="getBookAnalysis" resultType="StatBookAnalysis">
+		select ba.book_id,ba.stat_date,SUM(all_read)all_read,SUM(read5)read5 ,SUM(read5_20)read5_20,SUM(read20)read20
+			,SUM(charge_cost_user)charge_cost_user,SUM(charge_cost_point)charge_cost_point
+			,SUM(nocharge_cost_user)nocharge_cost_user,SUM(nocharge_cost_point)nocharge_cost_point,bl.book_name
+			<if test="parent_id!=null and parent_id>0">
+				,p.partner_name
+			</if>
+			 from stat_book_analysis ba 
+		left join  book_list bl on bl.book_id = ba.book_id
+		 <if test="parent_id!=null and parent_id>0">
+		 	left join partner_info p on ba.parent_id = p.partner_id
+		 </if>
+		 where to_days(stat_date)=to_days(now())-1
+		<if test="parent_id!=null and parent_id>0">
+			and ba.parent_id=#{parent_id}
+		</if>
+		<if test="book_id!=null and book_id!=''">
+			and ba.book_id=#{book_id}
+		</if>
+		group by book_id
+		order by charge_cost_point desc limit #{start_rows},#{rows}
+	</select>
+	<select id="getBookAnalysisCount" resultType="int">
+		select count(0) from (select book_id from stat_book_analysis
+		where to_days(stat_date)=to_days(now())-1
+		<if test="parent_id!=null and parent_id>0">
+			and parent_id=#{parent_id}
+		</if>
+		<if test="book_id!=null and book_id!=''">
+			and book_id=#{book_id}
+		</if>
+		group by book_id)a
+	</select>
+	<select id="getBookAnalysisCompile" resultType="java.util.Map">
+			SELECT a.*,IFNULL(b.all_read,0) all_read1 ,IFNULL(b.read5,0) read51,IFNULL(b.read5_20,0) read5_201,IFNULL(b.read20,0)read201
+				,IFNULL(b.charge_cost_user,0)charge_cost_user1, IFNULL(b.charge_cost_point,0)charge_cost_point1,
+				IFNULL(b.nocharge_cost_user,0)nocharge_cost_user1,IFNULL(b.nocharge_cost_point,0)nocharge_cost_point1
+				FROM (select ba.book_id,ba.stat_date,SUM(all_read)all_read,SUM(read5)read5 ,SUM(read5_20)read5_20,SUM(read20)read20
+						,SUM(charge_cost_user)charge_cost_user,SUM(charge_cost_point)charge_cost_point
+						,SUM(nocharge_cost_user)nocharge_cost_user,SUM(nocharge_cost_point)nocharge_cost_point,bl.book_name
+						<if test="sba.parent_id!=null and sba.parent_id>0">
+							,p.partner_name
+						</if>
+						 from stat_book_analysis ba 
+					left join  book_list bl on bl.book_id = ba.book_id
+				where to_days(stat_date)=to_days(now())-1
+				<if test="sba.parent_id!=null and sba.parent_id>0">
+					and ba.parent_id=#{sba.parent_id}
+				</if>
+				<if test="sba.book_id!=null and sba.book_id!=''">
+					and ba.book_id=#{sba.book_id}
+				</if>
+					group by book_id
+					order by charge_cost_point desc limit #{sba.start_rows},#{sba.rows})a
+			LEFT JOIN 
+			(select ba.book_id,ba.stat_date,SUM(all_read)all_read,SUM(read5)read5 ,SUM(read5_20)read5_20,SUM(read20)read20
+						,SUM(charge_cost_user)charge_cost_user,SUM(charge_cost_point)charge_cost_point
+						,SUM(nocharge_cost_user)nocharge_cost_user,SUM(nocharge_cost_point)nocharge_cost_point,bl.book_name
+						 from stat_book_analysis ba 
+					left join  book_list bl on bl.book_id = ba.book_id
+				where to_days(stat_date)=to_days(now())-#{days}
+				<if test="sba.parent_id!=null and sba.parent_id>0">
+					and ba.parent_id=#{sba.parent_id}
+				</if>
+				<if test="sba.book_id!=null and sba.book_id!=''">
+					and ba.book_id=#{sba.book_id}
+				</if>
+					group by book_id)b
+			ON a.book_id = b.book_id
+	</select>
+</mapper>

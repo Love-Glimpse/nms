@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.partner.push.mapper.TemplateInformationMapper">
+ 	<select id="getTemplateInformation" resultType="PartnerTemplateMsg">
+ 		select * from partner_template_msg where partner_id=#{partner_id} limit #{start_rows},#{rows}
+ 	</select>
+ 	<select id="getTemplateInformationCount" resultType="int">
+ 		select count(0) from partner_template_msg where partner_id=#{partner_id}
+ 	</select>
+ 	
+ 	
+	<!-- 删除记录 -->
+ 	<delete id="deletePartnerTemplateMsg">
+  		 delete from partner_template_msg where template_msg_id in 
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+	     #{id}
+	    </foreach>
+	</delete>
+	
+	<select id="getUserOpenidAndNiceName" resultType="map">
+		select openid,nick_name from user_info where user_id = #{id}
+	</select>
+	
+	<insert id="testSendTemplageMsg">
+		insert into wx_template_msg(user_id,parent_id,to_user,url,data,template_id)
+		values(#{userId},#{parentId},#{openid},#{url},#{data},#{template_id})
+	</insert>
+ 	
+ 	<!-- 添加记录 -->
+ 	
+ 	
+ 	
+</mapper>

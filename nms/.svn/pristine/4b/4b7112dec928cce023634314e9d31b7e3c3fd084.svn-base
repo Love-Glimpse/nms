@@ -1,0 +1,359 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<base href="<%=basePath%>">
+<link rel="stylesheet" href="static/css/bootstrap.min.css">
+<%@ include file="../../top.jsp"%>
+<title>模板消息</title>
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+<link rel="stylesheet" href="static/css/font-awesome.min.css">
+<link rel="stylesheet" href="static/css/ace.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+<link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="https://cdn.bootcss.com/webui-popover/2.1.15/jquery.webui-popover.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="static/css/chapter.css">
+<link rel="stylesheet" type="text/css" href="static/css/CustomerServiceInfo/CustomerServiceInfo.css">
+
+<style type="text/css">
+html, body {
+	width: 100%;
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	background-color: #fff;
+}
+
+.font_size {
+	color: #444;
+	font-size: 16px;
+}
+
+.text {
+	width: 100%;
+	text-indent: 10px;
+	font-size: 16;
+	height: 34px;
+	border: 1px solid #95B8E7;
+	border-radius: 5px 5px 5px 5px;
+}
+
+textarea {
+	font-size: 16px;
+	/*首行缩进2个字  */
+	text-indent: 1em;
+	resize: none;
+	border: 1px solid #95B8E7;
+	border-radius: 5px 5px 5px 5px;
+}
+
+.td {
+	text-align: left;
+	text-indent: 10px;
+	border: 1px solid #95B8E7;
+	border-radius: 5px 5px 5px 5px;
+	font-size: 16;
+	height: 35px;
+}
+a {
+    color: #337ab7;
+    text-decoration: none;
+}
+a:link{text-decoration:none!important; }
+a:visited{text-decoration:none!important; }
+a:hover{text-decoration:none!important;}
+a:active{text-decoration:none!important;}
+</style>
+</head>
+
+<body>
+	<div style="width: 100%;"></div>
+	<div id="tb" style="padding:5px;height:auto">
+		<div style="margin-bottom:5px">
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="add()">新增</a> 
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="del()">删除</a>	
+		</div>
+	</div>
+	<table title="客服消息" style="width:100%;height:99%;" id="grid">
+		<thead>
+			<tr>
+
+			</tr>
+		</thead>
+	</table>
+
+	<div id="dialog" class="easyui-dialog" closed="true"  style="display:table-cell;vertical-align:middle;text-align: center;"  >
+	   <div class="dialog-scroll" style="display:inline-block;height:600px;">
+          <table border="0" style="border-collapse:separate; border-spacing:10px;" id="dialog_keyword" >
+            <tr align="right" style="margin-top: 10px;">
+              <td class="font_size">任务名称：</td>
+              <td><input type="text" class="text"  id="add_task_name"></td>
+            </tr>
+             <tr align="right" style="margin-top: 10px;">
+              <td  class="font_size" style=" text-align: left; font-size: 14px; padding-bottom: 23px; ">选择模板：</td>
+              <td style="text-align:left;">
+			         <select id="book_name" class="form-control" style=" width: 85%; float: left; ">
+			            	<option>请选择一个模板</option>
+					 </select>
+			        <span class="input-group-btn" style="display: inline-block;">
+					   <button id="btn-reflash" class="btn btn-secondary" type="button" style="background: #337ab7!important;color: #fff!important;border-color: #337ab7;height: 34px;line-height: 14px;">刷新</button>
+					</span>
+              </td>
+            </tr>
+           	<tr align="right">
+              <td class="font_size" >　</td>
+              <td align="left">
+              	  <div style="background: #e0ecff; padding:20px;width: 380px;"> 
+					   <div id="text-msg-editor" class="text-msg-editor">
+					   		<div id="hide-text"></div>
+						    <div class="clearText" style="margin-bottom: 10px;"> 
+						   <!--   <div class="template-msg-title">订单修改通知</div> -->
+						    <!--  <div class="template-msg-meta">11月23日</div> -->
+						    <div id="content">
+							     <!-- <div>
+								     <span class="txt-title" id="title2">xxxxxxx</span>
+							     <a href="javascript:void(0);"  title="修改" class="edit-article2" ><i class="fa fa-edit"></i></a> 
+							     </div> -->
+						    </div>
+						     <br>
+						     <span class="text-url"></span>
+						    </div> 
+						</div> 
+					  </div>
+              </td>
+            </tr>
+             <tr align="right" style="margin-top: 10px;">
+              <td  class="font_size" style=" text-align: left; font-size: 14px; padding-bottom: 23px; ">原文链接：</td>
+              <td style="text-align:left;">
+              	<input type="text" class="text"  id="txt-url2">
+			    <span>仅限您小说网站内部的链接</span>
+              </td>
+            </tr>
+           	<tr align="right">
+              	 <td class="font_size">选择粉丝：</td>
+	             <td>
+	             	<div id="type-check" style="background: rgb(237, 238, 237);">
+		                <div class="control-group">
+		                    <label style=" text-align: right; " class="col-sm-2 bolder control-label no-padding-right">性别:</label>
+		                    <div class="radio">
+		                        <label> <input name="gender" type="radio" class="ace" value="0" checked /> <span class="lbl">不限</span> </label>
+		                        <label> <input name="gender" type="radio" class="ace" value="1" /> <span class="lbl">男</span> </label>
+		                        <label> <input name="gender" type="radio" class="ace" value="2" /> <span class="lbl">女</span> </label>
+		                    </div>
+		                </div>
+		                <div class="control-group">
+		                    <label style=" text-align: right;padding-left: 0;" class="col-sm-2 bolder control-label no-padding-right">充值情况:</label>
+		                    <div class="radio">
+		                        <label> <input name="paid" type="radio" class="ace" value="0" checked /> <span class="lbl">不限</span> </label>
+		                        <label> <input name="paid" type="radio" class="ace" value="1"  /> <span class="lbl">未充值粉丝</span> </label>
+		                        <label> <input name="paid" type="radio" class="ace" value="2"  /> <span class="lbl">已充值粉丝</span> </label>
+		                    </div>
+		                </div>
+		                <div class="control-group">
+		                    <label style=" text-align: right;padding-left: 0;" class="col-sm-2 bolder control-label no-padding-right">剩余书币:</label>
+		                    <div class="radio">
+		                        <label> <input name="money" type="radio" class="ace" value="0" checked /> <span class="lbl">不限</span> </label>
+		                        <label> <input name="money" type="radio" class="ace" value="1"  /> <span class="lbl">0-500</span> </label>
+		                        <label> <input name="money" type="radio" class="ace" value="2"  /> <span class="lbl">500-2000</span> </label>
+		                        <label> <input name="money" type="radio" class="ace" value="2"  /> <span class="lbl">2000-5000</span> </label>
+		                    </div>
+		                </div>
+		                <div class="control-group">
+		                    <label style=" text-align: right;padding-left: 0;" class="col-sm-2 bolder control-label no-padding-right">关注时间:</label>
+		                    <div class="radio">
+		                        <label> <input name="time" type="radio" class="ace" value="0" checked /> <span class="lbl">不限</span> </label>
+		                        <label> <input name="time" type="radio" class="ace" value="1"  /> <span class="lbl">一周内</span> </label>
+		                        <label> <input name="time" type="radio" class="ace" value="2"  /> <span class="lbl">半个月内</span> </label>
+		                        <label> <input name="time" type="radio" class="ace" value="3"  /> <span class="lbl">一个月内</span> </label>
+		                        <label> <input name="time" type="radio" class="ace" value="4"  /> <span class="lbl">三个月内</span> </label>
+		                    </div>
+		                </div>
+		            </div>
+
+	             </td>
+            </tr>
+            <tr align="right" style="margin-top: 10px;">
+              <td style=" padding-bottom: 25px; " class="font_size">发送时间：</td>
+              <td style="text-align:left;" class="send_time">
+              	<input type="text" class="text form-control input-group-addon"  id="send_time" style=" border: 1px solid #d5d5d5; text-align: left; ">
+              	<a href="javascript:void(0)" data-time="10">10分钟后</a>
+		        <a href="javascript:void(0)" data-time="60">1小时后</a>
+		        <a href="javascript:void(0)" data-time="120">2小时后</a>
+              </td>
+            </tr>
+             <tr align="right" style="margin-top: 10px;">
+              <td  class="font_size" style=" text-align: left; font-size: 14px; padding-bottom: 23px; ">测试粉丝ID：</td>
+              <td style="text-align:left;">
+              	<div class="input-group col-sm-12">
+			        <input id="Fans-cs" type="text" name="title" class="form-control" style="padding: 0;width: 107%;margin-left: -9px;"> 
+			        <span class="input-group-btn">
+					   <button id="btn-cs" class="btn btn-secondary" type="button" style="background: #337ab7!important;color: #fff!important;border-color: #337ab7;height: 34px;line-height: 14px;">测试发送</button>
+					</span>
+			    </div>
+			    <span>获取粉丝id，进行测试。<a href="javascript:;" class="btn-member-id-screen" >查看示例</a></span>
+              </td>
+            </tr>
+         </table>
+    </div>
+  </div>
+        <!--文字修改-->
+    <div class="modal fade in" id="edit-text-modal"  style="display: none; padding-right: 17px;"> 
+   <div class="modal-dialog"> 
+    <div class="modal-content"> 
+     <div class="modal-header"> 
+      <button type="button" class="close" id="close-text-edit" data-dismiss="modal"  aria-label="close"><span aria-hidden="true">&times;</span></button> 
+      <h4 class="modal-title">修改</h4> 
+     </div> 
+     <div class="modal-body">
+                <form>
+                    <input type="text" id="customer_msg" name="value" placeholder="请输入文案内容"  class="col-sm-8">
+                    <select id="color" name="color" data-bind="value: color" style="margin-left:5px">
+                        <option value="#0000ff">蓝</option>
+                        <option value="#000000">黑</option>
+                        <option value="#ff0000">红</option>
+                        <option value="#ff1493">粉</option>
+                        <option value="#9370db">紫</option>
+                    </select>
+                    <p class="help-block" style="margin-top:10px;">
+                     	   可使用 <span>{wename}</span> 占位符, 发送时会被替换成用户昵称
+                    </p>
+                </form>
+            </div>
+      <div class="modal-footer"> 
+     <button type="button" class="btn btn-primary" id="text-chang" >修改</button>
+     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+     </div> 
+    </div> 
+   </div> 
+  </div>
+
+      <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript"src="static/js/scripts/PushChannel/moment-with-locales.js"></script>
+	<script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+	<script src="https://cdn.bootcss.com/webui-popover/2.1.15/jquery.webui-popover.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+	<script type="text/javascript"src="static/js/scripts/partner/PushChannel/templateInformation.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			
+			 $('#send_time').datetimepicker({
+			        format: 'YYYY-MM-DD HH:mm:ss',
+			        locale: moment.locale('zh-cn'),
+			        showClose:true,	//是否显示关闭 按钮
+			      //  startDate:"2018-06-11 01:25:25"
+			        /*viewMode: 'days',//天数模块展示，months则为以月展示
+			        daysOfWeekDisabled: false,//星期几 禁止选择,参数 [num],多个逗号隔开
+			        calendarWeeks: false,	//显示 周 是 今年第几周
+			        toolbarPlacement:'default', //工具摆放的位置，top 则为上，默认为底
+			        showTodayButton:false,	//是否工具栏 显示 直达今天天数的 按钮，默认false
+			        showClear:false, //是否 工具栏显示  清空 输入框  的按钮。默认false
+			*/        
+ 
+		//	 $("#datepicker").datepicker({setStartDate:new Date().tostring});
+			    }); 
+			 getWxTemplate();
+		})
+		
+		$("#send-time a").on("click",function(){
+			var nowDate = new Date();
+			var year = nowDate.getFullYear(),
+				month = nowDate.getMonth()+1,
+				day = nowDate.getDate(),
+				hours = nowDate.getHours(),
+				minutes = nowDate.getMinutes(),
+				seconds = nowDate.getSeconds();
+			var nav = $(this).attr("data-time");
+			switch(nav)
+			{
+			case "10":
+				minutes = minutes+10;
+				$("#send_time").val(year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds);
+			  break;
+			case "60":
+				hours = hours+1;
+				$("#send_time").val(year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds);
+			  break;
+			case "120":
+				hours = hours+2;
+				$("#send_time").val(year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds);
+			  break;
+			default:
+			 alert("没有选项对应的值。");
+			}
+		})
+		
+		function getWxTemplate(){
+			$.get({
+				url:'templateInformation/wxTemplateMsg',
+				success:function aa(data){
+					if(data.code == 0){
+						var msg = data.msg;
+						for(var i = 0; i<msg.length;i++){
+							var title = msg[i].title;
+							var content = msg[i].content;
+							var template_id = msg[i].template_id;
+							$("#book_name").append("<option data-demplage-id=\""+template_id+"\" value=\""+content+"\">"+title+"</option>");
+						}
+					}
+				}
+			})
+		}
+		
+		
+		$("#book_name").change(function(){
+			var title = $("#book_name option:selected").text();
+			var content = $("#book_name option:selected").val();
+			template_id = $("#book_name option:selected").attr("data-demplage-id");
+			$("#content").empty();
+			$(".template-msg-title").text(title);
+			var keyword = content.split("：");
+			var length = 0;
+			var a = "<a href=\"javascript:void(0);\"  title=\"修改\" class=\"edit-article2\" ><i class=\"fa fa-edit\"></i></a>";
+			$("#content").append("<div data-length=\""+length+"\"><span class=\"txt-title\">标题：</span><span></span>"+a+"</div>");
+			for(var i = 0;i<keyword.length;i++){
+				if(i < keyword.length-1){
+					length++;
+					var s = keyword[i];
+					var t = s.split("\n");
+					$("#content").append("<div data-length=\""+length+"\"><span class=\"txt-title\">"+t[1]+"：</span><span></span>"+a+"</div>");
+				}
+			} 
+			length++;
+			$("#content").append("<div data-length=\""+length+"\"><span class=\"txt-title\">结束语：</span><span></span>"+a+"</div>"); 
+		});
+		
+		/*文本模式   编辑文本*/
+		   $("#text-msg-editor").on('click', '.edit-article2', function(){
+			   /* divob = $(this);
+			   $("#txt-content2").val(divob.prev().text());
+		  	   $("#txt-url2").val(divob.next().next().next().text()); */
+		  	   var l = $(this).parent().attr("data-length");
+		  	   $("#edit-text-modal").attr("data-length",l);
+			   $("#edit-text-modal").modal('show');
+		   })
+		   
+		   $("#edit-text-modal").on('click', '#text-chang', function(){
+			   var length = $("#edit-text-modal").attr("data-length");
+			   var customer_msg = $("#customer_msg").val();
+			   var color = $("#color option:selected").val();
+			   var span = $("#content div:eq("+length+") span:eq(1)");
+			   span.text(customer_msg);
+			   span.attr('color',color);
+			   span.css("color",color);
+			   $('#edit-text-modal').modal('hide');
+		   });
+		
+	</script>
+</body>
+</html>

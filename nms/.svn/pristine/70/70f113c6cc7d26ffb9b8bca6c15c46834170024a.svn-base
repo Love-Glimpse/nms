@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.bizandpush.mapper.PushUrlMapper">
+	<select id="getAllPushUrl" resultType="PartnerPushUrl">
+		SELECT pp.`name`,pp.chapter_id,pp.book_id,pp.parent_id,pp.hits,pp.push_id,pp.created_time,pp.type,b.book_name,c.chapter_name, IFNULL(d.product_price,0) product_price,IFNULL(order_count,0) order_count from partner_push_url pp
+		LEFT JOIN book_list b ON   pp.book_id = b.book_id
+		LEFT JOIN chapter_list c ON   pp.chapter_id = c.chapter_id
+		LEFT JOIN (SELECT push_id,SUM(product_price) product_price FROM user_order WHERE `status` = 1 GROUP BY push_id) d ON pp.push_id = d.push_id
+		LEFT JOIN (SELECT push_id,COUNT(*) order_count FROM user_order WHERE `status` = 1 GROUP BY push_id) g ON pp.push_id = g.push_id
+		ORDER BY  pp.push_id DESC
+		limit #{start_rows},#{end_rows}
+	</select>
+
+	<select id="getCount" resultType="int">
+      select COUNT(*) from partner_push_url 
+		INNER JOIN book_list ON  partner_push_url.book_id = book_list.book_id 
+		INNER JOIN chapter_list ON  partner_push_url.chapter_id = chapter_list.chapter_id 
+  	</select>
+</mapper>

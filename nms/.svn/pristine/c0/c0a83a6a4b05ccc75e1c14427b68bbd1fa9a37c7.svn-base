@@ -1,0 +1,304 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.config.Config;
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.query.mapper.BooksQueryMapper;
+import com.kuaidu.nms.query.mapper.ChapterMapper;
+import com.kuaidu.nms.utils.Log4jUtil;
+import com.kuaidu.nms.utils.Utils;
+import com.kuaidu.nms.utils.fastdfs.FastDFSException;
+import com.kuaidu.nms.utils.fastdfs.FastDFSTemplate;
+import com.kuaidu.nms.utils.fastdfs.FastDfsInfo;
+
+@Service
+public class ChpterServerImpl {
+
+	@Autowired
+	ChapterMapper chapterMapper;
+	@Autowired
+	BooksQueryMapper booksQueryMapper;
+	@Autowired
+	FastDFSTemplate fastDFSTemplate;
+
+	/** 添加成功返回1，失败返回0 */
+	public Integer addChapter(ChapterList chapterList, String content) {
+		int ret = 0;
+		String fileName = Utils.MD5(chapterList.getChapter_name(), 16);
+		boolean b = Utils.ZipFile(Config.CHAPTER_PATH, fileName, content);
+		if (b) {
+			chapterList.setChapter_filepath(Config.CHAPTER_PATH + fileName + ".zip");
+			chapterList.setContent_exist_flag(1);
+			if (chapterList.getChapter_name_old()==null||chapterList.getChapter_name_old().length()<0) {
+				chapterList.setChapter_name_old(chapterList.getChapter_name());
+			}
+			try {
+				byte[] contentBytes = Utils.fileToBytes(Config.CHAPTER_PATH + fileName + ".zip");
+				chapterList.setChapter_filepath(Config.CHAPTER_PATH + fileName + ".zip");
+				FastDfsInfo upload = fastDFSTemplate.upload(contentBytes, "zip");
+				chapterList.setContent_upload_flag(1);
+				String path = upload.getFileAbsolutePath();
+				chapterList.setWords(content.length());
+				chapterList.setChapter_filepath_fdfs(path);
+				chapterList.setContent_upload_flag(1);
+				chapterList.setSource_ids(",99,");
+				chapterList.setOldWords(0);
+				chapterMapper.addChapter(chapterList);
+				//添加成功更新下载章节数
+				booksQueryMapper.updateBookList(chapterList);
+				ret = 1;
+			}catch (FastDFSException e) {
+				// TODO: handle exception
+				e.printStackTrace();
+				ret = 0;
+			} catch (Exception e) {//数据库异常，删除已上传的文件
+				e.printStackTrace();
+				deleteFile(chapterList.getChapter_filepath_fdfs());
+				ret = 0;
+			}
+			// 上传完删除旧的文件
+			FileUtils.deleteQuietly(new File(Config.CHAPTER_PATH + fileName + ".zip"));
+		} else {
+			ret = 0;
+		}
+
+		return ret;
+	}
+
+	/** 章节是否存在 **/
+	public boolean checkChapterExist(ChapterList chapterList) {
+		int count = chapterMapper.checkChapterExist(chapterList);
+		if (count == 0) {
+			return false;
+		}
+		return true;
+	}
+
+	// 查询章节表
+	public List<ChapterList> getAllChapter(ChapterList chapterList) {
+		return chapterMapper.getAllChapter(chapterList);
+	}
+
+	// 查询章节数是否存在
+	public int getChapterNum(ChapterList chapterList) {
+		return chapterMapper.getChapterNum(chapterList);
+	}
+
+	// 查询书名/最新数/最新章节
+	public List<ChapterList> selectNew(ChapterList chapterList) {
+		return chapterMapper.selectNew(chapterList);
+	}
+
+	// 获得章节行数
+	public int getCount(ChapterList chapterList) {
+		return chapterMapper.getCount(chapterList);
+	}
+
+	// 编辑章节
+	public int editChapter(ChapterList chapterList, String content, String editType, Integer oldWords) {
+		Integer ret = 0;
+		String fileFdfs = chapterList.getChapter_filepath_fdfs();
+		Integer contentUploadFlag = chapterList.getContent_upload_flag();
+		chapterList.setWords(content.length());
+		String fileName = Utils.MD5(chapterList.getChapter_name(), 16);
+		if (Utils.ZipFile(Config.CHAPTER_PATH, fileName, content)) {
+			chapterList.setChapter_filepath(Config.CHAPTER_PATH + fileName + ".zip");
+			chapterList.setContent_exist_flag(1);
+			try {
+				byte[] contentBytes = Utils.fileToBytes(Config.CHAPTER_PATH + fileName + ".zip");
+				chapterList.setChapter_filepath(Config.CHAPTER_PATH + fileName + ".zip");
+				FastDfsInfo upload = fastDFSTemplate.upload(contentBytes, "zip");
+				if (contentUploadFlag==0) {//章节内容没有上传过
+					chapterList.setContent_upload_flag(1);
+					chapterList.setOldWords(oldWords);
+				}
+				String path = upload.getFileAbsolutePath();
+				chapterList.setChapter_filepath_fdfs(path);
+				chapterList.setSource_ids(",99,");
+				ret = 1;
+			} catch (Exception e) {
+				ret = 2;
+			}
+			FileUtils.deleteQuietly(new File(Config.CHAPTER_PATH + fileName + ".zip"));
+		} else {
+			ret = 2;
+		}
+
+		if (editType.equalsIgnoreCase("1")) {
+			chapterList.setChapter_checked(1);
+		}else {
+			chapterList.setChapter_checked(0);
+		}
+		try {
+			chapterMapper.updateChapter(chapterList);
+			if (ret == 0) {
+				return 10;// 编辑成功
+			} else if (ret == 1) {//上传文件成功，并且更新章节列表成功
+				//更新成功，删除旧的文件
+				deleteFile(fileFdfs);
+/*				if (contentUploadFlag==0) {//章节内容没有上传过，更新下载章节数和字数
+					booksQueryMapper.updateBookList(chapterList);
+				}else {//章节内容上传过，更新书本字数
+					booksQueryMapper.updateBookList_update(chapterList.getBook_id(), chapterList.getWords(), oldWords);
+				}*/
+				return 11;// 修改内容编辑成功
+			} else {
+				return 12;// 内容提交失败
+			}
+		} catch (Exception e) {
+			//有新文件上传，但是数据库更新失败，删除刚上传的文件
+			if (ret == 1) {
+				deleteFile(chapterList.getChapter_filepath_fdfs());
+			}
+			return 13;// 更新数据库失败
+		}
+	}
+
+	/***
+	 * 删除章节 return 0 删除成功 return 1 删除失败
+	 * 
+	 ***/
+	public Integer del_cList(ChapterList chapterList) {
+		deleteFile(chapterList.getChapter_filepath_fdfs());
+		try {
+			chapterMapper.del_cList(chapterList);
+/*			if (chapterList.getContent_upload_flag()==1) {
+				booksQueryMapper.updateBookList_del(chapterList);
+			}*/
+			return 0;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Log4jUtil.getSimpleErrorLogger().error("章节删除失败");
+			e.printStackTrace();
+			return 1;
+		}
+	}
+
+	// 章节数后移
+	public void chapterNumBack(ChapterList chapterList) {
+		chapterMapper.chapterNumBack(chapterList);
+	}
+
+	public void upBookList(ChapterList chapterList) {
+		chapterMapper.updateBookList(chapterList);
+	}
+
+	public void changeFee(ChapterList chapterList) {
+		// TODO Auto-generated method stub
+		chapterMapper.changeFee(chapterList);
+	}
+
+	public void check_chapter(List<Integer> chapter_ids) {
+		// TODO Auto-generated method stub
+		chapterMapper.check_chapter(chapter_ids);
+	}
+	public Boolean deleteFile(String filepath_fdfs) {
+		// 上传完成后删除旧文件
+		Map<String, String> map = Utils.getGroupIdAndPath(filepath_fdfs);
+		if (map==null) return false;
+		String group = map.get("group");
+		String path = map.get("path");
+		if (group == null || path == null) return false;
+		try {
+			fastDFSTemplate.deleteFile(group, path);
+			return true;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Log4jUtil.getSimpleErrorLogger().error("章节文件删除失败:filepath_fdfs="+filepath_fdfs+" group="+group+" path="+path);
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public List<ChapterList> getChaptersByBookId(Integer book_id, String checked) {
+		// TODO Auto-generated method stub
+		return chapterMapper.getChaptersByBookId(book_id,checked);
+	}
+
+	public boolean checkChapterNumExist(ChapterList chapterList) {
+		// TODO Auto-generated method stub
+		int count = chapterMapper.checkChapterNumExist(chapterList);
+		if (count==0) {
+			return false;
+		}
+		return true;
+	}
+
+	public void moveChapter(Integer old_chapter_num, Integer chapter_num) {
+		// TODO Auto-generated method stub
+		chapterMapper.moveChapter(old_chapter_num,chapter_num);
+	}
+
+	public void updateBookChecked(Integer book_id) {
+		// TODO Auto-generated method stub
+		chapterMapper.updateBookChecked(book_id);
+	}
+
+	public int moveChapterNum(int chapter_num, int move_mode, int move_count,int book_id) {
+		// TODO Auto-generated method stub
+		int ret  = 0;
+		try {
+			chapterMapper.moveChapterNum(chapter_num,move_mode,move_count,book_id);
+			ret = 1;
+		} catch (Exception e) {
+			// TODO: handle exception
+			Log4jUtil.getSimpleErrorLogger().error("章节号码移动失败!chapter_num="+chapter_num+",move_mode="+move_mode+",move_count="+move_count);
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	public int fixChapterNum(String start_char, String end_char, int book_id) {
+		// TODO Auto-generated method stub
+		int ret = 1;
+		try {
+			chapterMapper.fixChapterNum(start_char,end_char,book_id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			ret = 0;
+		}
+		return ret;
+	}
+	
+	public synchronized List<ChapterList> getChapterLists() {
+		// TODO Auto-generated method stub
+		Log4jUtil.getBusinessLogger().info(Thread.currentThread().getName()+" get begin!!");
+		List<ChapterList> chapterLists = chapterMapper.getChapterLists();
+		if (chapterLists.size()>0) {
+			chapterMapper.updateChapterRun(chapterLists,1);
+		}
+		Log4jUtil.getBusinessLogger().info(Thread.currentThread().getName()+" get end!!");
+		return chapterLists;
+	}
+
+	public void updateChapterFdfs(ChapterList chapterList) {
+		// TODO Auto-generated method stub
+		chapterMapper.updateChapterFdfs(chapterList);
+	}
+
+	public void updateChapterDoFlag(ChapterList chapterList) {
+		// TODO Auto-generated method stub
+		chapterMapper.updateChapterDoFlag(chapterList);
+	}
+
+	public void updateChapterRun(List<ChapterList> chapterLists, int i) {
+		// TODO Auto-generated method stub
+		chapterMapper.updateChapterRun(chapterLists,i);
+	}
+
+	/**
+	 * 根据book_id 查询所有章节
+	 * **/
+	public List<Object> getAllChapterByBookID(Integer book_id) {
+		// TODO Auto-generated method stub
+		return chapterMapper.getAllChapterByBookID(book_id);
+	}
+}

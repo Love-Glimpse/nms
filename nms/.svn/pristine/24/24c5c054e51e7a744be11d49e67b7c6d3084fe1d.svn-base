@@ -1,0 +1,47 @@
+package com.kuaidu.nms.partner.push.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.Book_list;
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.entity.PartnerKeyword;
+import com.kuaidu.nms.entity.PartnerTemplateMsg;
+import com.kuaidu.nms.entity.RecCover;
+import com.kuaidu.nms.partner.push.mapper.KeywordReplyMapper;
+import com.kuaidu.nms.partner.push.mapper.TemplateInformationMapper;
+
+/** 
+ * @Title KeywordReplyServiceImpl.java 
+ * @time 2018年11月7日 下午2:25:02 
+ * @author victor 
+ * @version 1.0 
+**/
+@Service
+public class TemplateInformationServiceImpl {
+	@Autowired
+	TemplateInformationMapper tMapper;
+
+	public List<PartnerTemplateMsg> getTemplateInformation(Integer start_rows, Integer rows, int partner_id) {
+		return tMapper.getTemplateInformation(start_rows,rows,partner_id);
+	}
+
+	public int getTemplateInformationCount() {
+		return tMapper.getTemplateInformationCount();
+	}
+
+	
+	public int addTemplateMsg(PartnerTemplateMsg partnerTemplateMsg) {
+		int ret = 0;
+		try {
+			tMapper.addTemplateMsg(partnerTemplateMsg);
+			ret = 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+}

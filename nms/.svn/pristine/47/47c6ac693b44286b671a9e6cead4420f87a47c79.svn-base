@@ -1,0 +1,13 @@
+package com.kuaidu.nms.query.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.user_cost;
+
+public interface consumptionRecordsMapper {
+	 //历史记录表查询
+	 public List<user_cost> getAllRecords(user_cost rList);
+	 //记录数，用于分页
+	 public int getCount(user_cost rList);
+	 
+}

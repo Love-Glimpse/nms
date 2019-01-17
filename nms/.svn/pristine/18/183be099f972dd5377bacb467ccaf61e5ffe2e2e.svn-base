@@ -1,0 +1,116 @@
+package com.kuaidu.nms.bizandpush.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.kuaidu.nms.bizandpush.serviceImpl.SalesPromotionImpl;
+import com.kuaidu.nms.entity.Book_list;
+import com.kuaidu.nms.entity.Product;
+import com.kuaidu.nms.entity.PromotionActive;
+import com.kuaidu.nms.entity.Sys_user;
+import com.kuaidu.nms.utils.Utils;
+
+import net.sf.json.JSONObject;
+
+/** 
+ * @Title SalesPromotion.java 
+ * @description 促销活动
+ * @time 2018年11月2日 上午10:31:56 
+ * @author victor 
+ * @version 1.0 
+**/
+@Controller
+@RequestMapping("/salesPromotion")
+public class SalesPromotionController {
+	@Autowired
+	SalesPromotionImpl sImpl;
+	
+	@RequestMapping("/salesPromotionIndex")
+	public ModelAndView customMsgNewsIndex(HttpSession session){
+		ModelAndView mv = new ModelAndView();
+		try {
+			List<Product> products = sImpl.getPromotionProducts();
+			mv.addObject("product", products);
+			mv.setViewName("bizAndPush/salesPromotion"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+	/**
+	 * 平台添加活动
+	 * */
+	@ResponseBody
+	@RequestMapping("/createActive")
+	public JSONObject addPlatActive(HttpSession session,PromotionActive promotionActive) {
+		JSONObject retJson = new JSONObject();
+		int ret=0;
+		Sys_user  sUser = Utils.getSysUserFromSession(session);
+		if (sUser==null) {
+			retJson.put("result", 0);
+			return retJson;
+		}
+
+		ret = sImpl.createActive(promotionActive);
+		retJson.put("result", ret);
+		return retJson;
+	}
+	/**
+	 * 获取平台活动列表
+	 * */
+	@ResponseBody
+	@RequestMapping("/getPromotionActiveList")
+	public PageInfo<PromotionActive> getPromotionActiveList(HttpServletRequest request,HttpSession session,PromotionActive promotionActive) {
+
+		Sys_user  sUser = Utils.getSysUserFromSession(session);
+		if (sUser!=null) {
+			int page= Integer.parseInt(request.getParameter("page"));	
+			int rows= Integer.parseInt(request.getParameter("rows"));
+			/**/
+			PageHelper.startPage(page, rows);
+			List<PromotionActive> list =  sImpl.getPromotionActiveList(0,0);
+			PageInfo<PromotionActive> pageInfo = new PageInfo<>(list);
+			System.out.println(pageInfo.toString());
+			return pageInfo;
+		}else {
+			return null;
+		}
+	}
+	
+	/**
+	 * 获取渠道活动列表
+	 * */
+	@ResponseBody
+	@RequestMapping("/getPartnerPromotionActiveList")
+	public PageInfo<PromotionActive> getPartnerPromotionActiveList(HttpServletRequest request,HttpSession session,Integer partner_id) {
+
+		Sys_user  sUser = Utils.getSysUserFromSession(session);
+		if (sUser!=null) {
+			int page= Integer.parseInt(request.getParameter("page"));	
+			int rows= Integer.parseInt(request.getParameter("rows"));
+			int flag = 0;
+			if (partner_id==0) {
+				flag = 1;
+			}else {
+				flag = 2;
+			}
+			/**/
+			PageHelper.startPage(page, rows);
+			List<PromotionActive> list =  sImpl.getPromotionActiveList(flag,partner_id);
+			PageInfo<PromotionActive> pageInfo = new PageInfo<>(list);
+			return pageInfo;
+		}else {
+			return null;
+		}
+	}
+}

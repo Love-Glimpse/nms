@@ -1,0 +1,331 @@
+package com.kuaidu.nms.queryManage.controller;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.github.pagehelper.PageHelper;
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.query.serviceImpl.ChpterServerImpl;
+import com.kuaidu.nms.utils.ResultData;
+import com.kuaidu.nms.utils.Utils;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+
+@Controller
+@RequestMapping("/chapterEdit")
+public class ChpterServerManage {
+	@Autowired
+	private ChpterServerImpl cImpl;
+	//private BooksQueryMapperImpl bImpl;
+	@Autowired
+	ChpterServerImpl chpterServerImpl;
+	
+	@RequestMapping("/chapterEditIndex")
+	public ModelAndView booksQueryManageIndex(HttpSession session){
+			
+			ModelAndView mv = new ModelAndView();
+		try {
+			//List<Novel_type> novel_types = cImpl.getAllnovel_type();
+			//mv.addObject("novel_types", novel_types);
+			mv.setViewName("Query/chapterEdit"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+	/*
+	 * datagrid使用了分页的话，其框架自身会向后台传递page、rows这个两个属性值。
+	 * 分别表示当前页和当前页显示的记录行数。
+	 * 可以在action中定义好这两个属性，并同样设置getter和setter方法，就可以接受到这些参数了。
+	 * */
+	//查
+	@ResponseBody
+	@RequestMapping("/getAll")
+	public String getAll(HttpServletRequest request,ChapterList chapterList){	
+		//获取页数  1
+		String page= request.getParameter("page");	
+		//获取行数	20
+		String rows= request.getParameter("rows");
+		//起始行	1*20-20				页*行-行		
+		Integer start_rows = Integer.parseInt(page)*Integer.parseInt(rows)-Integer.parseInt(rows);
+		if (chapterList.getBook_id()==null||chapterList.getBook_id()<=0) {
+			chapterList.setBook_id(0);
+		}
+		chapterList.setStart_rows(start_rows);
+		chapterList.setEnd_rows(Integer.parseInt(rows));
+		List<ChapterList> list = cImpl.getAllChapter(chapterList);
+		int total = cImpl.getCount(chapterList);
+		return ResultData.toJsonString(total,list);
+	}
+	
+	/**
+	 * 书名/最新章节数/最新章节名查询
+	 * */
+	@ResponseBody
+	@RequestMapping("selectNew")
+	public String selectNew(ChapterList chapterList){
+		JSONObject jsonObject = new JSONObject();
+		List<ChapterList> clist = cImpl.selectNew(chapterList);
+		jsonObject.put("result", clist);
+		return jsonObject.toString();
+	}
+	
+	
+	/**
+	 * 章节添加
+	 * 
+	 * return：0：章节内容为空   1：添加成功	2： 章节已经存在
+	 * */
+	@ResponseBody
+	@RequestMapping("addChapter")
+	public String addChapter(ChapterList chapterList,@RequestParam(defaultValue="")String content,@RequestParam(defaultValue="no")String chapter_insert){
+		int Count =cImpl.getChapterNum(chapterList);
+		chapterList.setWords(content.length());
+		JSONObject jsonObject = new JSONObject();
+		if (chapter_insert.equals("yes")){	//属于插入
+			//章节为空，则返回0。
+			if (content == "") {
+				 jsonObject.put("result", "0");
+			}else {
+				if(Count!=0){
+					//存在同num 章节。添加。后面 后移
+					if (!chpterServerImpl.checkChapterExist(chapterList)) {
+						chpterServerImpl.chapterNumBack(chapterList);
+						int  ret = chpterServerImpl.addChapter(chapterList,content);
+						jsonObject.put("result", ret);//ret=1 添加成功
+					}else {
+						jsonObject.put("result", "2");//章节已存在
+					}
+				}else {
+					//若没同num，则直接添加
+					if (!chpterServerImpl.checkChapterExist(chapterList)) {
+						int  ret = chpterServerImpl.addChapter(chapterList,content);
+						jsonObject.put("result", ret);//ret=1 添加成功
+					}else {
+						jsonObject.put("result", "2");//章节已存在
+					}
+				}
+			}
+			return jsonObject.toString();
+		}else if (chapter_insert.equals("no")) {	//不属于插入，直接末尾添加
+			if (content == "") {
+				 jsonObject.put("result", "0");
+			}else {
+				if (!chpterServerImpl.checkChapterExist(chapterList)) {
+					int  ret = chpterServerImpl.addChapter(chapterList,content);
+					jsonObject.put("result", ret);//ret=1 添加成功
+				}else {
+					jsonObject.put("result", "2");//章节已存在
+				}
+			}
+			return jsonObject.toString();
+		}else {
+			jsonObject.put("result", "99");
+			return jsonObject.toString();
+		}
+		
+	}
+	
+	
+	/*
+	 * 删除章节
+	 */
+/*	@ResponseBody
+	@RequestMapping("/del_cList")
+	public String del_cList(HttpServletRequest request,ChapterList chapterList) throws UnknownHostException{
+		JSONObject jsonObject = new JSONObject();
+		if (chapterList.getWords()==null) {
+			chapterList.setWords(0);
+		}
+        int ret;
+		try {
+			ret = cImpl.del_cList(chapterList);
+	        jsonObject.put("result", ret);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			 jsonObject.put("result", 1);
+		}
+		return jsonObject.toString();
+	}*/
+	@ResponseBody
+	@RequestMapping("/del_cList")
+	public String del_cList(HttpServletRequest request) throws UnknownHostException{
+		String chapterList = request.getParameter("chapter_list");
+		JSONArray chapterArray = JSONArray.fromObject(chapterList);
+		JSONObject jsonObject = new JSONObject();
+			int ret = 0;
+			for (int i = 0; i < chapterArray.size(); i++) {
+				ChapterList cList = new ChapterList();
+				cList.setChapter_id(chapterArray.getJSONObject(i).optInt("chapter_id"));
+				cList.setChapter_num(chapterArray.getJSONObject(i).optInt("chapter_num"));
+				cList.setBook_id(chapterArray.getJSONObject(i).optInt("book_id"));
+				cList.setChapter_filepath_fdfs(chapterArray.getJSONObject(i).optString("chapter_filepath_fdfs"));
+				cList.setWords(chapterArray.getJSONObject(i).optInt("words"));
+				cList.setContent_upload_flag(chapterArray.getJSONObject(i).optInt("content_upload_flag"));
+				if (cList.getWords()==null) {
+					cList.setWords(0);
+				}
+				ret = cImpl.del_cList(cList);
+				if (ret==1) {
+					jsonObject.put("result", ret);
+					break;
+				}
+			 }
+			 jsonObject.put("result", ret);
+		return jsonObject.toString();
+	}
+	@ResponseBody
+	@RequestMapping("/check_chapter")
+	public String check_chapter(HttpServletRequest request) throws UnknownHostException{
+		String chapterIdString = request.getParameter("chapter_ids");
+		Integer book_id = Integer.parseInt(request.getParameter("book_id"));
+		String [] chapterIds = chapterIdString.replace("[", "").replace("]", "").split(",");
+		List<Integer> chapter_ids = new ArrayList<Integer>();
+		JSONObject jsonObject = new JSONObject();;
+		int ret = 1;
+		try {
+			for (int i = 0; i < chapterIds.length; i++) {
+				chapter_ids.add(Integer.parseInt(chapterIds[i]));
+			}
+			cImpl.check_chapter(chapter_ids);
+			cImpl.updateBookChecked(book_id);
+			ret = 0;
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			ret = 1;
+		}
+		jsonObject.put("result", ret);
+		return jsonObject.toString();
+	}
+	//章节内容
+	@ResponseBody
+	@RequestMapping("getChapterContent")
+	public String getChapterContent(ChapterList chapterList){
+		JSONObject jsonObject = new JSONObject();
+		try {
+			/*String content = Utils.getChapterContent(chapterList);*/
+			String content =  Utils.getChapterContent2(chapterList);
+			jsonObject.put("content", content);
+		} catch (Exception e) {
+			e.printStackTrace();
+			jsonObject.put("content", "");
+		}
+		return jsonObject.toString();
+	}
+	/**return result
+	 * result=10 编辑成功
+	 * result=11 修改内容编辑成功
+	 * result=12 内容提交失败
+	 * result=13 更新数据库失败
+	 * result=14 章节号码重复
+	 * **/
+	@ResponseBody
+	@RequestMapping("editChapter")
+	public String editChapter(ChapterList chapterList,@RequestParam(defaultValue="")String content,@RequestParam(defaultValue="0")int old_chapter_num
+			,@RequestParam(defaultValue="0") String editType,@RequestParam() Integer oldWords,@RequestParam(defaultValue="no")String chapter_insert){
+		JSONObject jsonObject = new JSONObject();
+		int ret = 0;
+		if (chapterList.getWords()==null) {
+			chapterList.setWords(0);
+		}
+		if (oldWords<0) {
+			oldWords=0;
+		}
+		
+		if (chapter_insert.equalsIgnoreCase("yes")) {//编辑时移动章节
+			if (old_chapter_num!=chapterList.getChapter_num()){
+				chpterServerImpl.moveChapter(old_chapter_num,chapterList.getChapter_num());
+			}
+		}else {
+			if (chapterList.getChapter_num()>0&&old_chapter_num!=chapterList.getChapter_num()&&chpterServerImpl.checkChapterNumExist(chapterList)) {
+				jsonObject.put("result",14);
+				return jsonObject.toString();
+			}
+		}
+		ret = chpterServerImpl.editChapter(chapterList,content,editType,oldWords);
+		jsonObject.put("result", ret);
+		return jsonObject.toString();
+	}
+	@ResponseBody
+	@RequestMapping("/changefee")
+	public String changeFee(ChapterList chapterList) {
+		JSONObject jsonObject = new JSONObject();
+		try {
+	        cImpl.changeFee(chapterList);
+	        cImpl.updateBookChecked(chapterList.getBook_id());
+	        jsonObject.put("result", "0");
+	        
+		} catch (Exception e) {
+			 jsonObject.put("result", "1");
+			e.printStackTrace();
+		}
+		return jsonObject.toString();
+	}
+	@ResponseBody
+	@RequestMapping("getChaptersByBookId")
+	public JSONArray getChaptersByBookId(@RequestParam(defaultValue="1")Integer pageNo,
+			@RequestParam(defaultValue="30")Integer size,@RequestParam Integer book_id,
+			@RequestParam(defaultValue="0") String checked, @RequestParam(defaultValue="0") String content_checked) {
+		JSONArray jsonArray = new JSONArray();
+		try {
+			if (pageNo<=0||size>100) {
+				return jsonArray;
+			}
+			PageHelper.startPage(pageNo, size);
+			List<ChapterList> list =  chpterServerImpl.getChaptersByBookId(book_id,checked);
+			for (ChapterList chapterList : list) {
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("chapter_id", chapterList.getChapter_id());
+				jsonObject.put("words", chapterList.getWords());
+				jsonObject.put("chapter_name", chapterList.getChapter_name());
+				jsonObject.put("chapter_url", chapterList.getChapter_url());//提供链接从网源获取
+				jsonObject.put("chapter_id", chapterList.getChapter_id());
+				//jsonObject.put("chapter_content", Utils.getChapterContent(chapterList).replaceAll(System.getProperty("line.separator"), "</br>"));//获取章节内容
+				if (content_checked.equalsIgnoreCase("0")) {
+					jsonObject.put("chapter_content", Utils.getChapterContent3(chapterList).replaceAll(System.getProperty("line.separator"), "</br>"));//获取章节内容
+				}else {
+					jsonObject.put("chapter_content", Utils.getChapterContent2(chapterList).replaceAll(System.getProperty("line.separator"), "</br>"));//获取章节内容
+				}
+				jsonArray.add(jsonObject);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return jsonArray;
+	}
+	@ResponseBody
+	@RequestMapping("moveChapterNum")
+	public JSONObject moveChapterNum(@RequestParam(required=true)int chapter_num,@RequestParam(required=true) int book_id,
+			@RequestParam(required=true)int move_mode,@RequestParam(required=true) int move_count){
+		JSONObject jsonObject = new JSONObject();
+		int ret = cImpl.moveChapterNum(chapter_num,move_mode,move_count,book_id);
+		jsonObject.put("result", ret);
+		return jsonObject;
+	}
+	@ResponseBody
+	@RequestMapping("fixChapterNum")
+	public JSONObject fixChapterNum(@RequestParam(required=true) int book_id,
+			@RequestParam(required=true)String start_char,@RequestParam(required=true) String end_char){
+		JSONObject jsonObject = new JSONObject();
+		int ret = cImpl.fixChapterNum(start_char,end_char,book_id);
+		jsonObject.put("result", ret);
+		return jsonObject;
+	}
+	
+		
+}

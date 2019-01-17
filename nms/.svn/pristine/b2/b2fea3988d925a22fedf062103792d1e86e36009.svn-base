@@ -1,0 +1,41 @@
+package com.kuaidu.nms.user.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.kuaidu.nms.user.serviceImpl.UserLoginLogServiceImpl;
+
+@Controller
+public class UserLoginLogController {
+	
+	
+	@Autowired
+	UserLoginLogServiceImpl userLoginLogService;
+	
+	
+	
+	@GetMapping("userLoginLog/index")
+	public String aaa() {
+		
+		return "user/loginLog";
+	}
+
+	
+	
+	@ResponseBody
+	@RequestMapping("userLoginLog")
+	public Object getUserLoginLog(@RequestParam(required=false)String date,@RequestParam(required=false)String dates
+			,@RequestParam(required=false)Integer userId,Integer page,Integer limit) {
+		
+		
+		return  userLoginLogService.getUserLoginLog(date,dates,userId,page,limit);
+		
+	}
+	
+	
+	
+}

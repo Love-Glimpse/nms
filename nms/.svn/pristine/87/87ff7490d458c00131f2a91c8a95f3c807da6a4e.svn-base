@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.partner.config.mapper.PartnerwxCfgMapper">
+	<select id="getPmConfig" resultType="PartnerPmConfig">
+		select * from partner_pm_config where partner_id = #{partner_id} limit 1
+	</select>
+	<update id="save" parameterType="PartnerPmConfig">
+		update partner_pm_config set source_id=#{source_id},we_chat=#{we_chat},we_app_id=#{we_app_id}
+			,qr_code_url=CONCAT('https://open.weixin.qq.com/qr/code?username=',#{source_id})
+			,we_app_secret=#{we_app_secret},we_chat_pm=#{we_chat_pm},logo_name=#{logo_name},
+			logo_url=#{logo_url},subscribe_mode=#{subscribe_mode}
+<!-- 			<if test="subscribe_mode==1">
+				,subscribe_url=#{subscribe_url}
+			</if> -->
+		   where partner_id = #{partner_id}
+	</update>
+	<select id="getMenu" resultType="WxMenu">
+		select * from wx_menu where menu_id=#{menu_id}
+	</select>
+</mapper>

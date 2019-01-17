@@ -1,0 +1,216 @@
+package com.kuaidu.nms.entity;
+
+/**
+ * @Title StatUserOrder.java
+ * @description 订单统计
+ * @time 2018年9月11日 下午1:47:28
+ * @author victor
+ * @version 1.0
+ **/
+public class StatUserOrder {
+	private int id;
+	private String order_time;
+	private Integer partner_id;
+	private String partner_name;
+	private String partner_symbol;
+	private int push_id;
+	private int user_id;
+	private int login_name;//用户登录名称
+	private int channel_id;
+	private String channel_name;//充值渠道名称
+	private int product_id;
+	private int product_type;//产品描述
+	private String product_desc;//产品描述
+	private float product_price;
+	
+	private int nm_user_count;
+	private int nm_nocharged_quantity;
+	private int nm_charged_quantity;
+	private float nm_total_price;
+	
+	private int vip_user_count;
+	private int vip_nocharged_quantity;
+	private int vip_charged_quantity;
+	private float vip_total_price;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getOrder_time() {
+		return order_time;
+	}
+	public void setOrder_time(String order_time) {
+		this.order_time = order_time;
+	}
+	public Integer getPartner_id() {
+		return partner_id;
+	}
+	public void setPartner_id(Integer partner_id) {
+		this.partner_id = partner_id;
+	}
+	public String getPartner_symbol() {
+		return partner_symbol;
+	}
+	public void setPartner_symbol(String partner_symbol) {
+		this.partner_symbol = partner_symbol;
+	}
+	public int getPush_id() {
+		return push_id;
+	}
+	public void setPush_id(int push_id) {
+		this.push_id = push_id;
+	}
+	public int getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(int user_id) {
+		this.user_id = user_id;
+	}
+	public int getLogin_name() {
+		return login_name;
+	}
+	public void setLogin_name(int login_name) {
+		this.login_name = login_name;
+	}
+	public int getChannel_id() {
+		return channel_id;
+	}
+	public void setChannel_id(int channel_id) {
+		this.channel_id = channel_id;
+	}
+	public String getChannel_name() {
+		return channel_name;
+	}
+	public void setChannel_name(String channel_name) {
+		this.channel_name = channel_name;
+	}
+	public int getProduct_id() {
+		return product_id;
+	}
+	public void setProduct_id(int product_id) {
+		this.product_id = product_id;
+	}
+	public String getProduct_desc() {
+		return product_desc;
+	}
+	public void setProduct_desc(String product_desc) {
+		this.product_desc = product_desc;
+	}
+	public float getProduct_price() {
+		return product_price;
+	}
+	public void setProduct_price(float product_price) {
+		this.product_price = product_price;
+	}
+	public int getVip_nocharged_quantity() {
+		return vip_nocharged_quantity;
+	}
+	public void setVip_nocharged_quantity(int vip_nocharged_quantity) {
+		this.vip_nocharged_quantity = vip_nocharged_quantity;
+	}
+	public int getVip_charged_quantity() {
+		return vip_charged_quantity;
+	}
+	public void setVip_charged_quantity(int vip_charged_quantity) {
+		this.vip_charged_quantity = vip_charged_quantity;
+	}
+	public float getVip_total_price() {
+		return vip_total_price;
+	}
+	public void setVip_total_price(float vip_total_price) {
+		this.vip_total_price = vip_total_price;
+	}
+	public int getProduct_type() {
+		return product_type;
+	}
+	public void setProduct_type(int product_type) {
+		this.product_type = product_type;
+	}
+	public int getNm_nocharged_quantity() {
+		return nm_nocharged_quantity;
+	}
+	public void setNm_nocharged_quantity(int nm_nocharged_quantity) {
+		this.nm_nocharged_quantity = nm_nocharged_quantity;
+	}
+	public int getNm_charged_quantity() {
+		return nm_charged_quantity;
+	}
+	public void setNm_charged_quantity(int nm_charged_quantity) {
+		this.nm_charged_quantity = nm_charged_quantity;
+	}
+	public float getNm_total_price() {
+		return nm_total_price;
+	}
+	public void setNm_total_price(float nm_total_price) {
+		this.nm_total_price = nm_total_price;
+	}
+
+	public int getNm_user_count() {
+		return nm_user_count;
+	}
+	public void setNm_user_count(int nm_user_count) {
+		this.nm_user_count = nm_user_count;
+	}
+	public int getVip_user_count() {
+		return vip_user_count;
+	}
+	public void setVip_user_count(int vip_user_count) {
+		this.vip_user_count = vip_user_count;
+	}
+
+	public String getPartner_name() {
+		return partner_name;
+	}
+	public void setPartner_name(String partner_name) {
+		this.partner_name = partner_name;
+	}
+	public StatUserOrder() {
+		super();
+	}
+	
+	public StatUserOrder(int id, String order_time, Integer partner_id, String partner_name, String partner_symbol,
+			int push_id, int user_id, int login_name, int channel_id, String channel_name, int product_id,
+			int product_type, String product_desc, float product_price, int nm_user_count, int nm_nocharged_quantity,
+			int nm_charged_quantity, float nm_total_price, int vip_user_count, int vip_nocharged_quantity,
+			int vip_charged_quantity, float vip_total_price) {
+		super();
+		this.id = id;
+		this.order_time = order_time;
+		this.partner_id = partner_id;
+		this.partner_name = partner_name;
+		this.partner_symbol = partner_symbol;
+		this.push_id = push_id;
+		this.user_id = user_id;
+		this.login_name = login_name;
+		this.channel_id = channel_id;
+		this.channel_name = channel_name;
+		this.product_id = product_id;
+		this.product_type = product_type;
+		this.product_desc = product_desc;
+		this.product_price = product_price;
+		this.nm_user_count = nm_user_count;
+		this.nm_nocharged_quantity = nm_nocharged_quantity;
+		this.nm_charged_quantity = nm_charged_quantity;
+		this.nm_total_price = nm_total_price;
+		this.vip_user_count = vip_user_count;
+		this.vip_nocharged_quantity = vip_nocharged_quantity;
+		this.vip_charged_quantity = vip_charged_quantity;
+		this.vip_total_price = vip_total_price;
+	}
+	@Override
+	public String toString() {
+		return "StatUserOrder [id=" + id + ", order_time=" + order_time + ", partner_id=" + partner_id
+				+ ", partner_name=" + partner_name + ", partner_symbol=" + partner_symbol + ", push_id=" + push_id
+				+ ", user_id=" + user_id + ", login_name=" + login_name + ", channel_id=" + channel_id
+				+ ", channel_name=" + channel_name + ", product_id=" + product_id + ", product_type=" + product_type
+				+ ", product_desc=" + product_desc + ", product_price=" + product_price + ", nm_user_count="
+				+ nm_user_count + ", nm_nocharged_quantity=" + nm_nocharged_quantity + ", nm_charged_quantity="
+				+ nm_charged_quantity + ", nm_total_price=" + nm_total_price + ", vip_user_count=" + vip_user_count
+				+ ", vip_nocharged_quantity=" + vip_nocharged_quantity + ", vip_charged_quantity="
+				+ vip_charged_quantity + ", vip_total_price=" + vip_total_price + "]";
+	}
+
+
+}

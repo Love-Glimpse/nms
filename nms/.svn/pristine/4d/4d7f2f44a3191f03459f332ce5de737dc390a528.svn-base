@@ -1,0 +1,151 @@
+package com.kuaidu.nms.entity;
+
+public class PartnerCustomMsg {
+	private Integer p_msg_id;
+	private Integer partner_id;
+	private String task_name;
+	private Integer type;
+	private String msg_type;
+	private String url;
+	private String pic_url;
+	private String title;
+	private String description;
+	private Integer vip_type;
+	private Integer sex;
+	private String send_time;
+	private Integer send_status;
+	private Integer send_success;
+	private Integer send_failed;
+	private String create_time;
+	public Integer getP_msg_id() {
+		return p_msg_id;
+	}
+	public void setP_msg_id(Integer p_msg_id) {
+		this.p_msg_id = p_msg_id;
+	}
+	public Integer getPartner_id() {
+		return partner_id;
+	}
+	public void setPartner_id(Integer partner_id) {
+		this.partner_id = partner_id;
+	}
+	public String getTask_name() {
+		return task_name;
+	}
+	public void setTask_name(String task_name) {
+		this.task_name = task_name;
+	}
+	public String getMsg_type() {
+		return msg_type;
+	}
+	public void setMsg_type(String msg_type) {
+		this.msg_type = msg_type;
+	}
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public String getPic_url() {
+		return pic_url;
+	}
+	public void setPic_url(String pic_url) {
+		this.pic_url = pic_url;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public Integer getVip_type() {
+		return vip_type;
+	}
+	public void setVip_type(Integer vip_type) {
+		this.vip_type = vip_type;
+	}
+	public Integer getSex() {
+		return sex;
+	}
+	public void setSex(Integer sex) {
+		this.sex = sex;
+	}
+	public String getSend_time() {
+		return send_time;
+	}
+	public void setSend_time(String send_time) {
+		this.send_time = send_time;
+	}
+	public Integer getSend_status() {
+		return send_status;
+	}
+	public void setSend_status(Integer send_status) {
+		this.send_status = send_status;
+	}
+	public Integer getSend_success() {
+		return send_success;
+	}
+	public void setSend_success(Integer send_success) {
+		this.send_success = send_success;
+	}
+	public Integer getSend_failed() {
+		return send_failed;
+	}
+	public void setSend_failed(Integer send_failed) {
+		this.send_failed = send_failed;
+	}
+	public String getCreate_time() {
+		return create_time;
+	}
+	public void setCreate_time(String create_time) {
+		this.create_time = create_time;
+	}
+	
+	public Integer getType() {
+		return type;
+	}
+	public void setType(Integer type) {
+		this.type = type;
+	}
+	public PartnerCustomMsg(Integer p_msg_id, Integer partner_id, String task_name, String msg_type, String url,
+			String pic_url, String title, String description, Integer vip_type, Integer sex, String send_time,
+			Integer send_status, Integer send_success, Integer send_failed, String create_time) {
+		super();
+		this.p_msg_id = p_msg_id;
+		this.partner_id = partner_id;
+		this.task_name = task_name;
+		this.msg_type = msg_type;
+		this.url = url;
+		this.pic_url = pic_url;
+		this.title = title;
+		this.description = description;
+		this.vip_type = vip_type;
+		this.sex = sex;
+		this.send_time = send_time;
+		this.send_status = send_status;
+		this.send_success = send_success;
+		this.send_failed = send_failed;
+		this.create_time = create_time;
+	}
+	public PartnerCustomMsg() {
+		super();
+	}
+	@Override
+	public String toString() {
+		return "Partner_custom_msg [p_msg_id=" + p_msg_id + ", partner_id=" + partner_id + ", task_name=" + task_name
+				+ ", msg_type=" + msg_type + ", url=" + url + ", pic_url=" + pic_url + ", title=" + title
+				+ ", description=" + description + ", vip_type=" + vip_type + ", sex=" + sex + ", send_time="
+				+ send_time + ", send_status=" + send_status + ", send_success=" + send_success + ", send_failed="
+				+ send_failed + ", create_time=" + create_time + "]";
+	}
+
+	
+	
+}

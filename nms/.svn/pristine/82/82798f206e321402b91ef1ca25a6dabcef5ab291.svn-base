@@ -1,0 +1,13 @@
+package com.kuaidu.nms.pay.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.user_order;
+
+public interface UserOrderMapper {
+
+	user_order getUserOrderByOrderId(Integer orderId);
+
+	List<user_order> getUserOrderByMail(String mail);
+
+}

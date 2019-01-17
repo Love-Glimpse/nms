@@ -1,0 +1,15 @@
+ $(function(){
+    /*tabs 事件*/
+    $(".nav-tabs li").on("click",function () {
+        $('.nav-tabs li').removeClass('active');
+        $(this).addClass('active');
+        var tab_id = $(this).attr("data-rel");
+        if(tab_id==1){
+        	/*未体现*/
+        }else if(tab_id==2){
+        	/*待打款*/
+        }else if(tab_id==3){
+        	/*已打款*/
+        }
+    });
+});

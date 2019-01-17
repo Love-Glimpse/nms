@@ -1,0 +1,33 @@
+package com.kuaidu.nms.bizandpush.serviceImpl;
+
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.kuaidu.nms.bizandpush.mapper.PushUrlMapper;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.query.mapper.ChapterMapper;
+
+@Service
+public class PushUrlServiceImpl {
+	
+	
+	
+	@Autowired
+	PushUrlMapper pushUrlMapper;
+	@Autowired
+	ChapterMapper chapterMapper;
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	
+	public PageInfo<PartnerPushUrl> getPushUrlInfo(Integer pn, Integer ps, String name) {
+		PageHelper.startPage(pn, ps);
+		List<PartnerPushUrl> list  = pushUrlMapper.getPushUrlInfo(name);
+		
+		PageInfo<PartnerPushUrl> pageInfo = new PageInfo<PartnerPushUrl>(list, 5);
+		return pageInfo;
+	}
+}

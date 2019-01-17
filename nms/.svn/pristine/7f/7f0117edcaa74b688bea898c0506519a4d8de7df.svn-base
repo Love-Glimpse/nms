@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.user.mapper.UserLoginLogMapper">
+
+	<resultMap type="UserLoginLog" id="userLoginLog">
+		<id column="user_id" property="userId"/>
+	    <result column="mail" property="mail"/>
+	    <result column="ip" property="ip"/>
+	    <result column="modle" property="modle"/>
+	    <result column="browser" property="browser"/>
+	    <result column="os_name" property="osName"/>
+	    <result column="address" property="address"/>
+	    <result column="login_time" property="loginTime"/>
+	    <result column="online_time" property="onlineTime"/>
+	    <result column="read_time" property="readTime"/>
+	    <result column="create_time" property="createTime" javaType="java.util.Date"/>
+	</resultMap>
+
+	<select id="getAllRecords" resultType="userLoginLog">
+		select * from user_login_log 
+		<where>
+			<if test="userLoginLog.user_id != null">
+				and user_id = #{userLoginLog.user_id}
+			</if>
+			<if test="start_time != null">
+				and to_days(create_time) &gt;= to_days(#{start_time})
+			</if>
+			<if test="end_time != null">
+				and to_days(create_time) &lt;= to_days(#{end_time})
+			</if>
+		</where>
+		order by id desc 
+		limit #{userLoginLog.start_rows},#{userLoginLog.end_rows}
+	</select>
+	
+	<select id="getCount" resultType="int">
+		select count(0) from user_login_log 
+		<where>
+			<if test="userLoginLog.user_id != null">
+				and user_id = #{userLoginLog.user_id}
+			</if>
+			<if test="start_time != null">
+				and to_days(create_time) &gt;= to_days(#{start_time})
+			</if>
+			<if test="end_time != null">
+				and to_days(create_time) &lt;= to_days(#{end_time})
+			</if>
+		</where>
+	</select>
+	
+	<select id="userRegion" resultType = "map">
+		SELECT region , count(0) value  FROM (
+				SELECT user_id, region ,max(count) FROM (
+
+					SELECT  user_id,region, count(0)  count FROM user_login_log 
+					WHERE TO_DAYS(create_time) &lt; TO_DAYS(CURDATE()) and region is not null and region != 'XX' and region != '' 
+					GROUP BY user_id,region) a
+			
+				GROUP BY user_id) b
+		GROUP BY region  ORDER BY value desc
+	</select>
+  
+</mapper>

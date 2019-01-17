@@ -1,0 +1,316 @@
+package com.kuaidu.nms.message.serviceImpl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.PartnerCustomMsg;
+import com.kuaidu.nms.entity.PartnerCustomMsgConfig;
+import com.kuaidu.nms.entity.PartnerPmConfig;
+import com.kuaidu.nms.entity.UserInfo;
+import com.kuaidu.nms.entity.WxCustomMsg;
+import com.kuaidu.nms.message.mapper.CustomMsgMapper;
+import com.kuaidu.nms.partner.config.mapper.PartnerwxCfgMapper;
+import com.kuaidu.nms.user.serviceImpl.UserManagementMapperImpl;
+import com.kuaidu.nms.utils.Log4jUtil;
+import com.kuaidu.nms.utils.MyWxUtils;
+import com.kuaidu.nms.utils.Utils;
+
+import net.sf.json.JSONObject;
+
+@Service
+public class CustomMsgImpl {
+	@Autowired
+	CustomMsgMapper cMapper;
+	@Autowired
+	UserManagementMapperImpl userImpl;
+	@Autowired
+	PartnerwxCfgMapper pMapper;
+	
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	public void createCustomMsg() {
+		// TODO Auto-generated method stub
+		cMapper.createCustomMsg();
+	}
+
+	public void updateMsgStatus(WxCustomMsg customMsg) {
+		// TODO Auto-generated method stub
+		cMapper.updateMsgStatus(customMsg);
+	}
+
+	public List<WxCustomMsg> loadCustomMsg() {
+		// TODO Auto-generated method stub
+		return cMapper.loadCustomMsg();
+	}
+
+	public void updateCustomMsg(List<WxCustomMsg> wxCustomMsgs) {
+		// TODO Auto-generated method stub
+		cMapper.updateCustomMsg(wxCustomMsgs);
+	}
+	/**
+	 * size 分片大小
+	 * */
+	public void batchInsert(List<WxCustomMsg> list,int size) {
+		// TODO Auto-generated method stub
+		if (list==null||list.isEmpty()) {
+			return;
+		}
+		int count = (int) Math.ceil((double)list.size()/size);
+		int from,to;
+		for (int i = 0; i < count; i++) {
+			from = size*i;
+			to=(from+size)>list.size()?list.size():(from+size);
+			cMapper.batchInsertCustomMsg(list.subList(from, to));
+		}
+	}
+	/**每日自动推送*/
+	public void createDailyCustomMsg() {
+		// TODO Auto-generated method stub
+		List<WxCustomMsg> wxCustomMsgs = new ArrayList<WxCustomMsg>();
+		List<PartnerCustomMsgConfig> pConfigs = cMapper.getAutoSendPartner();
+		for (PartnerCustomMsgConfig partnerCustomMsgConfig : pConfigs) {
+			int partnerId = partnerCustomMsgConfig.getPartner_id();
+			//验证接口
+			int status = MyWxUtils.testCustomApi(partnerId);
+			if (status==0) {//验证成功
+				Log4jUtil.getBusinessLogger().info("客服消息接口验证成功，partnerId==="+partnerId);
+				pMapper.updatePartnerWxStatus(partnerId,1);//修改公众号配置
+			}else if (status == 48004) {//接口被屏蔽，取消客服消息发送
+				Log4jUtil.getBusinessLogger().info("客服消息接口被屏蔽，partnerId==="+partnerId);
+				pMapper.updatePartnerWxStatus(partnerId,0);//修改公众号配置
+				continue;
+			}else {//其他错误
+				Log4jUtil.getBusinessLogger().info("客服消息接口验证失败，partnerId==="+partnerId);
+				continue;
+			}
+			
+			Set<String> keys = redisTemplate.keys( "ActivityUser-ParentId:"+partnerId+"userId:*");
+			for (String key : keys) {
+				String userInfo = (String) redisTemplate.opsForValue().get(key);
+				if (userInfo==null) {
+					continue;
+				}
+				JSONObject json = JSONObject.fromObject(userInfo);
+				if (json==null) {
+					continue;
+				}
+				int userId = json.optInt("userId",0);
+				if (userId>0) {
+					Log4jUtil.getBusinessLogger().info(System.currentTimeMillis()+"=="+partnerId+"=="+userId);
+					String ret = "";
+					 Integer sendBookId = 0;
+					//根据读者找出合适的书籍推送
+					Map<String, Object> map = cMapper.getReadBookIdByUserID(userId);
+					if (map!=null&&map.size()>0) {//有阅读记录
+						//获取读的最多的bookId
+						Integer readBookId =  Integer.parseInt(map.get("book_id")+"");
+						String bookLabels = map.get("labels")+"";
+						String[] labelIds = bookLabels.split(",");
+
+				        Map<Integer, Integer> mapIds = new HashMap<Integer, Integer>();
+						for (String labelId : labelIds) {
+							//根据bookId和标签查找相关书籍
+							List<Integer> bookIdList = cMapper.getSimilarBookIds(labelId,readBookId,userId);
+				        	for (Integer bookId : bookIdList) {
+				        		if (mapIds.containsKey(bookId)) {
+				        			Integer value = mapIds.get(bookId);
+				        			mapIds.put(bookId, value+1);
+								}else {
+									mapIds.put(bookId, 1);
+								}
+							}
+						}
+				        //这里将map.entrySet()转换成list
+				        List<Map.Entry<Integer,Integer>> list = new ArrayList<Map.Entry<Integer,Integer>>(mapIds.entrySet());
+				        if (list.size()>0) { //没有相关的书籍
+					        //然后通过比较器来实现排序
+					        Collections.sort(list,new Comparator<Map.Entry<Integer,Integer>>() {
+					            //降序排序
+					            public int compare(Entry<Integer, Integer> o1,
+					                    Entry<Integer, Integer> o2) {
+					                return o2.getValue().compareTo(o1.getValue());
+					            }
+					        });
+							Random random = new Random();
+							int n = random.nextInt(list.size()>10?10:list.size());
+							Entry<Integer, Integer> sendBookIdenEntry = list.get(n);
+					        sendBookId = sendBookIdenEntry.getKey();
+					        if (sendBookId>0) {
+								ret = cMapper.getCustomMsgInfoByBookId(partnerId,sendBookId);
+							}else {
+								ret = cMapper.getCustomMsgInfoByUserId(userId);
+							}
+						}else {
+							ret = cMapper.getCustomMsgInfoByUserId(userId);
+						}
+
+					}else {//无阅读记录
+						ret = cMapper.getCustomMsgInfoByUserId(userId);
+					}
+					if (ret!=null&&!ret.equalsIgnoreCase("")) {
+						JSONObject jsonRet = JSONObject.fromObject(ret);
+						sendBookId = Integer.parseInt(jsonRet.optString("bookId"));
+						WxCustomMsg wxCustomMsg = new WxCustomMsg();
+						wxCustomMsg.setPartner_id(partnerId);
+						wxCustomMsg.setUser_id(userId);
+						wxCustomMsg.setBook_id(sendBookId);
+						wxCustomMsg.setTo_user(json.getString("openid"));
+						wxCustomMsg.setType("auto");//自动定时推送
+						wxCustomMsg.setMsg_type("news");
+						wxCustomMsg.setP_msg_id(0);
+						wxCustomMsg.setDescription("点击阅读");
+
+						wxCustomMsg.setTitle(jsonRet.optString("title"));
+						wxCustomMsg.setUrl(jsonRet.optString("url"));
+						wxCustomMsg.setPic_url(jsonRet.optString("picUrl"));
+						
+						wxCustomMsg.setSend_time(Utils.getNowDate());
+						wxCustomMsgs.add(wxCustomMsg);
+					}
+				}
+			}
+			System.out.println(wxCustomMsgs.size());
+			//save 客服消息
+			batchInsert(wxCustomMsgs,5000);
+			wxCustomMsgs.clear();
+		}
+
+	}
+
+	public void createGroupCustomMsg() {
+		// TODO Auto-generated method stub
+		List<PartnerCustomMsg> partnerCustomMsgs = cMapper.loadPartnerCustomMsg();
+		int size = partnerCustomMsgs.size();
+		if (size > 0) {
+			for (int i = 0; i < size; i++) {
+				Integer partner_id = partnerCustomMsgs.get(i).getPartner_id();
+				//验证接口
+				int ret = MyWxUtils.testCustomApi(partner_id);
+				if (ret==40003) {//验证成功
+					Log4jUtil.getBusinessLogger().info("客服消息接口验证成功，partnerId==="+partner_id);
+					pMapper.updatePartnerWxStatus(partner_id,1);//修改公众号配置
+					cMapper.updatePartnerCustomMsgStatusByMsgId(partnerCustomMsgs.get(i).getP_msg_id(), 1);
+				}else if (ret == 48004 || ret == 101) {//接口被屏蔽，取消客服消息发送  accessToken失败
+					Log4jUtil.getBusinessLogger().info("客服消息接口被屏蔽，partnerId==="+partner_id);
+					pMapper.updatePartnerWxStatus(partner_id,0);//修改公众号配置
+					cMapper.updatePartnerCustomMsgStatusByMsgId(partnerCustomMsgs.get(i).getP_msg_id(), -1);//将消息状态修改为失败
+					continue;
+				}else {//其他错误
+					Log4jUtil.getBusinessLogger().info("客服消息接口验证失败，partnerId==="+partner_id);
+					//partnerCustomMsgs.remove(i);//忽略，下次再处理
+					continue;
+				}
+				
+				List<WxCustomMsg> wxCustomMsgs = new ArrayList<WxCustomMsg>();
+				Set<String> keys = redisTemplate.keys("ActivityUser-ParentId:" + partner_id + "userId:*");
+				for (String key : keys) {
+
+					try {
+						String user = (String) redisTemplate.opsForValue().get(key);
+						if (user == null) {
+							continue;
+						}
+						JSONObject json = JSONObject.fromObject(user);
+						int user_id = json.getInt("userId");
+						UserInfo userInfo = userImpl.getUserInfoByUserId(user_id);
+						if (userInfo==null) {
+							continue;
+						}
+						Log4jUtil.getBusinessLogger().info(user_id+"==="+partnerCustomMsgs.get(i).getSex()+"=="+userInfo.getSex());
+						if (partnerCustomMsgs.get(i).getSex() != 3) {
+							if (partnerCustomMsgs.get(i).getSex()==1) {//发男包含未知性别
+								if (userInfo.getSex()==2) {
+									continue;
+								}
+							}
+							if (partnerCustomMsgs.get(i).getSex()==2) {//发女
+								if (userInfo.getSex()==1||userInfo.getSex()==0) {
+									continue;
+								}
+							}
+						}
+						Log4jUtil.getBusinessLogger().info(user_id+"==="+partnerCustomMsgs.get(i).getVip_type()+"=="+userInfo.getVip_type());
+						if (partnerCustomMsgs.get(i).getVip_type() == 0) {// 未充值
+							if (userInfo.getVip_type() > 0) {
+								continue;
+							}
+						} else if (partnerCustomMsgs.get(i).getVip_type() == 1) {// 已充值
+							if (userInfo.getVip_type() == 0) {
+								continue;
+							}
+						}
+						//测试用户
+/*					if (userInfo.getUser_id()!=13671842&&userInfo.getUser_id()!=13676332) {
+							continue;
+						}*/
+						WxCustomMsg wxCustomMsg = new WxCustomMsg();
+						String title = partnerCustomMsgs.get(i).getTitle();
+						if (title!=null&&!title.equalsIgnoreCase("")) {
+							title = title.replaceAll("\\{wename\\}", userInfo.getNick_name());
+						}
+						
+						wxCustomMsg.setPartner_id(partner_id);
+						wxCustomMsg.setUser_id(json.getInt("userId"));
+						wxCustomMsg.setBook_id(0);
+						wxCustomMsg.setTo_user(json.getString("openid"));
+						wxCustomMsg.setType("group");// 渠道群发
+						wxCustomMsg.setMsg_type(partnerCustomMsgs.get(i).getMsg_type());
+						wxCustomMsg.setP_msg_id(partnerCustomMsgs.get(i).getP_msg_id());
+						wxCustomMsg.setTitle(title);
+						wxCustomMsg.setDescription(partnerCustomMsgs.get(i).getDescription());
+						wxCustomMsg.setUrl(partnerCustomMsgs.get(i).getUrl());
+						wxCustomMsg.setPic_url(partnerCustomMsgs.get(i).getPic_url());
+						wxCustomMsg.setSend_time(partnerCustomMsgs.get(i).getSend_time());
+						wxCustomMsgs.add(wxCustomMsg);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						continue;
+					}
+				}
+				int wxMsgSize = wxCustomMsgs.size();
+				Log4jUtil.getBusinessLogger().info("partner_id=="+partner_id+",group wxCustomMsgs size == "+wxMsgSize);
+				if (wxMsgSize>0) {
+					wxCustomMsgs.get(wxCustomMsgs.size()-1).setIs_last(1);
+					// save 客服消息
+					batchInsert(wxCustomMsgs, 5000);
+				}else {
+					cMapper.updatePartnerCustomMsgStatusByMsgId(partnerCustomMsgs.get(i).getP_msg_id(), 2);
+				}
+			}
+			//cMapper.updatePartnerCustomMsgsStatus(partnerCustomMsgs);
+		}
+	}
+
+	public void updatePartnerCustomMsgStatusByMsgId(int p_msg_id, int sendStatus) {
+		// TODO Auto-generated method stub
+		cMapper.updatePartnerCustomMsgStatusByMsgId(p_msg_id,sendStatus);
+	}
+
+	public synchronized void updateSendMsgCount(WxCustomMsg customMsg) {
+		// TODO Auto-generated method stub
+		cMapper.updateSendMsgCount(customMsg);
+	}
+
+	public void validatePartnerApi() {
+		// TODO Auto-generated method stub
+		List<PartnerPmConfig> pmConfigs = pMapper.getAllPmConfigs();
+		for (PartnerPmConfig partnerPmConfig : pmConfigs) {
+			int ret = MyWxUtils.testCustomApi(partnerPmConfig.getPartner_id());
+			if (ret == 48004) {
+				pMapper.updatePartnerWxStatus(partnerPmConfig.getPartner_id(), 0);
+			}
+		}
+	}
+	
+}

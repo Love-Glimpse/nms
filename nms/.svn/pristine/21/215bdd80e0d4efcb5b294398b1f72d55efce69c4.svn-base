@@ -1,0 +1,20 @@
+package com.kuaidu.nms.partner.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.PartnerPushUrl;
+
+public interface PartnerPushUrlMapper {
+
+
+	void savePartnerPushUrl(PartnerPushUrl partnerPushUrl);
+
+	List<PartnerPushUrl> getPushUrlInfo(@Param("partnerId")int partner_id, @Param("name")String name);
+
+	int deletePartnerPushUrl(Integer pushId);
+
+	int updatePartnerPushUrl(@Param("pushId")Integer pushId,@Param("name") String name);
+
+}

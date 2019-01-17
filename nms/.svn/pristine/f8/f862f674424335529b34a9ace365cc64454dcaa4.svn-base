@@ -1,0 +1,115 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kuaidu.nms.entity.Author;
+import com.kuaidu.nms.entity.Book_list;
+import com.kuaidu.nms.entity.Novel_type;
+import com.kuaidu.nms.query.mapper.BooksQueryMapper;
+/*
+ * 接口实现类
+ * */
+@Service
+@Transactional 
+public class BooksQueryMapperImpl {
+	@Resource
+	private BooksQueryMapper bMapper;
+
+	public BooksQueryMapper getbMapper() {
+		return bMapper;
+	}
+
+	public void setbMapper(BooksQueryMapper bMapper) {
+		this.bMapper = bMapper;
+	}
+	//查询书籍
+	public List<Book_list> getAllbooks(Book_list bList) {
+		return bMapper.getAllbooks(bList);
+	}
+	public List<Novel_type> getAllnovel_type() {
+		return bMapper.getAllnovel_type();
+	}
+	//获取书籍记录总行数
+	public int getCount(Book_list bList) {
+		return bMapper.getCount(bList);
+	}
+	//获取同书名同作家记录总行数
+	public int getSameCount(Book_list bList) {
+		return bMapper.getSameCount(bList);
+	}
+	//添加书籍
+	public void add_bList(Book_list bList){
+		 bMapper.add_bList(bList);
+	}
+	 //删除书籍
+	public void del_bList(List<Object> list){
+		 bMapper.del_bList(list);
+	}
+	 //修改书籍
+	public void edit_bList(Book_list bList){
+		 bMapper.edit_bList(bList);
+	}
+
+	 //查询作者表
+	public List<Author> getAllAuthors(Author author){
+		return bMapper.getAllAuthors(author);
+	}
+
+	public void add_author(Author author) {
+	bMapper.add_author(author);
+		
+	}
+	//添加章节后数据章节数加一
+/*	public void updateBookList(ChapterList chapterList){
+		bMapper.updateBookList(chapterList);
+	}*/
+
+	public void checkOk(Book_list book_list) {
+		// TODO Auto-generated method stub
+		bMapper.checkOk(book_list);
+	}
+
+	public void updateRemark(Book_list book_list) {
+		// TODO Auto-generated method stub
+		bMapper.updateRemark(book_list);
+	}
+
+	public List<Book_list> getNoPic() {
+		return bMapper.getNoPic();
+	}
+
+	public List<Book_list> getPicByIds(String[] split) {
+		return bMapper.getPicByIds(split);
+	}
+
+	public void updateBookPic(String name, String picPath) {
+		bMapper.updateBookPic( name,  picPath);
+	}
+
+	public List<Book_list> getbookPic(Integer changed) {
+		return bMapper.getbookPic(changed);
+	}
+
+	public String getBookPicUrl(Integer id) {
+		return bMapper.getBookPicUrl(id);
+	}
+
+	public void updateBooksmallPic(String id, String substringBefore) {
+		 bMapper.updateBooksmallPic(id,substringBefore);
+	}
+
+	public String getBookSmallPic(String name) {
+		return bMapper.getBookSmallPic(name);
+	}
+
+	public String getbookPicById(String name) {
+		return bMapper.getbookPicById(name);
+	}
+	
+	
+}

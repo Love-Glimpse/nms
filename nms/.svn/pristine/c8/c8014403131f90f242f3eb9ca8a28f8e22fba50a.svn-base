@@ -1,0 +1,178 @@
+package com.kuaidu.nms.pushchannel.serviceImpl;
+
+import java.util.List;
+import javax.annotation.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerLogo;
+import com.kuaidu.nms.pushchannel.mapper.PartnerInfoMapper;
+
+
+@Service
+@Transactional 
+public class PartnerInfoMapperImpl {
+	@Resource
+	private PartnerInfoMapper mapper;
+
+	public PartnerInfoMapper getMapper() {
+		return mapper;
+	}
+
+	public void setMapper(PartnerInfoMapper mapper) {
+		this.mapper = mapper;
+	}
+
+	public List<PartnerInfo> getAllPartnerInfo(PartnerInfo partnerInfo) {
+		// TODO Auto-generated method stub
+		try {
+			return mapper.getAllPartnerInfo(partnerInfo);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public int updatePartnerInfo(PartnerInfo partnerInfo) {
+		// TODO Auto-generated method stub
+		int ret = 0;
+		try {
+			if (mapper.checkPartnerSymbol(partnerInfo)>0) {
+				ret = 11;
+			}
+			if (mapper.checkPartnerName(partnerInfo)>0) {
+				ret = 12;
+			}
+			if (mapper.checkLoginName(partnerInfo)>0) {
+				ret = 13;
+			}
+			mapper.updatePartnerInfo(partnerInfo);
+			ret = 10;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	public int addPartnerInfo(PartnerInfo partnerInfo) {
+		// TODO Auto-generated method stub
+		int ret = 0;
+		//查询partner_symbol, partner_symbol,login_name 是否存在
+		try {
+			if (mapper.checkPartnerSymbol(partnerInfo)>0) {
+				ret = 11;
+			}
+			if (mapper.checkPartnerName(partnerInfo)>0) {
+				ret = 12;
+			}
+			if (mapper.checkLoginName(partnerInfo)>0) {
+				ret = 13;
+			}
+			mapper.addPartnerInfo(partnerInfo);
+			ret = 10;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	public String getMaxPartnerId() {
+		// TODO Auto-generated method stub
+		try {
+			String maxPartnerId = mapper.getMaxPartnerId();
+			int length = maxPartnerId.length();
+			if (length<4) {
+				for (int i = 4; i > length; i--) {
+					maxPartnerId = "0"+maxPartnerId;
+				}
+			}
+			return maxPartnerId;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "0";
+		}
+	}
+
+	public int getLevelWithPartnerId(int partner_id) {
+		// TODO Auto-generated method stub
+		try {
+			return mapper.getLevelWithPartnerId(partner_id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	public int delPartnerInfo(int partner_id) {
+		// TODO Auto-generated method stub
+		try {
+			mapper.delPartnerInfo(partner_id);
+			return 1;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	public List<PartnerInfo> getSubPartnerInfo(PartnerInfo partnerInfo) {
+		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		try {
+			return mapper.getSubPartnerInfo(partnerInfo);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public PartnerLogo getPartnerLogoConfig(int partner_id) {
+		// TODO Auto-generated method stub
+		try {
+			return mapper.getPartnerLogoConfig(partner_id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public int savePartnerLogoConfig(PartnerLogo partnerLogo) {
+		// TODO Auto-generated method stub
+		try {
+			if (mapper.checkExist(partnerLogo)==0) {
+				mapper.savePartnerLogoConfig(partnerLogo);
+			}else {
+				mapper.updatePartnerLogoConfig(partnerLogo);
+			}
+			return 0;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 1;
+		}
+	}
+	public int checkPaUser(int id, String s_pwd) {
+		// TODO Auto-generated method stub
+		return mapper.checkPaUser(id,s_pwd);
+	}
+
+	public int changePaPwd(int id, String n_pwd, String s_pwd) {
+		// TODO Auto-generated method stub
+		int ret = 0;
+		try {
+			mapper.changePaPwd(id,n_pwd,s_pwd);
+			ret = 20;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return ret;
+	}
+}

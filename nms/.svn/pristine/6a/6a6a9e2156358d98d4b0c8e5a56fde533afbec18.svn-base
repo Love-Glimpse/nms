@@ -1,0 +1,27 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.H5PushConfig;
+import com.kuaidu.nms.entity.Ranking;
+import com.kuaidu.nms.query.mapper.H5PushConfigMapper;
+
+@Service
+public class H5PushConfigServiceImpl {
+	@Autowired
+	H5PushConfigMapper h5PushConfigMapper;
+
+	public List<H5PushConfig> getH5PushConfigServicebySex(Integer sex, Integer moduleId) {
+		 List<H5PushConfig> list = h5PushConfigMapper.getH5PushConfigServicebySex(sex,moduleId);
+		 return list;
+	}
+
+	public List<Ranking> getRankIngs() {
+		return  h5PushConfigMapper.getRankIngs();
+	}
+
+	
+}

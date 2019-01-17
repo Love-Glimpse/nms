@@ -1,0 +1,62 @@
+//界面加载完毕执行以下程序
+$(function(){
+    /*修改模态框*/
+    $(".col-xs-12 .nav-tabs li").on("click",function () {
+        //显示模态框
+        $(".col-xs-12 .nav-tabs li").removeClass("active");
+         $(this).addClass("active");
+         var active = $(this).attr("data-name");
+         if(active == "wx-setting") {
+             $("#wx-access").hide();
+             $("#wx-setting").show();
+         }else {
+             $("#wx-setting").hide();
+             $("#wx-access").show();
+         }
+    });
+
+    /* 复制IP白名单 */
+    $("#copy-ip-list").on("click",function () {
+        var clipboard = new ClipboardJS('#copy-ip-list');
+        clipboard.on('success', function(e) {
+            // 复制成功 执行
+            toastr.success("复制成功");
+            window.getSelection().empty();
+        });
+        clipboard.on('error', function(e) {
+            // 复制失败 执行
+            toastr.error("复制失败!");
+        });
+    });
+    /* 保存 */
+    $(".btn-info").on("click",function () {
+        var clipboard = new ClipboardJS('.btn-info');
+        clipboard.on('success', function(e) {
+            // 复制成功 执行
+            toastr.success("复制成功");
+            window.getSelection().empty();
+        });
+        clipboard.on('error', function(e) {
+            // 复制失败 执行
+            toastr.error("复制失败!");
+        });
+    });
+
+    // 提示框设置显示配置
+    var messageOpts = {
+        "closeButton" : true,// 是否显示关闭按钮
+        "debug" : false,// 是否使用debug模式
+        "positionClass" : "toast-bottom-right",// 弹出窗的位置
+        "onclick" : null,
+        "showDuration" : "300",// 显示的动画时间
+        "hideDuration" : "1000",// 消失的动画时间
+        "timeOut" : "2000",// 展现时间
+        "extendedTimeOut" : "1000",// 加长展示时间
+        "preventDuplicates": true,//是否阻止弹出多个消息框
+        "showEasing" : "swing",// 显示时的动画缓冲方式
+        "hideEasing" : "linear",// 消失时的动画缓冲方式
+        "showMethod" : "fadeIn",// 显示时的动画方式
+        "hideMethod" : "fadeOut" // 消失时的动画方式
+    };
+    toastr.options = messageOpts;
+});

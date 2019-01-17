@@ -1,0 +1,95 @@
+   /*
+   * 初始化表格
+   */
+    initGrid();
+    function initGrid()
+    {
+        $('#grid').datagrid({
+        	 columns:[[
+        	        //js代码创建的datagrid本身已经添加了checkbox列，就是第一列。checkbox列将会自适应宽度。
+                    {field:'ck',checkbox:true,align:'center'},
+        	   		{field:'user_id',title:'用户ID',width:30,align:'center'},
+			{
+				field : 'login_name',
+				title : '用户名/昵称',
+				width : 100,
+				align : 'center',
+				formatter : function(value, row, index) {
+					if(row.nick_name.length>0){
+						return row.nick_name+'('+row.user_id+')';
+					}else{
+						return row.user_id;
+					}
+				}
+			},
+			{field:'book_id',title:'小说ID',width:100,align:'center'},
+        	   		{field:'book_name',title:'书名',width:100,align:'center'},
+        	   		{field:'chapter_id',title:'章节ID',width:100,align:'center'},
+        	   		{field:'chapter_name',title:'章节名',width:100,align:'center'},
+        	   		{field:'create_time',title:'创建时间',width:100,align:'center'},
+        	       ]],
+        	//同action提交.提交的类型是jason
+            url:'readingRecords/getAll',
+            method:'post',
+            collapsible: true,
+            //rownumber列的配置是在全局设置的
+            //如果设置为true则会在开头第一列来添加一列来显示行号。
+            rownumbers:false,
+            //如果为true，则只允许选择一行。
+            singleSelect:false,
+            toolbar:'#tb',
+            fitColumns:true,
+            pageNumber:1,
+    		pageSize : 50,
+    		pageList : [ 50,100, 200 ],
+            //pagination:是否启动分页，true，这样一来我们的datagrid底部就会出现一个分页工具栏
+            //datagrid在请求数据的时候会自动的添加分页的信息：
+            //page：当前请求的页码
+            //rows：每页要显示的行数
+            pagination:true,
+            onLoadSuccess: function(data) {//加载成功   
+            	//要判断或者执行的代码
+            	//sysy
+            }
+
+        });
+    }   
+    /**
+     * 查询
+     * load:加载新的数据
+     */
+    //加载新的数据 含（book_name = 用户输出的值    的书名)
+  $("#search").click(function(e) {
+  	$('#grid').datagrid('load',{
+  		user_id: $('#user_id').val(),
+  		book_name: $('#book_name').val()
+  	});
+  });
+  
+  /**
+   * 刷新功能
+   */
+  $("#reload").click(function(e) {
+ 	 $('#grid').datagrid('reload');
+    });
+  
+  
+ 	/*
+ 	 *系统提示函数：alert_autoclose
+ 	 */
+ 	function alert_autoClose(msg,icon){  
+ 		 var interval;  
+ 		 var time=1000;  
+ 		 var x=2;    //设置时间2s
+ 		$.messager.alert("系统提示",msg,icon,function(){
+ 			
+ 		});  
+ 		 interval=setInterval(fun,time);  
+ 		        function fun(){  
+ 		      --x;  
+ 		      if(x==0){  
+ 		          clearInterval(interval);  
+ 		  $(".messager-body").window('close');    
+ 		       }  
+ 		}; 
+ 		}

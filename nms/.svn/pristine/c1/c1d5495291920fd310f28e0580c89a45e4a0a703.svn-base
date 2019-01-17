@@ -1,0 +1,21 @@
+package com.kuaidu.nms.partner.config.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.PartnerPmConfig;
+import com.kuaidu.nms.entity.WxMenu;
+public interface PartnerwxCfgMapper {
+
+	PartnerPmConfig getPmConfig(@Param("partner_id")int partner_id);
+
+	void save(PartnerPmConfig pmConfig);
+
+	List<WxMenu> getMenu(@Param("menu_id")int menuId);
+
+	void updatePartnerWxStatus(@Param("partner_id")Integer partner_id,@Param("api_status")int api_status);
+
+	List<PartnerPmConfig> getAllPmConfigs();
+	
+}

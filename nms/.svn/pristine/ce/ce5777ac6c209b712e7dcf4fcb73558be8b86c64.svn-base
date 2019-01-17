@@ -1,0 +1,284 @@
+package com.kuaidu.nms.quartz;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.quartz.DisallowConcurrentExecution;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.kuaidu.nms.config.Config;
+import com.kuaidu.nms.entity.Book_list;
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.entity.ReplaceConfig;
+import com.kuaidu.nms.query.serviceImpl.ChpterServerImpl;
+import com.kuaidu.nms.spider.controller.serviceImpl.WebSpiderImpl;
+import com.kuaidu.nms.spider.down.DownChapterSpider;
+import com.kuaidu.nms.spider.down.INovelSpider;
+import com.kuaidu.nms.utils.Log4jUtil;
+import com.kuaidu.nms.utils.Utils;
+import com.kuaidu.nms.utils.spider.SpiderStart;
+
+import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.Spider.Status;
+
+
+@Component
+@DisallowConcurrentExecution
+public class GetBookUpdateJob {
+	
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	
+
+	public static WebSpiderImpl wImpl;
+	
+	public WebSpiderImpl getwImpl() {
+		return wImpl;
+	}
+	@Autowired
+	public void setwImpl(WebSpiderImpl wImpl) {
+		GetBookUpdateJob.wImpl = wImpl;
+	}
+	
+	public static ChpterServerImpl cImpl;
+	
+	public ChpterServerImpl getcImpl() {
+		return cImpl;
+	}
+	@Autowired
+	public void setcImpl(ChpterServerImpl cImpl) {
+		GetBookUpdateJob.cImpl = cImpl;
+	}
+	
+	
+	private static List<Map<String, Object>> book_lists;
+	
+	private static String ip = Utils.getLocalHostIp();
+	/**8:30执行
+	 * 从小说分销网站获取书籍信息
+	 * */
+	@Scheduled(cron="00 03 12 * * ?")
+	public void INovelJob() {	
+		if (ip.matches("192\\.168\\.1\\.111")) {
+			INovelSpider iSpider = new INovelSpider();
+			String url = "https://inovel.818tu.com/backend/novels/index?order_by=rank+desc&stype=1&ct="+System.currentTimeMillis();
+			iSpider.BeginSpider(url);
+		}
+	}
+	/**
+	 * 自动下载章节内容
+	 * */
+/*	@Scheduled(cron="0/5 * * * * ?")*/
+	public void GetChapterJob() {
+		Log4jUtil.getBusinessLogger().info("begin==="+System.currentTimeMillis());
+		try {
+			Log4jUtil.getBusinessLogger().info(ip);
+			if (ip.equalsIgnoreCase("192.168.1.106")||ip.equalsIgnoreCase("192.168.1.156")||ip.equalsIgnoreCase("192.168.1.121")) {
+				return;
+			}
+			if (ip.matches("192\\.168\\.1\\.((\\d{1,2})|(1\\d{1,2})|(2[0-4]\\d)|(25[0-5]))")) {
+				//更新任务配置
+				wImpl.updateTaskConfig(ip);
+				Set<Object> book_ids = redisTemplate.opsForSet().members("GetChapterJob");
+				//取出书信息
+				book_lists = wImpl.getBooksInfo(book_ids);
+				Log4jUtil.getBusinessLogger().info(book_lists.toString());
+				if (book_lists == null || book_lists.size()==0) {
+					return;
+				}
+				Long add = redisTemplate.opsForSet().add("GetChapterJob", book_lists.get(0).get("book_id"));
+
+				if (add == 1) {
+					List<ReplaceConfig> replaces = wImpl.getReplaces(Integer.parseInt(book_lists.get(0).get("book_id")+""));
+					String[] bookUrls = getBookUrls(book_lists);
+					//记录任务
+					wImpl.saveTaskConfig(ip,book_lists);
+					Spider spider = DownChapterSpider.getSpider(bookUrls[0],replaces);
+					Status status = spider.getStatus();
+					Log4jUtil.getBusinessLogger().info("spider status === "+status);
+					if (bookUrls.length>0) {
+						if (null != spider && status.equals(Spider.Status.Running)
+								&& SpiderStart.getSpiderThreadAlived(spider, 10) > 0) {
+							Log4jUtil.getBusinessLogger().info("task not complete!");
+							return;
+						} else if (status.equals(Spider.Status.Stopped)) {
+						} else if (status.equals(Spider.Status.Init)) {//初始化
+							spider.setExitWhenComplete(true).thread(5).setEmptySleepTime(500);
+						}
+						Map<String, Object> extras = Utils.URLRequest2(bookUrls[0]);
+						Request request = Utils.createRequest(extras, bookUrls[0], book_lists.get(0).get("method")+"");
+						spider.addRequest(request);
+						// 启动爬虫
+						spider.run();
+						Log4jUtil.getBusinessLogger().info("spider  end==="+System.currentTimeMillis());
+					}
+					for (Map<String, Object> map : book_lists) {
+						Book_list book_list = new Book_list();
+						book_list.setBook_id((Integer)map.get("book_id"));
+						book_list.setStatus(0);
+						wImpl.updateBookStatus(book_list);
+						wImpl.updateTaskConfig(ip);
+					}
+					Log4jUtil.getBusinessLogger().info("end update==="+System.currentTimeMillis());
+					//redisTemplate.opsForSet().remove("GetChapterJob", book_lists.get(0).getBook_id());
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log4jUtil.getBusinessLogger().info("end==="+System.currentTimeMillis());
+	}
+	/**
+	 * 每8小时清空redis book_ids
+	 * */
+	@Scheduled(cron="0 0 */8 * * ?")
+	public void UpdateBookStatus() {
+		if (ip.matches("192\\.168\\.1\\.188")) {
+			try {
+				redisTemplate.delete("GetChapterJob");
+				wImpl.updateBookStatusAll();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**自动下载前五章*/
+	@Scheduled(cron="0 0/10 * * * ?")
+	public void INovel818Job() {	
+		if (ip.matches("192\\.168\\.1\\.188")) {
+			try {
+				wImpl.updateTaskConfig(ip);
+				List<Book_list> book_lists = wImpl.getBooksInfo818();
+				List<Map<String, Object>> list = new ArrayList<Map<String ,Object>>();
+				List<Integer> bookIds = new ArrayList<Integer>();
+				for (Book_list book_list : book_lists) {
+					Long add = redisTemplate.opsForSet().add("INovel818Job", book_list.getBook_id());
+					if (add == 1) {
+						Map<String, Object> map = new HashMap<String, Object>();
+						book_list.setStatus(1);
+						wImpl.updateBookStatus(book_list);
+						getChapterListFromUrl(book_list);
+						book_list.setStatus(0);
+						wImpl.updateBookStatus(book_list);
+						map.put("book_url", book_list.getBook_url());
+						map.put("book_id", book_list.getBook_id()+"");
+						list.add(map);
+						bookIds.add(book_list.getBook_id());
+					}
+				}
+				if (list.size() > 0) {
+					wImpl.saveTaskConfig(ip,list);
+					wImpl.updateTaskConfig(ip);
+				}
+				for (Integer integer : bookIds) {
+					redisTemplate.opsForSet().remove("INovel818Job", integer);
+				}
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+	private String[] getBookUrls(List<Map<String, Object>> book_lists2) {
+		// TODO Auto-generated method stub
+		List<String> urls = new ArrayList<String>();
+		try {
+			for (Map<String, Object> map : book_lists2) {
+				Book_list book_list = new Book_list();
+				book_list.setBook_id((Integer)map.get("book_id"));
+				book_list.setStatus(1);
+				wImpl.updateBookStatus(book_list);
+				int dc = wImpl.getDownChapterCount((Integer)map.get("book_id"));
+				urls.add(map.get("book_url")+"?type_id="+map.get("type_id")+"&dc="+dc
+					+"&book_id="+map.get("book_id")+"&t=1&words_min="+map.get("words_min"));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return urls.toArray(new String[urls.size()]);
+	}
+	
+	
+	public static void updateBookStatusWhenDestroyed() {
+		if (book_lists==null) {
+			return;
+		}
+		for (Map<String, Object> map : book_lists) {
+			Book_list book_list = new Book_list();
+			book_list.setBook_id((Integer)map.get("book_id"));
+			book_list.setStatus(0);
+			try {
+				if (wImpl!=null) {
+					wImpl.updateBookStatus(book_list);
+					wImpl.updateTaskConfig(ip);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void getChapterListFromUrl(Book_list book_list) {
+		System.out.println("818bookName==="+book_list.getBook_name());
+		Set<String> set = new HashSet<String>();
+		String[] pas = book_list.getBook_url().split("/");
+		if (pas.length>=2) {
+			String url = "https://c49683.818tu.com/v1/novels/"+pas[pas.length-2]+"/catalog";
+			String ret = Utils.getHtmlcodeWithoutHeader(url, "utf-8");
+			if (ret==null||ret.length()==0) {
+				return;
+			}
+			JSONObject jsonObject = JSONObject.parseObject(ret);
+			JSONArray jArray = jsonObject.getJSONArray("data");
+			Integer size = jArray.size()>=5?5:jArray.size();
+			for (int i = 0; i <size; i++) {//最多5个
+				JSONObject json = JSONObject.parseObject(jArray.get(i).toString()); 
+				List<ChapterList> cLists = wImpl.getAllChapterList(book_list.getBook_id(),0);
+				Map<String, Integer> map = new HashMap<String, Integer>();
+				for (ChapterList cList : cLists) {//数据库已有的章节信息
+					map.put(cList.getChapter_name_old().replaceAll(Config.CHAPTER_FILTER_REGEX, ""), cList.getChapter_id());
+				}
+				String chapterName = json.getString("title");
+				System.out.println("818bookName==="+chapterName+" chapter_num=="+(i+1));
+				if (set.add(chapterName)&&!map.containsKey(chapterName.trim().replaceAll(Config.CHAPTER_FILTER_REGEX, ""))) {
+					ChapterList chapterList = new ChapterList();
+					chapterList.setType_id(book_list.getType_id());
+					chapterList.setBook_id(book_list.getBook_id());
+					chapterList.setChapter_name_old(chapterName);
+					chapterName = Utils.getReplaceChapterName(chapterName,"章");
+					chapterList.setChapter_name(chapterName);
+					chapterList.setChapter_num(i+1);
+					chapterList.setVip_flag(0);
+					String chapterUrl = "https://c49683.818tu.com/v1/read/"+json.getString("id");
+					chapterList.setChapter_url(chapterUrl);
+					JSONObject jsonData = JSONObject.parseObject(Utils.getHtmlcodeWithoutHeader(chapterUrl,"utf-8"));
+					if (jsonData==null||!jsonData.containsKey("data")) {
+						return;
+					}
+					JSONObject jsonContent = JSONObject.parseObject(jsonData.getString("data"));
+					String content = jsonContent.getString("content");
+					chapterList.setWords(content.length());
+					cImpl.addChapter(chapterList, content);
+				}
+			}
+		}
+	}
+}

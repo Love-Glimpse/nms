@@ -1,0 +1,43 @@
+.modal-dialog .col-sm-6 {
+    width: 63%;
+}
+
+.activities .active-info td{
+    vertical-align: middle;
+}
+.activities .active-info .text-center{
+    text-align: center;
+}
+
+.fixed-table-pagination .pull-right {
+    display: block!important;
+    padding-right: 50px;
+    margin-left: 30px;
+}
+.fixed-table-pagination{
+	float: right;
+}
+
+.bootstrap-table .table:not(.table-condensed)>tbody>tr>td{
+	 vertical-align: middle;
+}
+
+.ib{
+	display: inline-block;
+}
+
+.actions-bar{
+   padding-bottom: 8px;
+   float: right;
+   margin-right: 20px;
+}
+.colStyle1 {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.colStyle {
+      white-space:normal;
+        word-break:break-all;
+        word-wrap:break-word; 
+}

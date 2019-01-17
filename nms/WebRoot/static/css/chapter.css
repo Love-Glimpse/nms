@@ -1,0 +1,40 @@
+@CHARSET "UTF-8";
+.checkbox{
+        text-indent: 10px;
+        font-size: 16;
+    	height: 35px;
+        border: 1px solid #95B8E7;
+        border-radius: 5px 5px 5px 5px;
+        }
+        
+/* label 标签  美化 */
+#add_description{
+			margin: 0px 0px 10px;
+			height: 315px;
+			width: 355px;
+			margin-bottom:10px;
+			margin-right: 110px;
+		}
+.jianjie{
+	font-size: 16px; margin-bottom: 5px;margin-left: 60px;float: left;margin-top: 25%;
+}
+.text2{
+	width:173px;
+
+}
+	.datagrid tr:nth-child(odd){
+				height:40px !important;
+				background-color: #DCEFFE ;
+				
+		}
+	.datagrid tr:nth-child(even){
+				height:40px !important;
+				background-color: #D3EFFD; 
+		} 
+	.datagrid-row-selected {
+		  background: #B5DFF7 !important;
+		  color: #444 !important;
+		}
+    	.datagrid-header-row td{
+    		background-color:#F4F4F4 !important;color:#444 !important;text-align: center !important;
+    	}

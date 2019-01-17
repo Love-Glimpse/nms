@@ -1,0 +1,29 @@
+package com.kuaidu.nms.datastaticstics.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.ActiveUser;
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.entity.StatOrderPush;
+
+public interface StatUserStayMapper {
+
+	List<ActiveUser> getStatUserStays(ActiveUser activeUser);
+
+	List<ActiveUser> getActiveUserDetail(@Param("parent_id")Integer parentId,
+			@Param("push_id")Integer pushId,@Param("create_date")String create_date
+			,@Param("days")int days, @Param("start_row")int start_row,@Param("rows") int rows);
+
+	int getNewUserCount(ActiveUser activeUser);
+
+	List<ActiveUser> getUserStayDetailByUserId(@Param("user_id")int user_id);
+
+	int getActiveUserDetailCount(@Param("parent_id")Integer parentId,
+			@Param("push_id")Integer pushId,@Param("create_date")String create_date
+			,@Param("days")int days);
+
+
+}

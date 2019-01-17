@@ -1,0 +1,162 @@
+package com.kuaidu.nms.partner.config.serviceImpl;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerPmConfig;
+import com.kuaidu.nms.entity.WxMenu;
+import com.kuaidu.nms.partner.config.mapper.PartnerwxCfgMapper;
+import com.kuaidu.nms.utils.HttpUtil;
+import com.kuaidu.nms.utils.MyWxUtils;
+import com.kuaidu.nms.utils.Utils;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+/*
+ * 接口实现类
+ * */
+@Service
+public class PartnerwxCfgMapperImpl {
+	@Resource
+	PartnerwxCfgMapper pMapper;
+
+	@Resource
+	RedisTemplate<String, String> redisTemplate;
+
+	public PartnerPmConfig getPmConfig(int partner_id) {
+		// TODO Auto-generated method stub
+		return pMapper.getPmConfig(partner_id);
+	}
+
+	public int save(PartnerPmConfig pmConfig) {
+		// TODO Auto-generated method stub
+		if (!HttpUtil.getHttpContentType("https://open.weixin.qq.com/qr/code?username="+pmConfig.getSource_id(),2000,1000).startsWith("image")) {
+			return 4;//sourceID 错误
+		}
+		String we_token = MyWxUtils.validateWeApp(pmConfig);
+		if (we_token != null && we_token.length() > 0) {// 验证成功保存到数据库
+			try {
+				if (!pmConfig.getKf_qr_url().equalsIgnoreCase(pmConfig.getOldkf_qr_url())) {
+					JSONObject ret = MyWxUtils.addMaterialEverInter(pmConfig.getKf_qr_url(), "image", we_token);
+					if(ret.containsKey("media_id")) {
+						pmConfig.setKf_media_id(ret.optString("media_id"));
+						pmConfig.setKf_media_url(ret.optString("url"));
+					}
+				}
+				pMapper.save(pmConfig);
+				redisTemplate.opsForValue().set("AccessToken:" + pmConfig.getPartner_id(), we_token);
+				redisTemplate.expire("AccessToken:" + pmConfig.getPartner_id(), 7000, TimeUnit.SECONDS);
+				return 1;// 成功
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return 3; // 保存失败
+			}
+		} else {
+			return 2;// 验证失败
+		}
+	}
+
+	/**
+	 * flag=1 create flag=2 delete return 1 成功 2 app id ,app secret验证失败 3
+	 * 没有配置公众号 4 生成菜单失败 5 删除菜单失败 6 其他错误
+	 * 
+	 * @param partnerInfo
+	 */
+	public int doMenu(PartnerInfo partnerInfo, int flag,int menu_id) {
+		// TODO Auto-generated method stub
+		String we_token = "";
+		String key = "AccessToken:" + partnerInfo.getPartner_id();
+		if (redisTemplate.hasKey(key)) {
+			we_token = (String) redisTemplate.opsForValue().get(key);
+		} else {
+			// 查询partner的配置信息
+			PartnerPmConfig pmConfig = pMapper.getPmConfig(partnerInfo.getPartner_id());
+			if (pmConfig == null||pmConfig.getPartner_id()<=0) {
+				return 3;// 没有配置公众号
+			}
+			we_token = MyWxUtils.getAccessToken(pmConfig.getPartner_id());
+			if (we_token != null && we_token.length() > 0) {// 验证成功保存到数据库
+				redisTemplate.opsForValue().set("AccessToken:" + pmConfig.getPartner_id(), we_token);
+				redisTemplate.expire("AccessToken:" + pmConfig.getPartner_id(), 7000, TimeUnit.SECONDS);
+			} else {
+				return 2;// app id ,app secret验证失败
+			}
+		}
+		// 获取token后，生成/删除菜单
+		if (flag == 1) {// 创建菜单
+			String url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + we_token;
+			String menu = getJsonMenu(partnerInfo,menu_id);
+			System.out.println(menu);
+			String result = HttpUtil.postWithJson(url, menu, 10000, 10000);
+			System.out.println(result);
+			JSONObject ret = JSONObject.fromObject(result);
+			if (ret.optString("errcode").equalsIgnoreCase("0")) {
+				return 1;
+			} else {
+				return 4;// 生成菜单失败
+			}
+		} else if (flag == 2) {// 删除菜单
+			String url = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=" + we_token;
+			String result = Utils.getHtmlcodeWithoutHeader(url, "utf-8");
+			JSONObject ret = JSONObject.fromObject(result);
+			if (ret.optString("errcode").equalsIgnoreCase("0")) {
+				return 1;
+			} else {
+				return 5;//删除菜单失败
+			}
+		}else {
+			return 6;
+		}
+	}
+
+	private String getJsonMenu(PartnerInfo partnerInfo,int menu_id) {
+		// TODO Auto-generated method stub
+		List<WxMenu> wxMenus = pMapper.getMenu(menu_id);
+		JSONObject jsMenu = new JSONObject();
+		JSONArray jsButtons = new JSONArray();
+		for (WxMenu wxMenu : wxMenus) {
+			JSONArray jsSubButtons = new JSONArray();
+			if (wxMenu.getButton_level()==1) {//一级菜单
+				JSONObject button = new JSONObject();
+				button.put("type", wxMenu.getType());
+				button.put("name", wxMenu.getName());
+				if (wxMenu.getType().equals("view")) {
+					button.put("url", wxMenu.getUrl().replace("####", "c"+partnerInfo.getPartner_id()));
+				}else if (wxMenu.getType().equals("click")) {
+					button.put("key", wxMenu.getKey());
+				}
+				//遍历二级菜单
+				for (WxMenu wxMenu_sub : wxMenus) {
+					if (wxMenu_sub.getButton_level()==2
+							&&wxMenu_sub.getParent_button_id()==wxMenu.getButton_id()) {
+						JSONObject sub_button = new JSONObject();
+						sub_button.put("type", wxMenu_sub.getType());
+						sub_button.put("name", wxMenu_sub.getName());
+						if (wxMenu_sub.getType().equals("view")) {
+							sub_button.put("url", wxMenu_sub.getUrl().replace("####", "c"+partnerInfo.getPartner_id()));
+						}else if (wxMenu_sub.getType().equals("click")) {
+							sub_button.put("key", wxMenu_sub.getKey());
+						}
+						jsSubButtons.add(sub_button);
+					}
+				}
+				//遍历完成
+				if (jsSubButtons.size()>0) {
+					button.put("sub_button", jsSubButtons);
+				}
+				jsButtons.add(button);
+			}
+		}
+		jsMenu.put("button", jsButtons);
+		return jsMenu.toString();
+	}
+
+}

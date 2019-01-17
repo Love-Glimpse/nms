@@ -1,0 +1,197 @@
+package com.kuaidu.nms.entity;
+
+public class UserInfo {
+	private int user_id;
+	private String login_name;
+	private String user_password;
+	private String nick_name;
+	private String mail;
+	private String mobile;
+	private int group_id;
+	private int level_id;
+	private int user_status;
+	private int user_point;
+	private String created_time;
+	private String last_login_time;
+	private String promoters_name;
+	private Integer start_rows;
+	private Integer end_rows;
+	
+	
+	public int getUser_id() {
+		return user_id;
+	}
+
+
+	public void setUser_id(int user_id) {
+		this.user_id = user_id;
+	}
+
+
+	public String getLogin_name() {
+		return login_name;
+	}
+
+
+	public void setLogin_name(String login_name) {
+		this.login_name = login_name;
+	}
+
+
+	public String getUser_password() {
+		return user_password;
+	}
+
+
+	public void setUser_password(String user_password) {
+		this.user_password = user_password;
+	}
+
+
+	public String getNick_name() {
+		return nick_name;
+	}
+
+
+	public void setNick_name(String nick_name) {
+		this.nick_name = nick_name;
+	}
+
+
+	public String getMail() {
+		return mail;
+	}
+
+
+	public void setMail(String mail) {
+		this.mail = mail;
+	}
+
+
+	public String getMobile() {
+		return mobile;
+	}
+
+
+	public void setMobile(String mobile) {
+		this.mobile = mobile;
+	}
+
+
+	public int getGroup_id() {
+		return group_id;
+	}
+
+
+	public void setGroup_id(int group_id) {
+		this.group_id = group_id;
+	}
+
+
+	public int getLevel_id() {
+		return level_id;
+	}
+
+
+	public void setLevel_id(int level_id) {
+		this.level_id = level_id;
+	}
+
+
+	public int getUser_status() {
+		return user_status;
+	}
+
+
+	public void setUser_status(int user_status) {
+		this.user_status = user_status;
+	}
+
+
+	public int getUser_point() {
+		return user_point;
+	}
+
+
+	public void setUser_point(int user_point) {
+		this.user_point = user_point;
+	}
+
+
+	public String getCreated_time() {
+		return created_time;
+	}
+
+
+	public void setCreated_time(String created_time) {
+		this.created_time = created_time;
+	}
+
+
+	public String getLast_login_time() {
+		return last_login_time;
+	}
+
+
+	public void setLast_login_time(String last_login_time) {
+		this.last_login_time = last_login_time;
+	}
+
+
+	public String getPromoters_name() {
+		return promoters_name;
+	}
+
+
+	public void setPromoters_name(String promoters_name) {
+		this.promoters_name = promoters_name;
+	}
+
+
+	public Integer getStart_rows() {
+		return start_rows;
+	}
+
+
+	public void setStart_rows(Integer start_rows) {
+		this.start_rows = start_rows;
+	}
+
+
+	public Integer getEnd_rows() {
+		return end_rows;
+	}
+
+
+	public void setEnd_rows(Integer end_rows) {
+		this.end_rows = end_rows;
+	}
+
+
+	public UserInfo(int user_id, String login_name, String user_password, String nick_name, String mail, String mobile,
+			int group_id, int level_id, int user_status, int user_point, String created_time, String last_login_time,
+			String promoters_name, Integer start_rows, Integer end_rows) {
+		super();
+		this.user_id = user_id;
+		this.login_name = login_name;
+		this.user_password = user_password;
+		this.nick_name = nick_name;
+		this.mail = mail;
+		this.mobile = mobile;
+		this.group_id = group_id;
+		this.level_id = level_id;
+		this.user_status = user_status;
+		this.user_point = user_point;
+		this.created_time = created_time;
+		this.last_login_time = last_login_time;
+		this.promoters_name = promoters_name;
+		this.start_rows = start_rows;
+		this.end_rows = end_rows;
+	}
+
+
+	public UserInfo() {
+		super();
+	}
+	
+}

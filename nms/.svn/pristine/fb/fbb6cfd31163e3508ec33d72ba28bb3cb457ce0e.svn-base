@@ -1,0 +1,64 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.kuaidu.nms.entity.UserInfo;
+import com.kuaidu.nms.query.mapper.UserManagementMapper;
+import com.kuaidu.nms.utils.HttpUtil;
+/*
+ * 接口实现类
+ * */
+@Service
+@Transactional 
+public class UserManagementMapperImpl {
+	@Resource
+	private UserManagementMapper rMapper;
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+
+	public UserManagementMapper getrMapper() {
+		return rMapper;
+	}
+
+	public void setrMapper(UserManagementMapper rMapper) {
+		this.rMapper = rMapper;
+	}
+	//查询书籍
+	public List<UserInfo> getAllRecords(UserInfo rList) {
+		 List<UserInfo> allRecords = rMapper.getAllRecords(rList);
+		 
+		 
+		 try {
+			String string2 = HttpUtil.get("http://mzshu.com/onlineUserId", null, 10000, 10000, "utf-8");
+			 List<String> list = JSONObject.parseArray(string2,String.class);
+			 for (int i = 0; i < allRecords.size(); i++) {
+				for (String string : list) {
+					int userId = Integer.parseInt(StringUtils.substringAfter(string, ":"));
+					if (allRecords.get(i).getUser_id() == userId) {
+						allRecords.get(i).setOnline(1);
+					}
+				}
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		 return allRecords;
+	}
+	//获取书籍记录总行数
+	public int getCount(UserInfo rList) {
+		return rMapper.getCount(rList);
+	}
+
+}

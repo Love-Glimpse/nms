@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.partner.push.mapper.KeywordReplyMapper">
+ 	<select id="getKeywordReply" resultType="PartnerKeyword">
+ 		select * from partner_keyword where partner_id=#{partner_id} GROUP BY id DESC limit #{start_rows},#{rows}
+ 	</select>
+ 	<select id="getKeywordReplyCount" resultType="int">
+ 		select count(0) from partner_keyword where partner_id=#{partner_id}
+ 	</select>
+ 	
+ 	<!--查询所有书名         采用模糊搜索	-->
+    <select id="seachBook" resultType="Book_list">
+      select book_id,book_name from book_list where 1=1 and book_name like '%${book_name}%'
+    </select>
+ 	<!--查询对应书籍所有章节         采用模糊搜索	-->
+    <select id="seaChapter" resultType="ChapterList">
+      select chapter_id,chapter_num,chapter_name from chapter_list where 1=1 and book_id =${book_id} LIMIT 10
+    </select>
+ 	<!--查询所有活动图片 -->
+    <select id="searchImg" resultType="RecCover">
+      select compress_url,is_promotion from rec_cover where 1=1
+    </select>
+ 	<!--查询所有title -->
+    <select id="AllTitle" resultType="RecTitle">
+      select * from rec_title where 1=1 and status=1
+    </select>
+ 	<!--查询平台活动 -->
+    <select id="platActive" resultType="PromotionActive">
+      select * from promotion_active where 1=1 and partner_id=0 and end_time &gt;=now()
+    </select>
+ 	<!--查询渠道活动 -->
+    <select id="partActive" resultType="PromotionActive">
+      select * from promotion_active where 1=1 and partner_id=${partner_id} and end_time &gt;=now()
+    </select>
+ 	<!--查询内推链接 -->
+    <select id="internalPush" resultType="PartnerPushUrl">
+      select p.name,p.created_time,p.parent_id,p.push_id,p.book_id from partner_push_url p 
+      where 1=1 and partner_id=${partner_id} and push_type=1 and status=1 
+    </select>
+ 	<!--获取随机一条title -->
+    <select id="randTitle" resultType="RecTitle">
+      SELECT * FROM `rec_title` AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `rec_title`)-(SELECT MIN(id) FROM `rec_title`))+(SELECT MIN(id) FROM `rec_title`)) AS id) AS t2 WHERE t1.id >= t2.id ORDER BY t1.id LIMIT 1;
+    </select>
+    <!--获取随机一张封面图 -->
+    <select id="randPic" resultType="RecCover">
+      SELECT compress_url FROM `rec_cover` AS t1 JOIN (SELECT ROUND(RAND() * ((SELECT MAX(id) FROM `rec_cover`)-(SELECT MIN(id) FROM `rec_cover`))+(SELECT MIN(id) FROM `rec_cover`)) AS id) AS t2 WHERE t1.id >= t2.id ORDER BY t1.id LIMIT 1;
+    </select>
+ 	
+ 	
+	<!-- 删除记录 -->
+ 	<delete id="delKeywords" parameterType="java.util.List">
+  		 delete from partner_keyword where id in 
+		<foreach item="id" collection="list" open="(" separator="," close=")">
+	     #{id}
+	    </foreach>
+	</delete>
+ 	
+ 	<!-- 添加记录 -->
+ 	<insert id="addKeyword" parameterType="PartnerKeyword">
+		INSERT INTO partner_keyword(partner_id,key_word,status,reply_type,url,title,description,pic_url,msg_type)
+		VALUES(#{partner_id},#{key_word},#{status},#{reply_type},#{url},#{title},#{description},#{pic_url},#{msg_type})
+ 	</insert>
+</mapper>

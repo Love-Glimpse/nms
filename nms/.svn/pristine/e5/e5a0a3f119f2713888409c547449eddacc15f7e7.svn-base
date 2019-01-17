@@ -1,0 +1,19 @@
+package com.kuaidu.nms.datastaticstics.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.StatBookAnalysis;
+
+public interface StatBookAnalysisMapper {
+	
+	List<StatBookAnalysis> getBookAnalysis(StatBookAnalysis statBookAnalysis);
+
+	int getBookAnalysisCount(StatBookAnalysis statBookAnalysis);
+
+	List<Map<String, Object>> getBookAnalysisCompile(@Param("sba")StatBookAnalysis statBookAnalysis,@Param("days") int days);
+
+
+}

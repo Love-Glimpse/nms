@@ -1,0 +1,36 @@
+//界面加载完毕执行以下程序
+	$(function(){
+	
+	    /*修改模态框*/
+	    $(".modification span").on("click",function () {
+	        var book_name = $(this).attr("data-name"),
+	            url_id = $(this).attr("data-id");
+	       var url =  $("#link-"+url_id+"").text();
+	        $(".modification-title").text("修改："+book_name+"内容");
+	        $(".form-control-static span").text(url);
+	        //显示模态框
+	        $("#modification").modal('show');
+	    });
+	    /*频道*/
+	    $(".channel" ).on('click', function() {
+	        var value =  $(this).text();
+	        $("#pd").text(value);
+	    })
+	    /*模块*/
+	    $(".module" ).on('click', function() {
+	        var value =  $(this).text();
+	        $("#modal").text(value);
+	    })
+	});
+	
+	$("#sex li").click(function(){
+		var name = $(this).attr('data-name')
+		$("#novel-sex").text(name);
+		
+	})
+	
+	$("#module li").click(function(){
+		var name = $(this).attr('data-name')
+		$("#novel-module").text(name);
+	})
+

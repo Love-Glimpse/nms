@@ -1,0 +1,1345 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<base href="<%=basePath%>">
+<%@ include file="/WEB-INF/jsp/top.jsp"%>
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+<title>XXXX - 参考文案</title>
+<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="static/css/font-awesome.min.css">
+<link rel="stylesheet" href="static/css/referencedCopywriting1.css">
+<link rel="stylesheet" href="static/css/referencedCopywriting2.css">
+<link href="https://cdn.bootcss.com/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="rich_media">
+    <div class="rich_media_inner" style="padding-top:0">
+        <div class="rich_media_area_primary">
+            <h1 id="wx-article-title" class="rich_media_title"></h1>
+            <div class="rich_media_content">
+                <div id="wx-article-content">
+                    <div id="wx-article-cover">
+                        <img style="width:100%;display:block;margin-bottom:20px;" src="" />
+                    </div>
+                    <!--内容模块1-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body1">
+                    	<c:forEach var="chapter" items="${chapters }">
+                    		 <section class="chapter" style="margin-bottom:10px;">
+                            	<section style="text-align: center;">
+                                <span style="display: inline-block; width: 15px; border-bottom-width: 2px; border-bottom-style: solid; border-color: rgb(255, 129, 36) rgb(255, 129, 36) rgb(0, 176, 240); color: rgb(255, 129, 36); text-align: left; margin-right: 5px;"><span style="font-size: 24px; display: inline-block; vertical-align: bottom; margin-bottom: -12px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span style="display: inline-block; width: 15px; border-bottom-width: 2px; border-bottom-style: solid; border-color: rgb(255, 129, 36) rgb(255, 129, 36) rgb(0, 176, 240); color: rgb(255, 129, 36); text-align: left; margin-right: 5px;"><span style="font-size: 24px; display: inline-block; vertical-align: bottom; margin-bottom: -12px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdbc" style="display: inline-block; width: 15px; border-bottom-width: 2px; border-bottom-style: solid; border-color: rgb(255, 129, 36) rgb(255, 129, 36) rgb(0, 176, 240); color: rgb(255, 129, 36); text-align: left; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="font-size: 24px; display: inline-block; vertical-align: bottom; margin-bottom: -12px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdbc" style="display: inline-block; width: 15px; border-bottom-width: 2px; border-bottom-style: solid; border-color: rgb(255, 129, 36) rgb(255, 129, 36) rgb(0, 176, 240); color: rgb(255, 129, 36); text-align: left; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="font-size: 24px; display: inline-block; vertical-align: bottom; margin-bottom: -12px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdbc" style="display: inline-block; width: 15px; border-bottom-width: 2px; border-bottom-style: solid; border-color: rgb(255, 129, 36) rgb(255, 129, 36) rgb(0, 176, 240); color: rgb(255, 129, 36); text-align: left; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="font-size: 24px; display: inline-block; vertical-align: bottom; margin-bottom: -12px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdbc" style="display: inline-block; width: 15px; border-bottom-width: 2px; border-bottom-style: solid; border-color: rgb(255, 129, 36) rgb(255, 129, 36) rgb(0, 176, 240); color: rgb(255, 129, 36); text-align: left; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="font-size: 24px; display: inline-block; vertical-align: bottom; margin-bottom: -12px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdbc" style="display: inline-block; width: 15px; border-bottom-width: 2px; border-bottom-style: solid; border-color: rgb(255, 129, 36) rgb(255, 129, 36) rgb(0, 176, 240); color: rgb(255, 129, 36); text-align: left; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="font-size: 24px; display: inline-block; vertical-align: bottom; margin-bottom: -12px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdbc" style="display: inline-block; width: 15px; border-bottom-width: 2px; border-bottom-style: solid; border-color: rgb(255, 129, 36) rgb(255, 129, 36) rgb(0, 176, 240); color: rgb(255, 129, 36); text-align: left;" data-width="15px"><span class="96wx-color" style="font-size: 24px; display: inline-block; vertical-align: bottom; margin-bottom: -12px; color: rgb(0, 176, 240);">&middot;</span></span>
+                            	</section>
+                            <section style="text-align:center;font-size:18px;color:rgb(6,6,6);" class="chapter-title">
+                                ${chapter.chapter_name }
+                            </section>
+                            <section style="text-align:center;">
+                                <span style="display: inline-block; width: 15px; height: 22px; border-top-width: 2px; border-top-style: solid; border-color: rgb(0, 176, 240) rgb(255, 129, 36) rgb(255, 129, 36); color: rgb(255, 129, 36); text-align: right; margin-right: 5px;"><span style="display: inline-block; font-size: 25px; vertical-align: top; margin-top: -14px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span style="display: inline-block; width: 15px; height: 22px; border-top-width: 2px; border-top-style: solid; border-color: rgb(0, 176, 240) rgb(255, 129, 36) rgb(255, 129, 36); color: rgb(255, 129, 36); text-align: right; margin-right: 5px;"><span style="display: inline-block; font-size: 25px; vertical-align: top; margin-top: -14px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdtc" style="display: inline-block; width: 15px; height: 22px; border-top-width: 2px; border-top-style: solid; border-color: rgb(0, 176, 240) rgb(255, 129, 36) rgb(255, 129, 36); color: rgb(255, 129, 36); text-align: right; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="display: inline-block; font-size: 25px; vertical-align: top; margin-top: -14px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdtc" style="display: inline-block; width: 15px; height: 22px; border-top-width: 2px; border-top-style: solid; border-color: rgb(0, 176, 240) rgb(255, 129, 36) rgb(255, 129, 36); color: rgb(255, 129, 36); text-align: right; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="display: inline-block; font-size: 25px; vertical-align: top; margin-top: -14px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdtc" style="display: inline-block; width: 15px; height: 22px; border-top-width: 2px; border-top-style: solid; border-color: rgb(0, 176, 240) rgb(255, 129, 36) rgb(255, 129, 36); color: rgb(255, 129, 36); text-align: right; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="display: inline-block; font-size: 25px; vertical-align: top; margin-top: -14px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdtc" style="display: inline-block; width: 15px; height: 22px; border-top-width: 2px; border-top-style: solid; border-color: rgb(0, 176, 240) rgb(255, 129, 36) rgb(255, 129, 36); color: rgb(255, 129, 36); text-align: right; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="display: inline-block; font-size: 25px; vertical-align: top; margin-top: -14px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdtc" style="display: inline-block; width: 15px; height: 22px; border-top-width: 2px; border-top-style: solid; border-color: rgb(0, 176, 240) rgb(255, 129, 36) rgb(255, 129, 36); color: rgb(255, 129, 36); text-align: right; margin-right: 5px;" data-width="15px"><span class="96wx-color" style="display: inline-block; font-size: 25px; vertical-align: top; margin-top: -14px; color: rgb(0, 176, 240);">&middot;</span></span>
+                                <span class="96wx-bdtc" style="display: inline-block; width: 15px; height: 22px; border-top-width: 2px; border-top-style: solid; border-color: rgb(0, 176, 240) rgb(255, 129, 36) rgb(255, 129, 36); color: rgb(255, 129, 36); text-align: right;" data-width="15px"><span class="96wx-color" style="display: inline-block; font-size: 25px; vertical-align: top; margin-top: -14px; color: rgb(0, 176, 240);">&middot;</span></span>
+                            </section>
+                            <section style="margin-top: 10px; margin-bottom: 10px; padding: 0px 3px; position: static;">
+                                <section style="display: inline-block; width: 100%; vertical-align: top; margin-top: 1.15em;">
+                                    <section style="width: 100%;">
+                                        <section style="width: 6px; height: 6px; margin-top: -3px; border-radius: 100%; float: left; background-color: rgba(255, 255, 255, 0);"></section>
+                                        <section style="border-top-width: 1px; border-top-style: solid; border-top-color: rgba(211, 163, 180, 0.470588); width: 99.9%;"></section>
+                                    </section>
+                                    <section style="text-align: right; margin: -1.8em 0px 0px;">
+                                        <section style="display: inline-block; vertical-align: top; text-align: left; padding: 3px 10px; color: rgba(255, 175, 37, 0); background-color: rgb(254, 255, 255);"></section>
+                                    </section>
+                                </section>
+                            </section>
+                            <section style="color: rgba(135, 85, 97, 0.8);" class="chapter-content">
+                            	<c:forEach var="content" items="${chapter.content }">
+                                	<p style="line-height:1.7em;font-size:18px;">${content }</p>
+                               </c:forEach>
+                            </section>
+                            <section style="margin: -10px 0% 0px; padding: 0px 3px; position: static;">
+                                <section class="" style="display: inline-block; width: 100%; vertical-align: top; margin-bottom: -0.65em; margin-top: 0.95em;">
+                                    <section style="width: 100%;">
+                                        <section class="96wx-bdtc" style="border-top-width: 1px; border-top-style: solid; border-top-color: rgba(211, 163, 180, 0.458824); width: 99.9%; float: left;"></section>
+                                        <section style="width: 6px; height: 6px; margin-top: -3px; border-radius: 100%; float: right;"></section>
+                                    </section>
+                                    <section class="" style="display: inline-block; margin-top: -1em; vertical-align: top; padding: 3px 10px; color: transparent; background-color: rgb(254, 255, 255);"></section>
+                                </section>
+                            </section>
+                        </section>
+                    	</c:forEach>
+                    </div>
+                    <!--内容模块2-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body2">
+                    	<c:forEach var="chapter" items="${chapters }">
+	                        <section class="chapter">
+	                            <section>
+	                                <blockquote style="margin: 5px auto; padding-left: 0; padding-right:0; border: 0; font-size: 14px; white-space: normal;">
+	                                    <section style="clear: both; border-radius: 5px; border: 1px solid rgb(224, 224, 224);">
+	                                        <section style="padding-right: 15px; padding-left: 15px; color: rgb(92, 184, 92);">
+	                                            <p class="chapter-title" style="margin-top: -1px; margin-bottom: 0px; margin-left: -16px; padding: 3px 15px 4px; line-height: 40px; border-radius: 5px 0px; display: inline-block; color: rgb(255, 255, 255); background-color: rgb(92, 184, 92);"> 
+	                                            	<strong>${chapter.chapter_name }</strong>
+	                                            </p>
+	                                            <section class="chapter-content" style="margin: 20px auto;">
+	                                               	<c:forEach var="content" items="${chapter.content }">
+	                                					<p style="line-height:1.7em;font-size:18px"> ${content } </p>
+	                              					</c:forEach>
+	                                            </section>
+	                                        </section>
+	                                    </section>
+	                                </blockquote>
+	                            </section>
+	                        </section>
+                        </c:forEach>
+                    </div>
+                    <!--内容模块3-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body3">
+                     <c:forEach var="chapter" items="${chapters }">
+                        <section class="chapter">
+                            <p style="margin-top:0;margin-bottom:20px;">
+                            <span style="color: rgb(255, 41, 65);font-size:18px;" class="chapter-title"><strong><span>${chapter_chapter_name }</span></strong></span></p>
+                            <section class="chapter-content">
+                            	<c:forEach var="content" items="${chapter.content }">
+                                	<p style="line-height:1.7em;font-size:18px"> ${content } </p>
+                              	</c:forEach>
+                            </section>
+                        </section>
+                        </c:forEach>
+                    </div>
+                    <!--内容模块4-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body4">
+                   	 <c:forEach var="chapter" items="${chapters }">
+                        <section class="chapter" style="margin-bottom:10px">
+                            <section style="line-height: 25.6px; white-space: normal;">
+                                <section style=" margin-right: auto; margin-left: auto;">
+                                    <section style="margin-right: auto; margin-left: auto;">
+                                        <section style="padding-top: 10px; padding-bottom: 10px; border: 1px solid rgb(229, 230, 232); display: inline-block;">
+                                            <section style="margin-top: 10px; display: inline-block; border-left: 5px solid red;">
+                                                <section style="padding-left: 10px; display: inline-block; vertical-align: middle;">
+                                                    <p style="margin-top: 0px; margin-bottom: 0px; font-size: 16px; line-height: 20px; text-align: center;"> 
+                                                    <span class="chapter-title" style="color: rgb(51, 51, 51); font-weight: bold;font-size:18px;">
+                                                    	${chapter.chapter_name }
+                                                    </span> </p>
+                                                </section>
+                                            </section>
+                                            <section class="chapter-content" style="padding-top: 20px; padding-right: 10px; padding-left: 10px;">
+                                            	<c:forEach var="content" items="${chapter.content }">
+                                                	<p style="line-height:1.7em;font-size:18px;">${content }</p>
+                                               	</c:forEach>
+                                            </section>
+                                        </section>
+                                    </section>
+                                </section>
+                            </section>
+                        </section>
+                        </c:forEach>
+                    </div>
+                    <!--内容模块5-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body5">
+                        <section style="margin:15px 6px;box-shadow:0 0 0.8em #A5A5A5;overflow:hidden;box-sizing:border-box;padding:1em;">
+                        	<c:forEach var="chapter" items="${chapters }">
+	                            <section class="chapter">
+	                                <section style="display: inline-block; text-align: center; padding: 0.1em 0.1em 0em; color: rgb(29, 92, 105); background: rgb(160, 217, 229);transform: rotate(0deg);-webkit-transform: rotate(0deg);-moz-transform: rotate(0deg);-o-transform: rotate(0deg);">
+	                                    <section style="width: 90%; height: 1px; border-top-width: 0.3em; border-top-style: solid; border-color: rgb(80, 185, 207); margin-top: -0.2em; margin-left: -1px; transform: rotate(-3deg) !important;transform: rotate(-3deg);-webkit-transform: rotate(-3deg);-moz-transform: rotate(-3deg);-o-transform: rotate(-3deg);"></section>
+	                                    <section style="color:#fff;padding:0.5em 0.8em;">
+	                                        <p style="margin:0"> <span style="color: #FFFFFF;" class="chapter-title">${chapter.chapter_name }</span> </p>
+	                                    </section>
+	                                </section>
+	                                <section style="width: auto; height: auto; margin: -1em auto 0; overflow: hidden; border-top-width: 0.1em; border-top-style: dashed; border-top-color: rgb(160, 217, 229); padding: 1em 0.2em 0; line-height: 1.4em;">
+	                                    <section style="padding:10px 0;line-height:1.8em;" class="chapter-content">
+	                                    	<c:forEach var="content" items="${chapter.content }">
+	                                        	<p>${content }</p>
+	                                    	</c:forEach>
+	                                    </section>
+	                                </section>
+	                            </section>
+                           </c:forEach>
+                        
+                        
+                        
+                        </section>
+                    </div>
+                    <!--内容模块6-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body6">
+                   	 	<c:forEach var="chapter" items="${chapters }">
+                    	<section class="chapter">
+                        <section style="box-sizing: border-box;">
+                            <section style="text-align:center;box-sizing: border-box;">
+                                <section style="display: inline-block; box-sizing: border-box; background-color: rgb(254, 254, 254);"><section style="display: inline-block; height: 30px; width: 10px; vertical-align: top; border-right-width: 10px; border-right-style: solid; border-right-color: rgb(255, 129, 36); box-sizing: border-box; border-top-width: 15px !important; border-top-style: solid !important; border-top-color: transparent !important; border-bottom-width: 15px !important; border-bottom-style: solid !important; border-bottom-color: transparent !important;"></section><section style="display: inline-block; height: 30px; width: 10px; vertical-align: top; border-right-width: 10px; border-right-style: solid; border-right-color: rgb(254, 254, 254); margin-left: -8px; border-top-width: 15px !important; border-top-style: solid !important; border-top-color: transparent !important; border-bottom-width: 15px !important; border-bottom-style: solid !important; border-bottom-color: transparent !important; box-sizing: border-box;"></section><section style="display: inline-block; height: 30px; width: 10px; vertical-align: top; border-right-width: 10px; border-right-style: solid; border-right-color: rgb(255, 129, 36); box-sizing: border-box; border-top-width: 15px !important; border-top-style: solid !important; border-top-color: transparent !important; border-bottom-width: 15px !important; border-bottom-style: solid !important; border-bottom-color: transparent !important;"></section><section class="chapter-title" style="display: inline-block; vertical-align: top; height: 30px; line-height: 30px; padding-right: 0.5em; padding-left: 0.5em; color: rgb(255, 255, 255); box-sizing: border-box; background-color: rgb(255, 129, 36);text-align:left;">
+                                    ${chapter.chapter_name }
+                                </section>
+                                <section style="display: inline-block; height: 30px; width: 10px; vertical-align: top; border-left-width: 10px; border-left-style: solid; border-left-color: rgb(255, 129, 36); box-sizing: border-box; border-top-width: 15px !important; border-top-style: solid !important; border-top-color: transparent !important; border-bottom-width: 15px !important; border-bottom-style: solid !important; border-bottom-color: transparent !important;"></section><section style="display: inline-block; height: 30px; width: 10px; vertical-align: top; border-left-width: 10px; border-left-style: solid; border-left-color: rgb(255, 129, 36); margin-left: 2px; box-sizing: border-box; border-top-width: 15px !important; border-top-style: solid !important; border-top-color: transparent !important; border-bottom-width: 15px !important; border-bottom-style: solid !important; border-bottom-color: transparent !important;"></section><section style="display: inline-block; height: 30px; width: 10px; vertical-align: top; border-left-width: 10px; border-left-style: solid; border-left-color: rgb(254, 254, 254); margin-left: -12px; border-top-width: 15px !important; border-top-style: solid !important; border-top-color: transparent !important; border-bottom-width: 15px !important; border-bottom-style: solid !important; border-bottom-color: transparent !important; box-sizing: border-box;"></section></section>
+                            </section>
+                            <section class="chapter-content" style="border: 2px solid rgb(255, 129, 36); padding: 30px 15px 15px; margin-top: -16px; box-sizing: border-box;">
+                            	<c:forEach var="content" items="${chapter.content }">
+                               		<p style="font-size:18px;line-height:1.7em">${content }</p>
+                               	</c:forEach>
+                            </section>
+                            <section style="margin-top: -20px; box-sizing: border-box;"><section style="border-color: transparent transparent rgb(255, 129, 36); border-style: solid; border-width: 10px; float: none; height: 0px; margin-top: -10px; margin-right: auto; margin-left: auto; width: 0px; box-sizing: border-box;"></section><section style="border-color: transparent transparent rgb(254, 254, 254); border-style: solid; border-width: 10px; height: 0px; margin-top: -18px; margin-right: auto; margin-left: auto; width: 0px; color: inherit; box-sizing: border-box;"></section><section style="border-color: transparent transparent rgb(255, 129, 36); border-style: solid; border-width: 10px; float: none; height: 0px; margin-top: -15px; margin-right: auto; margin-left: auto; width: 0px; box-sizing: border-box;"><br></section></section>
+                        </section>
+                    </section>
+                    </c:forEach>
+                    </div>
+                    <!--模块模块7-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body7" class="content-module">
+                        <section style="border:none;width:96%;margin:1em auto 2em;">
+                            <section style="width:100%;height:auto;box-shadow:0em 0em 0.8em #A5A5A5;overflow:hidden;box-sizing:border-box;padding:1em;">
+                            	<c:forEach var="chapter" items="${chapters }">
+                                <section class="chapter">
+                                    <section style="display:inline-block;background:#EF303F;text-align:center;padding:0.1em 0.1em 0em;">
+                                        <section style="width:90%;height:1px;border-top:0.3em solid #EF303F;-webkit-transform: rotate(-2deg) !important;transform: rotate(-2deg);margin:0 auto;margin-top:-0.2em;"></section>
+                                        <section style="color:#fff;padding:0.5em 0.8em;">
+                                            <p style="margin:0" class="chapter-title"> ${chapter.chapter_name } </p>
+                                        </section>
+                                    </section>
+                                    <section class="chapter-content" style="width:auto;height:auto;margin:0 auto;overflow:hidden;border-top:0.1em dashed #EF303F;padding:2em 0.2em 1em;font-size:1em;line-height:1.7em;margin-top:-1em">
+                                    <c:forEach var="content" items="${chapter.content }">
+                                        <p>${content }</p>
+                                      </c:forEach>
+                                    </section>
+                                </section>
+                                </c:forEach>
+                            </section>
+                        </section>
+                    </div>
+                    <!--内容模块8-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body8">
+                    	<c:forEach var="chapter" items="${chapters }">
+                        <section class="chapter">
+                            <section style="max-width: 100%;margin: 0.8em 0px 0.5em; overflow: hidden; ">
+                                <section style="box-sizing: border-box !important;  height:36px;display: inline-block;color: #FFF; font-size: 16px;font-weight:bold; padding:0 0 0 18px;line-height: 36px;float: left; vertical-align: top; background-color: rgb(249, 110, 87); ">
+                                    <span style="color: rgb(254, 255, 253); font-size: 15.6px; text-align: center;" class="chapter-title"> ${chapter.chapter_name } </span>
+                                </section>
+                                <section style="box-sizing: border-box !important;  height:36px;display: inline-block;color: #FFF; font-size: 16px;font-weight:bold; padding:0 10px;line-height: 36px;float: left; vertical-align: top; background-color: rgb(249, 110, 87); "></section>
+                                <section style="box-sizing: border-box !important; display: inline-block;height:36px; vertical-align: top; border-left-width: 9px; border-left-style: solid; border-left-color: rgb(249, 110, 87); border-top-width: 18px !important; border-top-style: solid !important; border-top-color: transparent !important; border-bottom-width: 18px !important; border-bottom-style: solid !important; border-bottom-color: transparent !important;"></section>
+                            </section>
+                            <fieldset style="border: 0px; margin: 5px 0px; box-sizing: border-box; padding: 0px;">
+                                <section style="height: 1em; box-sizing: border-box;">
+                                    <section style="height: 100%; width: 1.5em; float: left; border-top-width: 0.4em; border-top-style: solid; border-color: rgb(249, 110, 87); border-left-width: 0.4em; border-left-style: solid; box-sizing: border-box;"></section>
+                                    <section style="height: 100%; width: 1.5em; float: right; border-top-width: 0.4em; border-top-style: solid; border-color: rgb(249, 110, 87); border-right-width: 0.4em; border-right-style: solid; box-sizing: border-box;"></section>
+                                    <section style="display: inline-block; color: transparent; clear: both; box-sizing: border-box;"></section>
+                                </section>
+                                <section style="margin: -0.8em 0.1em -0.8em 0.2em; padding: 0.8em; border: 1px solid rgb(249, 110, 87); border-radius: 0.3em; box-sizing: border-box;">
+                                    <section style="color: rgb(51, 51, 51);line-height: 1.7em; word-break: break-all; word-wrap: break-word;" class="chapter-content">
+                                        <span style="color: rgb(110, 101, 95); background-color: rgb(255, 255, 255);">
+                                      		<c:forEach var="content" items="${chapter.content }">
+                                       	 		<p>${content }</p>
+                                      		</c:forEach>
+                                         </span>
+                                    </section>
+                                </section>
+                                <section style="height: 1em; box-sizing: border-box;">
+                                    <section style="height: 100%; width: 1.5em; float: left; border-bottom-width: 0.4em; border-bottom-style: solid; border-color: rgb(249, 110, 87); border-left-width: 0.4em; border-left-style: solid; box-sizing: border-box;"></section>
+                                    <section style="height: 100%; width: 1.5em; float: right; border-bottom-width: 0.4em; border-bottom-style: solid; border-color: rgb(249, 110, 87); border-right-width: 0.4em; border-right-style: solid; box-sizing: border-box;"></section>
+                                </section>
+                            </fieldset>
+                        </section>
+                        </c:forEach>
+                        <span>&nbsp;</span>
+                    </div>
+                    <!--内容模块9-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body9">
+                    	<c:forEach var="chapter" items="${chapters }">
+                        <section class="chapter">
+                            <section style="width: 32px; height: 32px; border-radius: 50%; text-align: center; font-size: 18px; line-height: 32px; color: rgb(61, 167, 66); border: 1px solid rgb(61, 167, 66); transform: rotate(0deg); background: rgb(255, 255, 255);">
+                                1
+                            </section>
+                            <section class="fzn-bdc" style="margin-top: -32px; border: 1px solid rgb(61, 167, 66); margin-left: 16px;">
+                                <section class="fzn-bgc" style="height: 32px; line-height: 32px; font-weight: bold; padding-left: 24px; text-align: left; color: rgb(255, 255, 255); font-size: 18px; background: rgb(61, 167, 66);">
+                                    <span style="color: #FFFFFF;" class="chapter-title" data-brushtype="text">${chapter.chapter_name }</span>
+                                </section>
+                                <section class="chapter-content" data-style="line-height: 2;font-size:14px;" style="padding: 12px;">
+                                	<c:forEach var="content" items="${chapter.content }">
+                                    	<p>${content }</p>
+                                    </c:forEach>
+                                </section>
+                            </section>
+                            <span>&nbsp;</span>
+                        </section>
+                        </c:forEach>
+                    </div>
+                    <!--内容模块10-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body10">
+                   		 <c:forEach var="chapter" items="${chapters }">
+                        <section class="chapter">
+                            <section style=" margin-top: 10px; margin-bottom: 10px; font-size: 24px;  box-sizing: border-box; ;transform: translate3d(0px, 0px, 0px);-webkit-transform: translate3d(0px, 0px, 0px);-moz-transform: translate3d(0px, 0px, 0px);-o-transform: translate3d(0px, 0px, 0px);">
+                                <section style="display: inline-block; vertical-align: middle; box-sizing: border-box;">
+                                    <section style="width: 1.5em; height: 3em; line-height: 3em; border-top-right-radius: 2em; border-bottom-right-radius: 2em; background-color: rgb(253, 190, 173); text-align: center; color: rgb(255, 255, 255); font-size: 18px; box-sizing: border-box;">
+                                        <section style="box-sizing: border-box;" class="autonum" title="">
+                                            1
+                                        </section>
+                                    </section>
+                                    <img style="box-sizing: border-box; float: left; margin-top: -3em; text-align: start; vertical-align: middle; width: 1.5em !important; height: auto !important; visibility: visible !important;" src="https://qcdn-legacy.zhangzhongyun.com/wx_articles/templates/body/body7-title-bg.png" />
+                                </section>
+                                <section style="display: inline-block; vertical-align: middle; padding-left: 10px; font-size: 18px; color: rgb(44, 39, 39); box-sizing: border-box;">
+                                    <section style="box-sizing: border-box;">
+                                        <span style="color: #595959;"><strong style="box-sizing: border-box;"><span style="box-sizing: border-box; background-color: #FEFFFF;" class="chapter-title">${chapter.chapter_name }</span></strong></span>
+                                    </section>
+                                </section>
+                            </section>
+                            <section style="padding: 1em;margin: 10px auto;background: #fff;-webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 60px rgba(0, 0, 0, 0.1) inset;
+    -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;" class="chapter-content">
+                               <c:forEach var="content" items="${chapter.content }">
+                               	<p>${content }</p>
+                               </c:forEach>
+                            </section>
+                            <span>&nbsp;</span>
+                        </section>
+                        </c:forEach>
+                        <span>&nbsp;</span>
+                    </div>
+                    <!--内容模块11-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body11">
+                    <c:forEach var="chapter" items="${chapters }">
+                        <section class="chapter">
+                            <section class="chapter-title" style=" border: 0 none;">
+                                <section style="padding: 10px; text-align: center;">
+                                    <section style="display: inline-block;">
+                                        <section style="padding-top: 10px; float: left;">
+                                            <section class="" data-brushtype="text" style="padding-right: 20px; padding-left: 20px; height: 40px; color: rgb(255, 255, 255); line-height: 40px; background-color: rgb(190, 240, 131);">
+                                                <span style="color: rgb(0, 0, 0);">${chapter.chapter_name }</span>
+                                            </section>
+                                        </section>
+                                    </section>
+                                    <section data-width="100%" style="width: 650px; clear: both;"></section>
+                                </section>
+                            </section>
+                            <section style=" border: 0 none;">
+                                <section style="margin: 5px auto;">
+                                    <section style="height: 1em;">
+                                        <section style="height: 16px; width: 1.5em; float: left; border-top-width: 0.15em; border-top-style: solid; border-color: rgb(198, 198, 199); border-left-width: 0.15em; border-left-style: solid;"></section>
+                                        <section style="height: 16px; width: 1.5em; float: right; border-top-width: 0.15em; border-top-style: solid; border-color: rgb(198, 198, 199); border-right-width: 0.15em; border-right-style: solid;"></section>
+                                    </section>
+                                    <section data-bgless="lighten" data-bglessp="15%" style="margin: -0.9em 0.1em; padding: 0.8em; color: rgb(131, 87, 87); background-color: rgb(247, 247, 248);">
+                                        <section class="chapter-content" style="color: rgb(51, 51, 51); font-size: 1em; line-height: 1.4; word-break: break-all;">
+                                         	<c:forEach var="content" items="${chapter.content }">
+                                           	 <p style="font-size: 18px; line-height: 1.8em;">${content }</p>
+                                           	</c:forEach>
+                                        </section>
+                                    </section>
+                                    <section style="height: 1em;">
+                                        <section style="height: 16px; width: 1.5em; float: left; border-bottom-width: 0.15em; border-bottom-style: solid; border-color: rgb(198, 198, 199); border-left-width: 0.15em; border-left-style: solid;"></section>
+                                        <section style="height: 16px; width: 1.5em; float: right; border-bottom-width: 0.15em; border-bottom-style: solid; border-color: rgb(198, 198, 199); border-right-width: 0.15em; border-right-style: solid;"></section>
+                                    </section>
+                                </section>
+                            </section>
+                        </section>
+                        </c:forEach>
+                    </div>
+                    <!--内容模块12-->
+                    <div class="content-modules" style="display: none;" id="wx-article-body12">
+                        <section style="max-width: 100%; color: rgb(62, 62, 62); font-size: 16px; line-height: 28.4444px; white-space: normal; box-sizing: border-box !important; overflow-wrap: break-word !important; background-color: rgb(255, 255, 255);">
+                         <c:forEach var="chapter" items="${chapters }">
+                            <section class="chapter">
+                                <section style="max-width: 100%; box-sizing: border-box; border-width: 0px; border-style: none; border-color: currentcolor; -moz-border-top-colors: none; -moz-border-right-colors: none; -moz-border-bottom-colors: none; -moz-border-left-colors: none; overflow-wrap: break-word !important;" class="chapter-title">
+                                    <section style="margin-top: 10px; margin-bottom: 10px; max-width: 100%; box-sizing: border-box; text-align: center; overflow-wrap: break-word !important;">
+                                        <section style="max-width: 100%; box-sizing: border-box; display: inline-block; vertical-align: middle; overflow-wrap: break-word !important;">
+                                            <section style="max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important;">
+                                                <section style="max-width: 100%; box-sizing: border-box; width: 5px; height: 2px; border-radius: 3px 3px 0px 0px; float: left; overflow-wrap: break-word !important; background-color: rgb(218, 203, 158);"></section>
+                                                <section style="max-width: 100%; box-sizing: border-box; width: 5px; height: 2px; border-radius: 3px 3px 0px 0px; float: right; overflow-wrap: break-word !important; background-color: rgb(218, 203, 158);"></section>
+                                                <section style="max-width: 100%; box-sizing: border-box; clear: both; overflow-wrap: break-word !important;"></section>
+                                            </section>
+                                            <section style="padding: 2px 10px; max-width: 100%; box-sizing: border-box; border-left: 5px solid rgb(218, 203, 158); border-right: 5px solid rgb(218, 203, 158); border-color: rgb(218, 203, 158); color: rgb(255, 255, 255); overflow-wrap: break-word !important; background-color: rgb(249, 110, 87);">
+                                                <section class="" data-brushtype="text" style="max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important;">
+                                                ${chapter.chapter_name }
+                                                </section>
+                                            </section>
+                                            <section style="max-width: 100%; box-sizing: border-box; overflow-wrap: break-word !important;">
+                                                <section style="max-width: 100%; box-sizing: border-box; width: 5px; height: 2px; border-radius: 0px 0px 3px 3px; float: left; overflow-wrap: break-word !important; background-color: rgb(218, 203, 158);"></section>
+                                                <section style="max-width: 100%; box-sizing: border-box; width: 5px; height: 2px; border-radius: 0px 0px 3px 3px; float: right; overflow-wrap: break-word !important; background-color: rgb(218, 203, 158);"></section>
+                                                <section style="max-width: 100%; box-sizing: border-box; clear: both; overflow-wrap: break-word !important;"></section>
+                                            </section>
+                                        </section>
+                                    </section>
+                                </section>
+                                <section class="chapter-content" style="margin-top:25px;margin-bottom:25px;">
+                                	<c:forEach var="content" items="${chapter.content }">
+                                   	 	<p style="box-sizing: border-box !important; overflow-wrap: break-word !important;">${content }</p>
+                                   	</c:forEach>
+                                </section>
+                            </section>
+                            </c:forEach>
+                        </section>
+                    </div>
+
+
+                    <!--二维码模板图-->
+                    <div id="qrshow" class="container-fluid qrshow qrcode" style="margin: 20px 0 10px 0;text-align: center;">
+                        <img  style="max-width:100%" src="" onerror="this.style.display='none'" />
+                        <div class="original-qrcode" style="display:none;"></div>
+                    </div>
+                    <!--底部链接-->
+                    <div id="wx-article-footer">
+                        <img style="max-width:100%" src="" />
+                    </div>
+                    <!-- wx requires at least one character -->
+                    <section style="color:white;">
+                        .
+                    </section>
+                </div>
+            </div>
+        </div>
+        <div style="padding-top:20px; display:none;" class="panel-referral-link">
+            <div class="input-group">
+                <span class="input-group-addon">原文链接</span>
+                <input type="text" id="txt-referral-link" readonly="" style="background:white" class="form-control" onclick="this.select()" />
+                <span class="input-group-btn"> <button type="button" data-toggle="copy-link" class="btn btn-default"><i class="fa fa-copy"></i> 复制</button> </span>
+            </div>
+        </div>
+    </div>
+</div>
+<nav id="editor-bar" class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#editor-menu" aria-expanded="false"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+        </div>
+        <!--底部导航模块-->
+        <div class="collapse navbar-collapse" id="editor-menu">
+            <ul class="nav navbar-nav">
+                <li class="dropdown"> <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-header"></i> 文案标题 <span class="caret"></span></a>
+                    <ul class="dropdown-menu title">
+                        <!-- ko foreach: titles -->
+                        <li><a href="javascript:void(0)" >15岁女孩怀孕瞒着父母产下孩子，得知孩子身份后全家崩溃...</a></li>
+                        <li><a href="javascript:void(0)" >永远不要欺骗女人，因为我们一眼就能看穿。</a></li>
+                        <li><a href="javascript:void(0)">夫妻一辈子，有这三局话就足够了！</a></li>
+                        <li><a href="javascript:void(0)">男人这几个做法，是在暗示喜欢你， 很多女人没发现...</a></li>
+                        <li><a href="javascript:void(0)">当你熬过去就会发现， 其实你没有那么喜欢他。</a></li>
+                        <li><a href="javascript:void(0)">结婚照为什么不能挂在床头，快看看，千万别这样挂了...</a></li>
+                        <li><a href="javascript:void(0)">女人一生的七个坎，你过了几个？</a></li>
+                        <li><a href="javascript:void(0)">7年不孕，婆婆领养的孩子和老公越长越像，真相让我崩溃......</a></li>
+                        <li><a href="javascript:void(0)">老公离婚娶了小三，老婆笑了，老公哭了…</a></li>
+                        <li><a href="javascript:void(0)">会“装傻”的女人，最令男人着迷了！</a></li>
+                        <li><a href="javascript:void(0)">没有人是天生的好脾气， 所有的温柔都是因为爱。</a></li>
+                        <li><a href="javascript:void(0)">那些离婚带着孩子的女人， 最后都怎样了？</a></li>
+                        <li><a href="javascript:void(0)">15岁男孩失踪半个月，竟然是被人...</a></li>
+                        <li><a href="javascript:void(0)">村民被毒蛇要了一口自己没问题，蛇却死了！原来是...</a></li>
+                        <li><a href="javascript:void(0)">飞来横祸，多人当场倒下，见到这种东西离他远点！速看！</a></li>
+                        <li><a href="javascript:void(0)">他爱不爱你，发这个微信就能就知道了。</a></li>
+                        <li><a href="javascript:void(0)">微信红包和转账区别这么大？所有人千万别用错了...</a></li>
+                        <li><a href="javascript:void(0)">丈夫价目表出炉了！你的丈夫值多少钱？</a></li>
+                        <li><a href="javascript:void(0)">如果你的年龄介于25-50岁，这10件事情哭着也要做！</a></li>
+                        <li><a href="javascript:void(0)">据说是个女人这样撒娇， 是男人都扛不住？</a></li>
+                        <li><a href="javascript:void(0)">结婚十年，一张离婚清单，轰动了整个朋友圈！</a></li>
+                        <li><a href="javascript:void(0)">男人很容易爱上这样聊天的女人，有你吗？</a></li>
+                        <li><a href="javascript:void(0)">一家人其乐融融地用餐，她却没资格去吃。结果...</a></li>
+                        <li><a href="javascript:void(0)">女人的世界里 ，没有安全感。讲一个笑话一起笑到沙哑，然后趁着热闹怎么煽情都无伤大雅...</a></li>
+                        <li><a href="javascript:void(0)">一代兵王卸甲重回都市，将当年谜题解开，令所有人为之折服！</a></li>
+                        <li><a href="javascript:void(0)">家族企业私生女江梦娴被八万卖了，结果...</a></li>
+                        <li><a href="javascript:void(0)">我家夫人是乡下女子，不懂时髦，你们不要欺负她！</a></li>
+                        <li><a href="javascript:void(0)">什么魔鬼会把自己的女儿拱手让出去？</a></li>
+                        <li><a href="javascript:void(0)">特种兵王回家结婚却遭遇到新婚妻子处处被嫌弃...</a></li>
+                        <li><a href="javascript:void(0)">这个活在伪装中的女人，本性真的这么坏吗？</a></li>
+                        <li><a href="javascript:void(0)">神秘高手龙潜花都，与冰山美女签订婚约，但无奈被嫌弃...</a></li>
+                        <li><a href="javascript:void(0)">变心丈夫会留下这些痕迹，可惜很少妻子知道....</a></li>
+                        <li><a href="javascript:void(0)">错过你成长的模样，才是我毕生所憾</a></li>
+                        <li><a href="javascript:void(0)">阿娇大婚：来日并不方长，感谢你陪我成长。</a></li>
+                        <li><a href="javascript:void(0)">阻碍你的不是口袋空空，而是脑袋空空</a></li>
+                        <li><a href="javascript:void(0)">朋友圈千万不要设置三天可见！</a></li>
+                        <li><a href="javascript:void(0)">女人，好好经营你的30-47岁，不管多忙，一定要看！</a></li>
+                        <li><a href="javascript:void(0)">最淡定的女人，没事从来不给男人发短信打电话</a></li>
+                        <li><a href="javascript:void(0)">历史,可以改变吗?你,可以爱我吗?</a></li>
+                        <li><a href="javascript:void(0)">&quot; 最怕你一生碌碌无为，还安慰自己平凡才可贵 &quot;</a></li>
+                        <li><a href="javascript:void(0)">所有事情都会有皆大欢喜的结局。</a></li>
+                        <li><a href="javascript:void(0)">我们经历过太多残酷，但重要的是你我从不认输。</a></li>
+                        <li><a href="javascript:void(0)">凌晨三点不回家：其实没什么好委屈的，成年人的世界就是这样的。</a></li>
+                        <li><a href="javascript:void(0)">那些不肯走出糟糕婚姻的女人，到底图是为了什么...</a></li>
+                        <li><a href="javascript:void(0)">最好的爱情，不是一拍即合，时刻腻在一起，而是...</a></li>
+                        <li><a href="javascript:void(0)">遗憾如她，荣华浮云，那个青梅竹马的男人，再不见满庭□。</a></li>
+                        <li><a href="javascript:void(0)">幸运如她，豆蔻年华，共那光风霁月的男子，共听小窗荷花雨。</a></li>
+                        <li><a href="javascript:void(0)">据说是个女人这样个撒娇，是男人都扛不住？</a></li>
+                        <li><a href="javascript:void(0)">让他对你死心塌地最好的办法是什么？</a></li>
+                        <li><a href="javascript:void(0)">让男人朝思暮想的特点，不是温柔贤惠，而是......</a></li>
+                        <li><a href="javascript:void(0)">传说中天生桃花命的女人，有你吗？</a></li>
+                        <li><a href="javascript:void(0)">丈夫出轨长达20年，妻子知道真相后崩溃了？</a></li>
+                        <li><a href="javascript:void(0)">她拉我到角落，说要帮我一个忙...</a></li>
+                        <li><a href="javascript:void(0)">男人思念一个人是在酒后，女人思念一个人是在......</a></li>
+                        <li><a href="javascript:void(0)">前男友找我借钱给现任打胎，我借不借？</a></li>
+                        <li><a href="javascript:void(0)">男人和旧爱相逢后，隐藏多年的秘密这才揭晓......</a></li>
+                        <li><a href="javascript:void(0)">男人为你花钱的态度，就是他爱你的程度。</a></li>
+                        <li><a href="javascript:void(0)">成人的世界里，没有安全感</a></li>
+                        <li><a href="javascript:void(0)">纸短情长，水兵写下三行情书表白最真挚的爱</a></li>
+                        <li><a href="javascript:void(0)">喜欢你是认真的 放弃你也是认真的</a></li>
+                        <li><a href="javascript:void(0)">你体内的情绪垃圾已超过90%，怎么清除？</a></li>
+                        <li><a href="javascript:void(0)">男人哄女人亲热时，通常说的第一句话是什么？</a></li>
+                        <li><a href="javascript:void(0)">他说不介意假戏真做 狠辣亡后发誓要这天下易主</a></li>
+                        <li><a href="javascript:void(0)">山沟里出了个小神医 战神以一腔热血杀寇驱倭</a></li>
+                        <li><a href="javascript:void(0)">侄子结婚，妈来我家让我出10万彩礼，我将她直接赶走了！</a></li>
+                        <li><a href="javascript:void(0)">丈夫死后留下二十万欠款，女子四年来拼命挣钱，还钱那天懵了</a></li>
+                        <li><a href="javascript:void(0)">炸了！男子竟用一块布让自己消失，众人都说是隐身术，真相让人傻眼！</a></li>
+                        <li><a href="javascript:void(0)">出差在宾馆，半夜隔壁传来一阵尖叫声</a></li>
+                        <li><a href="javascript:void(0)">最容易离婚的女人，你绝对想不到是她们。</a></li>
+                        <li><a href="javascript:void(0)">苦等二十年，她终于嫁给心上人，被宠到90岁。</a></li>
+                        <li><a href="javascript:void(0)">我用七年去爱的丈夫，却为了初恋，亲手将我推进了深渊</a></li>
+                        <li><a href="javascript:void(0)">订婚当日我出车祸命悬一线，未婚夫却在跟朋友在酒店狂欢...</a></li>
+                        <li><a href="javascript:void(0)">姐姐结婚，新娘却是我，一场阴谋让我嫁给了一个权势滔天的男人？</a></li>
+                        <li><a href="javascript:void(0)">他从小就爱着的女人，和他结婚却是为了报复另一个男人</a></li>
+                        <li><a href="javascript:void(0)">一场胎死腹中的意外，让我落入夫家步步为营的陷阱</a></li>
+                        <li><a href="javascript:void(0)">麻衣道派后人陈元方陷入其中，经历了种种奇闻怪事…</a></li>
+                        <li><a href="javascript:void(0)">即便知道爱上你就像染了毒，我依然毫不犹豫，爱你上瘾……</a></li>
+                        <li><a href="javascript:void(0)">如果有来世，我绝对不会爱上你，或许一个路人，你对他都比对我好！</a></li>
+                        <li><a href="javascript:void(0)">这个BOSS有些眼熟，等等，该不会上次吃的是他吧…</a></li>
+                        <li><a href="javascript:void(0)">被妹妹卖到变态手里，他像天神一样降临，把她救走。 他邪魅笑道：原来...</a></li>
+                        <li><a href="javascript:void(0)">为了夺走她父亲的股权，她被老公和闺蜜联手设局出轨。 一纸离婚扔在脸上，她被迫净身出户。</a></li>
+                        <li><a href="javascript:void(0)">一觉醒来，夏小麦发现自己竟然穿越了！家徒四壁、吃了上顿没下顿，极品亲戚……</a></li>
+                        <li><a href="javascript:void(0)">一夜之间，她失去所有，不得不狼狈出国。五年后...</a></li>
+                        <li><a href="javascript:void(0)">为了母亲手术费，她答应了父亲自私的要求，成为姐姐的替身。黑暗掩盖，一夜荒唐……</a></li>
+                        <li><a href="javascript:void(0)">他是落魄富二代，凭借关系进入仕途，为了前程，官途之中，不...</a></li>
+                        <li><a href="javascript:void(0)">一代兵王含恨离开部队，销声匿迹几年后，回归再度掀起血雨腥风！</a></li>
+                        <li><a href="javascript:void(0)">一夜后成了单亲妈妈，回国后多金男对她说：我是孩子的爸！</a></li>
+                        <li><a href="javascript:void(0)">我从来不信这世上有什么鬼神之说，直到那一天，我遇到了一个漂亮的女人后…</a></li>
+                        <li><a href="javascript:void(0)">为了给妹妹凑集五十万的治疗费用不得不给三元集团的千金小姐李雨欣当贴身保镖。</a></li>
+                        <li><a href="javascript:void(0)">神秘高手龙潜花都，与冰山美女总裁签订婚约，但无奈被嫌弃。</a></li>
+                        <li><a href="javascript:void(0)">她62岁了，30年不吃晚饭，进手术室，连医生都被吓到…</a></li>
+                        <li><a href="javascript:void(0)">22岁专业军人当镇长,上任第一天和领导拍桌子..</a></li>
+                        <li><a href="javascript:void(0)">15岁少年带豹参军被老兵欺负，怒打8名老兵！震惊整军！</a></li>
+                        <li><a href="javascript:void(0)">此人凶残暴虐！凶兵突然回归都市，策马江湖，再搅风云</a></li>
+                        <li><a href="javascript:void(0)">替姐姐嫁人，不曾想被设计嫁给了死人...</a></li>
+                        <li><a href="javascript:void(0)">村里人强迫我跟死人结冥婚，以平息死者的怨气...</a></li>
+                        <li><a href="javascript:void(0)">阴婚之后好像被缠上了，老做那种梦，身体总是...</a></li>
+                        <li><a href="javascript:void(0)">死了两年的丈夫回来了，见到我的第一件事竟是…</a></li>
+                        <li><a href="javascript:void(0)">只不过想办个假结婚证，却弄假成真误惹真男神…</a></li>
+                        <li><a href="javascript:void(0)">不愿当锦衣玉食的笼中鸟，母仪天下不如浪迹天涯</a></li>
+                        <li><a href="javascript:void(0)">出嫁之日，她却经历了人生最惨痛的剧变…</a></li>
+                        <li><a href="javascript:void(0)">夫君嫌我不是完璧之身，竟当众休了我，迎娶同父异母的妹妹...</a></li>
+                        <li><a href="javascript:void(0)">一夜之间，她竟成了个下堂弃妇，小妾都来欺负她...</a></li>
+                        <li><a href="javascript:void(0)">我可是个清白的姑娘，我才不要被鬼…</a></li>
+                        <li><a href="javascript:void(0)">人活到极致，是一种素与简</a></li>
+                        <li><a href="javascript:void(0)">最好的感情是：我需要你的时候，你都在</a></li>
+                        <li><a href="javascript:void(0)">“我养你”，才是这世界上最毒的情话</a></li>
+                        <li><a href="javascript:void(0)">所有命运的馈赠都在暗中标好了价格</a></li>
+                        <li><a href="javascript:void(0)">男人拒绝沟通，有解吗？</a></li>
+                        <li><a href="javascript:void(0)">同居四年，我深爱的男人终于结婚了,可是新娘却不是我</a></li>
+                        <li><a href="javascript:void(0)">儿媳长的像范冰冰 婆婆竟然偷偷跟踪多年</a></li>
+                        <li><a href="javascript:void(0)">难道家庭贫寒的我，就没有追求爱情的权利了吗？难道这个社会真的有钱就可以为所欲为吗？</a></li>
+                        <li><a href="javascript:void(0)">很多人抱怨婚后夫妻生活不理性，其实是没。。。</a></li>
+                        <li><a href="javascript:void(0)">五月已经开始。请把焦虑从你的生活中踢开</a></li>
+                        <li><a href="javascript:void(0)">你一定要幸福，不枉费我狼狈退出</a></li>
+                        <li><a href="javascript:void(0)">女人要安全感 男人也要归属感</a></li>
+                        <li><a href="javascript:void(0)">钢铁侠的这句话 点醒了多少梦中人？</a></li>
+                        <li><a href="javascript:void(0)">他们豁出性命，只为带你去看另一个世界</a></li>
+                        <li><a href="javascript:void(0)">爱情大考验：先一起旅行再谈天长地久</a></li>
+                        <li><a href="javascript:void(0)">我的家庭看起来和谐，但生不生二胎是个定时炸弹。。</a></li>
+                        <li><a href="javascript:void(0)">同学会当真拆散一对是一对？</a></li>
+                        <li><a href="javascript:void(0)">婚姻里俩人相处的累，还不如一人生活的自在。。</a></li>
+                        <li><a href="javascript:void(0)">婚姻解码：不吵架的夫妻有时更易散伙！！</a></li>
+                        <li><a href="javascript:void(0)">老公，婆婆生病你让我妈拿20万。我妈欠你的吗？</a></li>
+                        <li><a href="javascript:void(0)">前夫病重时，劝我带着儿子改嫁，十多年后再度重逢，泪如雨下</a></li>
+                        <li><a href="javascript:void(0)">准婆婆暗示我婚前做这事，没想到。。。</a></li>
+                        <li><a href="javascript:void(0)">既然余生过不了，那就拉几吧倒，勿扰！</a></li>
+                        <li><a href="javascript:void(0)">注意注意啦! 夫妻买房一定要注意这些隐患。。可长点心吧</a></li>
+                        <li><a href="javascript:void(0)">刚进公安，第一天居然把公安局长的儿子打残了。。。。</a></li>
+                        <li><a href="javascript:void(0)">认识不到一星期立马闪婚，婚后的生活简直甜如蜜</a></li>
+                        <li><a href="javascript:void(0)">带着老婆去追小三，他的泡妞技巧简直吊炸天！</a></li>
+                        <li><a href="javascript:void(0)">一场精心设计的阴谋，她误撞进了他的怀中，让他一宠上瘾，从此疼她入骨。</a></li>
+                        <li><a href="javascript:void(0)">她被老公和闺蜜联手设局出轨。 一纸离婚扔在脸上，她被迫净身出户，四年后重新归来</a></li>
+                        <li><a href="javascript:void(0)">一觉醒来，夏小麦发现自己竟然穿越了！然后...</a></li>
+                        <li><a href="javascript:void(0)">神秘男人找上门，自称孩子父亲。结果...</a></li>
+                        <li><a href="javascript:void(0)">一场渡假，被当小姐，回国还撞见未婚夫出轨。她怒然消失离开，五年后...</a></li>
+                        <li><a href="javascript:void(0)">他背负着血海深仇，只凭一股执念复仇，然而仇人却...</a></li>
+                        <li><a href="javascript:void(0)">至尊强者竟然当起了保安，却过得比皇帝还要爽！！！</a></li>
+                        <li><a href="javascript:void(0)">局长落马被查，女秘书惊慌失措...</a></li>
+                        <li><a href="javascript:void(0)">我从来不信这世上有鬼，知道我遇到了一个漂亮的女人后...</a></li>
+                        <li><a href="javascript:void(0)">丈夫被当场撞死！和情绪不稳定的人在一起，是一场灾难！</a></li>
+                        <li><a href="javascript:void(0)">“后来的我们，都绿了现任”</a></li>
+                        <li><a href="javascript:void(0)">求亲封后，灭国屠城，原来她只是一枚棋子</a></li>
+                        <li><a href="javascript:void(0)">为什么越来越多女人离婚后，都选择不再二婚?理由震惊!</a></li>
+                        <li><a href="javascript:void(0)">妙手仁心却惨遭追杀，一世为善最后却落了个天打雷劈...</a></li>
+                        <li><a href="javascript:void(0)">穿越后，她掉到了王爷的床上，稀里糊涂的就被?</a></li>
+                        <li><a href="javascript:void(0)">替姐姐嫁人，不曾想被设计嫁给了死人...</a></li>
+                        <li><a href="javascript:void(0)">丈夫失业跳楼自杀：我宁愿你月薪3000，也不要你这么拼命！</a></li>
+                        <li><a href="javascript:void(0)">被丈夫和情妇从二十三楼踢了下去，不料睁眼回到五年前...</a></li>
+                        <li><a href="javascript:void(0)">繁华都市里，以超强的身手和非凡的智慧如鱼得水。</a></li>
+                        <li><a href="javascript:void(0)">一代兵王含恨离开部队， 销声匿迹几年后，逆天强者强势回归都市，再度掀起血雨腥风！</a></li>
+                        <li><a href="javascript:void(0)">我结婚的那天晚上， 我的妻子却和别的男人...</a></li>
+                        <li><a href="javascript:void(0)">自从发现自己的眼睛可以透视，他竟然这么做！</a></li>
+                        <li><a href="javascript:void(0)">后妈为了钱把我送上了老男人的床，老男人还让我赔偿他的失身费？</a></li>
+                        <li><a href="javascript:void(0)">亲生母亲给我灌下汤药，逼我和勺子在一起，结果...</a></li>
+                        <li><a href="javascript:void(0)">一代兵王卸甲重回都市，将当年谜题解开，令所有人为之折服！</a></li>
+                        <li><a href="javascript:void(0)">儿子新婚宴席上，父亲打包剩菜遭服务员羞辱，结果...</a></li>
+                        <li><a href="javascript:void(0)">养了20年的两个女儿，竟一夜间都变成了男人！</a></li>
+                        <li><a href="javascript:void(0)">儿媳撵婆婆回农村，被亲妈教训，真解气！</a></li>
+                        <li><a href="javascript:void(0)">父亲坐牢，母亲改嫁，5岁女孩看哭了千万人！</a></li>
+                        <li><a href="javascript:void(0)">遇害空姐父亲再爆料：凶手调戏妇女被投诉多次！滴滴公司置之不理！</a></li>
+                        <li><a href="javascript:void(0)">求亲封后，灭国屠城，原来她只是一枚棋子</a></li>
+                        <li><a href="javascript:void(0)">再世为人，浴火重生，待她王者归来，一手遮天！</a></li>
+                        <li><a href="javascript:void(0)">夫君与妹妹的苟合，让她心灰意冷⋯</a></li>
+                        <li><a href="javascript:void(0)">不愿当锦衣玉食的笼中鸟，母仪天下不如浪迹天涯</a></li>
+                        <li><a href="javascript:void(0)">出嫁之日，她却经历了人生最惨痛的剧变⋯</a></li>
+                        <li><a href="javascript:void(0)">夫君嫌我不是完璧之身，竟当众休了我，迎娶同父异母的妹妹...</a></li>
+                        <li><a href="javascript:void(0)">一夜之间，她竟成了个下堂弃妇，小妾都来欺负她...</a></li>
+                        <li><a href="javascript:void(0)">我可是个清白的姑娘，我才不要被鬼⋯</a></li>
+                        <li><a href="javascript:void(0)">大学第一天她便与鬼夜夜同床，这只艳鬼还化身大学教授</a></li>
+                        <li><a href="javascript:void(0)">知道了我与人不同，爷爷竟让我伺候他养的鬼！</a></li>
+                        <li><a href="javascript:void(0)">每天晚上睡着之后都感觉有人摸我，谁知道竟然是...</a></li>
+                        <li><a href="javascript:void(0)">鬼丈夫找上门，一只冰凉的手伸进了我的衣服⋯</a></li>
+                        <li><a href="javascript:void(0)">女子被男鬼纠缠夜夜发生关系，最后竟然有了孩子！</a></li>
+                        <li><a href="javascript:void(0)">替姐姐嫁人，不曾想被设计嫁给了死人...</a></li>
+                        <li><a href="javascript:void(0)">鬼缠人！被骗结了冥婚之后，每晚他都会对我⋯</a></li>
+                        <li><a href="javascript:void(0)">村里人强迫我跟死人结冥婚，以平息死者的怨气...</a></li>
+                        <li><a href="javascript:void(0)">阴婚之后好像被缠上了，老做那种梦，身体总是...</a></li>
+                        <li><a href="javascript:void(0)">死了两年的丈夫回来了，见到我的第一件事竟是⋯</a></li>
+                        <li><a href="javascript:void(0)">为什么很多有钱人的妻子不漂亮？</a></li>
+                        <li><a href="javascript:void(0)">只不过想办个假结婚证，却弄假成真误惹真男神⋯</a></li>
+                        <li><a href="javascript:void(0)">吵架后还肯做这6件事的人，才是真的爱你</a></li>
+                        <li><a href="javascript:void(0)">做了这四件事，他只会越来越不珍惜你！</a></li>
+                        <li><a href="javascript:void(0)">婚后的真实生活，可以说是非常扎心了!</a></li>
+                        <li><a href="javascript:void(0)">结婚后的第几年最难?大多数婚姻都栽在了这里</a></li>
+                        <li><a href="javascript:void(0)">18岁少女嫁给一个57岁的千万富翁，女孩说了一段话，太现实了...</a></li>
+                        <li><a href="javascript:void(0)">出轨男的六种体相特征,看看你身边的TA是不是?</a></li>
+                        <li><a href="javascript:void(0)">一封离婚协议书，看哭无数人！</a></li>
+                        <li><a href="javascript:void(0)">为什么99%年轻貌美的小三都打败不了原配？</a></li>
+                        <li><a href="javascript:void(0)">四对夫妻你最喜欢哪个?一眼看出你的性格和婚姻!</a></li>
+                        <li><a href="javascript:void(0)">他娶了16岁时的初恋，虽身价上亿却不离不弃，这才是爱情最好的模样!</a></li>
+                        <li><a href="javascript:void(0)">穿越后，她掉到了王爷的床上，稀里糊涂的就被⋯</a></li>
+                        <li><a href="javascript:void(0)">卧室的这个东西竟害了一家人！你家里也有！</a></li>
+                        <li><a href="javascript:void(0)">那些走到离婚的，不是没钱不是丑，而是⋯</a></li>
+                        <li><a href="javascript:void(0)">婚姻残酷真相：要么娘家有钱，要么自己有钱</a></li>
+                        <li><a href="javascript:void(0)">苦等20年，她终于嫁给心上人，被宠到90岁</a></li>
+                        <li><a href="javascript:void(0)">28岁女子非要切掉子宫，医生们惊呆了！</a></li>
+                        <li><a href="javascript:void(0)">真正毁掉夫妻感情的，其实是这3件事！第一件就说中了</a></li>
+                        <li><a href="javascript:void(0)">丈夫有七等，你嫁的是几等?</a></li>
+                        <li><a href="javascript:void(0)">为什么两口子，越过越冷清？（说的真好，建议夫妻都看看！）</a></li>
+                        <li><a href="javascript:void(0)">很多人都是离婚后，才明白这些道理</a></li>
+                        <li><a href="javascript:void(0)">“赶紧让她怀孕，彩礼就不用给了!”</a></li>
+                        <li><a href="javascript:void(0)">何洁：中国式的绝望主妇，谁不是一边闹离婚，一边生二胎</a></li>
+                        <li><a href="javascript:void(0)">婆家骂我生不了，我扔出一张照片，全家看后全傻了!</a></li>
+                        <li><a href="javascript:void(0)">儿媳妇凭什么要孝顺婆婆?这个媳妇的回答说得太好了</a></li>
+                        <li><a href="javascript:void(0)">女儿被绑架，电话里传来撕心裂肺的哭喊!妈妈却说：撕票吧!</a></li>
+                        <li><a href="javascript:void(0)">下辈子长成你喜欢的样子，然后不喜欢你。</a></li>
+                        <li><a href="javascript:void(0)">丈夫失业跳楼自杀：我宁愿你月薪3000，也不要你这么拼命!太扎心</a></li>
+                        <li><a href="javascript:void(0)">千万别做让别人觉得你低贱的事情，做一件都很掉价!</a></li>
+                        <li><a href="javascript:void(0)">此生三愿：家人平安、岁月静好、天真依旧</a></li>
+                        <li><a href="javascript:void(0)">看了离婚大数据，我发现一条惊人规律</a></li>
+                        <li><a href="javascript:void(0)">对不起，你们夫妻俩的情感账户余额已不足</a></li>
+                        <li><a href="javascript:void(0)">一日夫妻百日恩，七年夫妻全离婚⋯⋯笑抽了!</a></li>
+                        <li><a href="javascript:void(0)">这三个生肖离婚率最高！别不信！</a></li>
+                        <li><a href="javascript:void(0)">结婚照为什么不能挂床头？千万别这样挂了！</a></li>
+                        <li><a href="javascript:void(0)">前任什么的都弱爆了！这才是刷爆朋友圈的头条！</a></li>
+                        <li><a href="javascript:void(0)">命苦的三大生肖女，一辈子都在操劳，有你吗？</a></li>
+                        <li><a href="javascript:void(0)">一对32岁夫妇离婚后的聊天记录，许多人看完都沉默了！</a></li>
+                        <li><a href="javascript:void(0)">女儿请妈妈吃饭，但在场的所有人却想抽她几耳光！</a></li>
+                        <li><a href="javascript:void(0)">爸妈：“孩子，你不结婚也没关系”，聊天截图刷爆了朋友圈!</a></li>
+                        <li><a href="javascript:void(0)">“你月薪2000养不起我”：好的婚姻，为什么一定要谈钱?</a></li>
+                        <li><a href="javascript:void(0)">塑料友谊?朋友结婚我给2000，我结婚她回1000!你遇到过吗?</a></li>
+                        <li><a href="javascript:void(0)">婚姻，该不该为了孩子而凑合?终于找到答案了!</a></li>
+                        <li><a href="javascript:void(0)">调教他三个习惯保证你幸福一辈子，别说我没有告诉你</a></li>
+                        <li><a href="javascript:void(0)">“我养你”，才是这世界上最毒的情话</a></li>
+                        <li><a href="javascript:void(0)">很现实的一段话，送给傻傻的自己！（听着心酸）</a></li>
+                        <li><a href="javascript:void(0)">最好的感情是：我需要你的时候，你都在</a></li>
+                        <li><a href="javascript:void(0)">“让她怀孕的是我，你凭什么不原谅她”</a></li>
+                        <li><a href="javascript:void(0)">如果你的枕边人半夜偷偷起来，那你要小心了！</a></li>
+                        <li><a href="javascript:void(0)">真心疼你的人，一定会为你做这几件事</a></li>
+                        <li><a href="javascript:void(0)">史上最彪悍的丑王妃，却被当朝所有的美男子捧在手心</a></li>
+                        <li><a href="javascript:void(0)">结婚三年从未亲热过，可我却迷恋他每天对我⋯⋯</a></li>
+                        <li><a href="javascript:void(0)">人，胖一点命好！不信你看！</a></li>
+                        <li><a href="javascript:void(0)">我的不孕,原来是他们策划的一场阴谋</a></li>
+                        <li><a href="javascript:void(0)">这三种性格的女性爱情最失败，希望你不是其中之一</a></li>
+                        <li><a href="javascript:void(0)">“我单方面宣布，你是我的人了。”</a></li>
+                        <li><a href="javascript:void(0)">你和老公差几岁，你的婚姻和家庭就什么样</a></li>
+                        <li><a href="javascript:void(0)">这位婆婆一席话，解决了99%的婆媳矛盾问题!</a></li>
+                        <li><a href="javascript:void(0)">我花钱买的房子，妈妈让我写弟弟的名字。</a></li>
+                        <li><a href="javascript:void(0)">2018年第一渣男聊天截图曝光！看完非常想骂他...</a></li>
+                        <li><a href="javascript:void(0)">闺蜜，等我们老了，就这样过吧！</a></li>
+                        <li><a href="javascript:void(0)">好的爱情，一定要谈钱。</a></li>
+                        <li><a href="javascript:void(0)">何为夫妻？何为家？何为幸福？</a></li>
+                        <li><a href="javascript:void(0)">人，胖一点命好！</a></li>
+                        <li><a href="javascript:void(0)">人最怕比你美比你富的人，比你还努力</a></li>
+                        <li><a href="javascript:void(0)">人活到极致，是一种素与简</a></li>
+                        <li><a href="javascript:void(0)">没有不幸福，只有不知足</a></li>
+                        <li><a href="javascript:void(0)">两个人在一起，有这种感觉才叫情</a></li>
+                        <li><a href="javascript:void(0)">做一个灵魂有温度的人</a></li>
+                        <li><a href="javascript:void(0)">最好的感情是：我需要你的时候，你都在</a></li>
+                        <li><a href="javascript:void(0)">走进心里的人，不容易放下</a></li>
+                        <li><a href="javascript:void(0)">昨天再好，回不去；明天再难，也要继续⋯</a></li>
+                        <li><a href="javascript:void(0)">“我养你”，才是这世界上最毒的情话</a></li>
+                        <li><a href="javascript:void(0)">年轻时想要爱情，现在病好了只想要钱</a></li>
+                        <li><a href="javascript:void(0)">两个人不怕吵架，就怕不说话</a></li>
+                        <li><a href="javascript:void(0)">将就的婚姻，最后都死掉了</a></li>
+                        <li><a href="javascript:void(0)">不是优秀的人不合群，而是你不在他的圈子里！</a></li>
+                        <li><a href="javascript:void(0)">最高级的善良，是偷偷对别人好</a></li>
+                        <li><a href="javascript:void(0)">你再善良，这5种忙也不能帮!</a></li>
+                        <li><a href="javascript:void(0)">最容易离婚的女人，你绝对想不到是她们</a></li>
+                        <li><a href="javascript:void(0)">帮老公洗衣服看到口袋里恶心东西，我想离婚</a></li>
+                        <li><a href="javascript:void(0)">有了另一半又遇到更喜欢的人怎么办?</a></li>
+                        <li><a href="javascript:void(0)">测一测：结婚后你对他的爱会减值吗?</a></li>
+                        <li><a href="javascript:void(0)">“婆婆，你不帮我带孩子，老了就别来烦我!”一夜之间刷爆朋友圈!</a></li>
+                        <li><a href="javascript:void(0)">你是在什么时候决定嫁给你老公的?最后很感人!</a></li>
+                        <li><a href="javascript:void(0)">这6种夫妻没几年就得离婚，希望你不是!(很现实)</a></li>
+                        <li><a href="javascript:void(0)">为什么越来越多女人离婚后，都选择不再二婚?理由震惊!</a></li>
+                        <li><a href="javascript:void(0)">一觉醒来，房间多了扇门！当他推开走进去的时候，竟然直接来到了神...</a></li>
+                        <li><a href="javascript:void(0)">21世纪工科男，穿越成为穷书生.大脑居然装着一个图书馆.这辈子不说封侯...</a></li>
+                        <li><a href="javascript:void(0)">身患绝症却获得了一个可以穿越时空的宝物，开启了穿越之旅⋯⋯</a></li>
+                        <li><a href="javascript:void(0)">他们俯瞰众生、蹂躏万物。一念，天地变色；一意，血流成河...</a></li>
+                        <li><a href="javascript:void(0)">天界战神，功高震主，遭挚爱背叛，死于洞房之夜。重生百年之后...</a></li>
+                        <li><a href="javascript:void(0)">你见过整个世界的女人为一个男人疯狂?</a></li>
+                        <li><a href="javascript:void(0)">美女你们都别缠着我.我这里太多了忙不过来...</a></li>
+                        <li><a href="javascript:void(0)">为兄弟,两肋插刀，为国家，誓死如归。一代军刀重归都市...</a></li>
+                        <li><a href="javascript:void(0)">他是落魄富二代，凭借关系进入仕途，为了前程，官途之中，不...</a></li>
+                        <li><a href="javascript:void(0)">绝世兵王回归修炼“九死玄功”，救美女需要和美女亲密接触...</a></li>
+                        <li><a href="javascript:void(0)">兵王之王受伤退伍回归都市，与冰山总裁未婚妻...</a></li>
+                        <li><a href="javascript:void(0)">普通学生意外获得先祖神医传承，从此凭借通天医术，一朝翻身...</a></li>
+                        <li><a href="javascript:void(0)">平凡少年奇遇不断，桃花运缠身。透视眼赏遍群芳，隐身术玩转花丛...</a></li>
+                        <li><a href="javascript:void(0)">热血青年手握剑法，炼丹副业威名赫赫，坐拥后宫佳丽三千，发誓成为史上最变态的丹师剑宗。</a></li>
+                        <li><a href="javascript:void(0)">且看一个被封印的少年如何开启逆天之路,以一己之力踏破苍穹,傲笑九天!</a></li>
+                        <li><a href="javascript:void(0)">穿越后，成为已死的废柴少爷，遇上了神秘老者...</a></li>
+                        <li><a href="javascript:void(0)">冲击境界失败的他，沦为废人，永远无法修行，却意外得到神奇的古镜...</a></li>
+                        <li><a href="javascript:void(0)">他不仅武功高强、博学多才，还精通医术！身为杀手之王的他回归都市...</a></li>
+                        <li><a href="javascript:void(0)">他是情种，是撒旦，更是华夏军魂！他邪恶，猖狂，无法无天，这个世界他主沉浮！</a></li>
+                        <li><a href="javascript:void(0)">在初中被同学们欺负，少年热血轻狂，闯出一片天</a></li>
+                        <li><a href="javascript:void(0)">“混蛋！” “这样就算混蛋？那，我还能更混蛋点⋯⋯</a></li>
+                        <li><a href="javascript:void(0)">人不风流枉少年，黑道教父之子入读高中，掀起...</a></li>
+                        <li><a href="javascript:void(0)">传闻曾有一人，只身走上岛国，屠杀敌军万千...</a></li>
+                        <li><a href="javascript:void(0)">兵王含恨离开部队，销声匿迹后强势回归都市掀起血雨腥风！</a></li>
+                        <li><a href="javascript:void(0)">那一晚醉酒，他在她身边，却呼喊着另一个女孩儿的名字</a></li>
+                        <li><a href="javascript:void(0)">金钱美女送上门，芙蓉帐里夜夜春，情场官场双得意，一杆金枪忙不赢。......</a></li>
+                        <li><a href="javascript:void(0)">如果带着七年的记忆回答到七年前，现在的你将会是怎样的？</a></li>
+                        <li><a href="javascript:void(0)">他？一个吊耳郎当的新兵，居然在军区大比中...</a></li>
+                        <li><a href="javascript:void(0)">他来自当今，却回到了过去，十八岁参军开始了他戎马一生...</a></li>
+                        <li><a href="javascript:void(0)">一个研究员，穿越到了民国时代，你说他会干什么？</a></li>
+                        <li><a href="javascript:void(0)">信念，穿越寒风冷雨，你就是我想像的一种幸福，即使是梦我也愿意。</a></li>
+                        <li><a href="javascript:void(0)">世界仿佛突然之间消失，连声音都已死亡。</a></li>
+                        <li><a href="javascript:void(0)">心，很寥落，繁华散尽的平淡。热闹过后的寂静。</a></li>
+                        <li><a href="javascript:void(0)">想你深情的眼，是如何越过沧桑的墙，穿透我，红尘过往，望断夜雨西窗。</a></li>
+                        <li><a href="javascript:void(0)">夜阑风细眉心住，透过历史的镜头，你的音容依然交错在我的心目中。</a></li>
+                        <li><a href="javascript:void(0)">我终是那个寂寞的女子，斑驳在记忆的长廊，相知，相惜，一生的旋律。</a></li>
+                        <li><a href="javascript:void(0)">天堑无涯，绿杨陌上多离别，墙花路人暗想浮生。</a></li>
+                        <li><a href="javascript:void(0)">虚岁不虚，虚虚实实，实实虚虚，或许这本就是人生的奥秘。</a></li>
+                        <li><a href="javascript:void(0)">相忘于江湖，人生若能两相忘，便不会借助奈何桥来舒己情怀。</a></li>
+                        <li><a href="javascript:void(0)">想一个人，门廊斜风细雨霖铃，墨香氤氲声如许，衣带生风，打湿我的眉心。</a></li>
+                        <li><a href="javascript:void(0)">夜未央，流星落，情已殇。爱在夜色里永远是传奇。</a></li>
+                        <li><a href="javascript:void(0)">我祈望，在某个风光明媚的街角，我遇见你，然后遇见我自己...</a></li>
+                        <li><a href="javascript:void(0)">你我形同陌路，相遇也是恩泽一场。</a></li>
+                        <li><a href="javascript:void(0)">我只是难过不能陪你一起老，再也没有机会，看到你的笑。</a></li>
+                        <li><a href="javascript:void(0)">这年头，谁不是带着一箱子的面具走天涯？</a></li>
+                        <li><a href="javascript:void(0)">我把所有的伤心走一遍，最伤心的是你不在终点。我把所有的绝望走一遍，最绝望的是你还在起点。</a></li>
+                        <li><a href="javascript:void(0)">曾听人说，回忆是一座桥，却是通向寂寞的牢。</a></li>
+                        <li><a href="javascript:void(0)">一再的隐忍，一再的退让，却换来了盛宴上的谎言。</a></li>
+                        <li><a href="javascript:void(0)">你走过多少条街、会想起多少次我呢。</a></li>
+                        <li><a href="javascript:void(0)">错过的年华在北漠开出斑斓的紫薇花、却荒芜了轮回的春夏。</a></li>
+                        <li><a href="javascript:void(0)">我想看一场盛大的流行陨落的过程、我要一直不停许愿、许到沧海桑田瞬息万变直到靠近你微笑淡晴的脸</a></li>
+                        <li><a href="javascript:void(0)">只为他放弃一座城池、在天光大亮的时候、奔赴一场或生或死的未知。</a></li>
+                        <li><a href="javascript:void(0)">嘘、我的伤才刚刚睡着。</a></li>
+                        <li><a href="javascript:void(0)">始终在做着重复的两件事、爱他以及守护。</a></li>
+                        <li><a href="javascript:void(0)">幸福右边、荒芜人烟。</a></li>
+                        <li><a href="javascript:void(0)">蔷薇开出的花朵没有芬芳、想念一个人、怀念一段伤、不流泪、不说话。</a></li>
+                        <li><a href="javascript:void(0)">爱你、给你我生命所有的美好、然后退场、让万花筒灿烂你的眼瞳。</a></li>
+                        <li><a href="javascript:void(0)">来生我再来典当、来世我再来与你歃血为盟。</a></li>
+                        <li><a href="javascript:void(0)">那些上演着繁华不肯谢幕的年华里开出一朵地老天荒的花。</a></li>
+                        <li><a href="javascript:void(0)">只要心中有景、何处不是花香满径。</a></li>
+                        <li><a href="javascript:void(0)">那些纠缠到深夜里的流言蜚语我不怕让你听到、也不怕让全世界听到。我是怕你听到了、并相信。</a></li>
+                        <li><a href="javascript:void(0)">我流浪了那么久、还不想回家、因为你不在家、我便永远没有家。</a></li>
+                        <li><a href="javascript:void(0)">我徒手唱歌、你弹奏的肖邦、却盲了我的眼。</a></li>
+                        <li><a href="javascript:void(0)">繁杂的经历在眼角镌刻深深的纹、我转身雕下一朵花。</a></li>
+                        <li><a href="javascript:void(0)">夜微凉、灯微暗、暧昧散尽、笙歌婉转。</a></li>
+                        <li><a href="javascript:void(0)">舌间搁浅的妙蔓、是想为你舞一曲最后倾国倾城。</a></li>
+                        <li><a href="javascript:void(0)">星星的故事、是陪你走在人海里、却不会让你走丢。</a></li>
+                        <li><a href="javascript:void(0)">如果有一双眼睛为我流泪、我愿意再次相信这个悲凉的人生。</a></li>
+                        <li><a href="javascript:void(0)">只身步步海天涯、路无归、霜满颜。</a></li>
+                        <li><a href="javascript:void(0)">守住的是仓皇而班驳的灾难、是用整个生命也敌不过的假象。</a></li>
+                        <li><a href="javascript:void(0)">怕冷的女子，心一定是凉的。</a></li>
+                        <li><a href="javascript:void(0)">悲伤自找的，幸福是你给的。</a></li>
+                        <li><a href="javascript:void(0)">过程和结局都有了、再去纠缠、连自己都觉得贪婪。</a></li>
+                        <li><a href="javascript:void(0)">喜欢的歌、静静地听。喜欢的人、远远的看。</a></li>
+                        <li><a href="javascript:void(0)">我有没有跟你说过爱是我不变的信仰、我有没有告诉过你爱就是永远把一个人放在心上。</a></li>
+                        <li><a href="javascript:void(0)">谁把谁的明媚尽收眼底、谁把谁的难过感同身受。</a></li>
+                        <li><a href="javascript:void(0)">寂寞这么多、在承受的有几个。</a></li>
+                        <li><a href="javascript:void(0)">那一场盛世流年、我们守着寂寞伤得面目全非。</a></li>
+                        <li><a href="javascript:void(0)">辗转在谁的年华谁的天涯。</a></li>
+                        <li><a href="javascript:void(0)">是宿命的悲、还是轮回的痛。</a></li>
+                        <li><a href="javascript:void(0)">把醉了的明天寄托在潘多拉的琴弦、浮沉余生虚伪地歌咏天上人间。</a></li>
+                        <li><a href="javascript:void(0)">谁用微笑假装自己不悲伤。</a></li>
+                        <li><a href="javascript:void(0)">为谁唱离歌、对谁说情话、给谁写天涯。</a></li>
+                        <li><a href="javascript:void(0)">把悲伤掩饰得天衣无缝。</a></li>
+                        <li><a href="javascript:void(0)">爱尔兰雪、土耳其蓝、莫斯科眼泪。我都收藏在小小的太阳里、还有晴天和微笑。波斯湾海、维也纳厅、阿拉伯传说。我都纪念在厚厚的相集里。还有七粉和公主。</a></li>
+                        <li><a href="javascript:void(0)">绘一场生死契阔的游戏、为我们的故事写一个结局。</a></li>
+                        <li><a href="javascript:void(0)">我在漫天风雪的回忆里披荆斩棘、你却在哪一个的字典里演绎皈依。</a></li>
+                        <li><a href="javascript:void(0)">路过的风景、有没有人为你好好收藏</a></li>
+                        <li><a href="javascript:void(0)">绘一场生死契阔的游戏、为我们的故事写一个结局</a></li>
+                        <li><a href="javascript:void(0)">如花美眷　也敌不过似水流年</a></li>
+                        <li><a href="javascript:void(0)">戏子入画、一生天涯</a></li>
+                        <li><a href="javascript:void(0)">那首情歌有关风月、却无关你我</a></li>
+                        <li><a href="javascript:void(0)">橱窗里盛放的琳琅满目、是阜盛而过的年华栩栩生辉</a></li>
+                        <li><a href="javascript:void(0)">下一世的情歌、把词交由你填、看看你仍旧是谁高高在上的王</a></li>
+                        <li><a href="javascript:void(0)">谁眼角朱红的泪痣成全了你的繁华一世、你金戈铁马的江山赠与谁一场石破惊天的空欢喜</a></li>
+                        <li><a href="javascript:void(0)">用一千年的时间去爱你、再用一万年的时间去忘记</a></li>
+                        <li><a href="javascript:void(0)">你是谁朝思暮想的笔尖少年、在绝城的荒途里辗转成歌</a></li>
+                        <li><a href="javascript:void(0)">把我们的故事刻在被风化的山墙上、路人看到的时候哭了</a></li>
+                        <li><a href="javascript:void(0)">把爱写成兵临城下的不朽传奇、那么、你会不会不辞冰雪披荆斩棘地奔赴而来</a></li>
+                        <li><a href="javascript:void(0)">你掌心华丽的情色线条纠结进了谁的城池里欢声笑语</a></li>
+                        <li><a href="javascript:void(0)">那首关于我们的歌、你把结局唱给了谁听</a></li>
+                        <li><a href="javascript:void(0)">泅渡一个世界、共一场生死</a></li>
+                        <li><a href="javascript:void(0)">等一个人、还是等一个故事</a></li>
+                        <li><a href="javascript:void(0)">女巫亲吻过的咒语破天而来、浇湿的誓言漉漉退场、我坐在海上补一张网、你伏在海底披星戴月的歌唱</a></li>
+                        <li><a href="javascript:void(0)">当掉的浅色寂语、你开了一家收购店、等来了遗忘的海角天光</a></li>
+                        <li><a href="javascript:void(0)">睫毛下的伤城路过了谁的风景谁的心</a></li>
+                        <li><a href="javascript:void(0)">躲在万劫不复的街头、微笑参透覆水难收</a></li>
+                        <li><a href="javascript:void(0)">用一根火柴烧一座蜃楼、借这场大雨让自己逃走</a></li>
+                        <li><a href="javascript:void(0)">我目送沿海的日落、紧抱一个醉生梦死的枕头、游不出回忆却学不会放手、怎么走</a></li>
+                        <li><a href="javascript:void(0)">摇曳在笔尖的舞姿、是聚光灯下最浓烈的一抹艳红</a></li>
+                        <li><a href="javascript:void(0)">你的夕阳、我的容颜、谁的三分之一年</a></li>
+                        <li><a href="javascript:void(0)">埋下一座城、关了所有灯</a></li>
+                        <li><a href="javascript:void(0)">不要说我小气，我现在花的都是父母的钱，我没有资格大气。</a></li>
+                        <li><a href="javascript:void(0)">人总要找点事情做，让自己忙起来，忙起来才知道生活不易，才明白平时的忧伤都是矫情。</a></li>
+                        <li><a href="javascript:void(0)">我也学会了伪装，不冷不热，不咸不淡，笑得没心没肺，不再流那廉价的眼泪。</a></li>
+                        <li><a href="javascript:void(0)">别把自己想的太伟大，要知道，在别人的世界里，不管你做的多好，你都只是个配角而已。</a></li>
+                        <li><a href="javascript:void(0)">你明明可以活的很开心的，偏偏要学人家谈恋爱。</a></li>
+                        <li><a href="javascript:void(0)">世间最好的默契，并非有人懂你的言外之意，而是有人懂你的欲言又止。</a></li>
+                        <li><a href="javascript:void(0)">要理想不要幻想，要激情不要矫情。凡事知足常乐。</a></li>
+                        <li><a href="javascript:void(0)">我可以去见你吗？我很久没笑了.</a></li>
+                        <li><a href="javascript:void(0)">忌讳从前却还屡屡回望</a></li>
+                        <li><a href="javascript:void(0)">爱与被爱的关系大概就是，互相道了晚安，你开始睡觉，我开始想你。</a></li>
+                        <li><a href="javascript:void(0)">你涉世未深 所以你与众不同.</a></li>
+                        <li><a href="javascript:void(0)">人间是个好地方 可我 以后不想再来了</a></li>
+                        <li><a href="javascript:void(0)">深深的话我们浅浅的说，长长的路我们慢慢的走</a></li>
+                        <li><a href="javascript:void(0)">你说的每句漫不经心的话，全在我心上开成漫山遍野的花</a></li>
+                        <li><a href="javascript:void(0)">收买神的欢心，爱是一身风流债</a></li>
+                        <li><a href="javascript:void(0)">“我要是再傻乎乎地爱着你我就是傻逼！”</a></li>
+                        <li><a href="javascript:void(0)">想要坐车走，随便哪里，只要不是这里</a></li>
+                        <li><a href="javascript:void(0)">你是如此对的人，可是只能仰望不能靠近</a></li>
+                        <li><a href="javascript:void(0)">情书是我抄的，但我喜欢你是真的</a></li>
+                        <li><a href="javascript:void(0)">喝眼前的酒 忘身后的人</a></li>
+                        <li><a href="javascript:void(0)">你别忘了你要带我回家</a></li>
+                        <li><a href="javascript:void(0)">熬夜的瘾和深爱的你</a></li>
+                        <li><a href="javascript:void(0)">窗户关久了阳光一下子照进来不是温暖而是刺眼</a></li>
+                        <li><a href="javascript:void(0)">丈夫把妻子落在加油站，妻子不记得丈夫电话！网友：塑料夫妻啊</a></li>
+                        <li><a href="javascript:void(0)">冬寒语暖（致我牵挂的人）</a></li>
+                        <li><a href="javascript:void(0)">择一人深爱，等一人终老。</a></li>
+                        <li><a href="javascript:void(0)">我想牵你的手，从心动，到古稀。</a></li>
+                        <li><a href="javascript:void(0)">“我爱你”的下半句，你知道是什么吗？</a></li>
+                        <li><a href="javascript:void(0)">“建议女生们都找男票玩一下这个游戏，哈哈哈！”</a></li>
+                        <li><a href="javascript:void(0)">“有个200斤的女友是怎样的体验？这也太甜了吧！！”</a></li>
+                        <li><a href="javascript:void(0)">二十几岁的人了，再分手不要只会吃恋爱的苦</a></li>
+                        <li><a href="javascript:void(0)">在你们那，十元可以吃到什么好吃的？</a></li>
+                        <li><a href="javascript:void(0)">孤独早已是人生常态，更是人的宿命！</a></li>
+                        <li><a href="javascript:void(0)">“没有在长夜痛哭的人，是不会了解人生的”</a></li>
+                        <li><a href="javascript:void(0)">给前任发三遍“我爱你”，答案让我哭了！</a></li>
+                        <li><a href="javascript:void(0)">一个人的衰老，从不再旅行开始。</a></li>
+                        <li><a href="javascript:void(0)">人啊！越懂事坚强，越没人心疼！</a></li>
+                        <li><a href="javascript:void(0)">本老铁树看完这5本后巨巨巨巨巨巨想恋爱！</a></li>
+                        <li><a href="javascript:void(0)">公路逃亡，碰上野丫头的江湖路子 …</a></li>
+                        <li><a href="javascript:void(0)">某天，你无端想起一个人，她曾让你对明天有所期许，但是却完全没有出现在你的明天里。</a></li>
+                        <li><a href="javascript:void(0)">在我们的爱情里，我一直扮演爱你的角色，分手时别问我为什么分手，问问你自己。</a></li>
+                        <li><a href="javascript:void(0)">不吃饭的女人这世上也许还有好几个，不吃醋的女人却连一个也没有。</a></li>
+                        <li><a href="javascript:void(0)">多么希望年少轻狂时爱的第一个少年，是我婚礼上的新郎。</a></li>
+                        <li><a href="javascript:void(0)">看你躺在我怀里，开心的样子，就是我想要的幸福。</a></li>
+                        <li><a href="javascript:void(0)">千军万马未乱我半拍心跳，到最后竟败给你浅浅一笑。</a></li>
+                        <li><a href="javascript:void(0)">我曾经以为只要我还在她就不会一无所有，后来才懂只是我一厢情愿还输得毫无保留。</a></li>
+                        <li><a href="javascript:void(0)">就让我笨拙的爱你, 从须臾到不朽, 从一叶到知秋。</a></li>
+                        <li><a href="javascript:void(0)">直到最后，连连对你说句晚安都是多余的。</a></li>
+                        <li><a href="javascript:void(0)">?你眼中有春与秋，胜过我见过爱过的一切山川与河流。</a></li>
+                        <li><a href="javascript:void(0)">那些陪你笑过的人会失散在岁月里，而在你生命中留下的都是陪你哭过的人。</a></li>
+                        <li><a href="javascript:void(0)">谁把谁的明媚尽收眼底，谁把谁的难过感同身受。</a></li>
+                        <li><a href="javascript:void(0)">我有没有跟你说过爱是我不变的信仰，我有没有告诉过你爱就是永远把一个人放在心上。</a></li>
+                        <li><a href="javascript:void(0)">过程和结局都有了，再去纠缠，连自己都觉得贪婪。</a></li>
+                        <li><a href="javascript:void(0)">如果有一双眼睛为我流泪，我愿意再次相信这个悲凉的人生。</a></li>
+                        <li><a href="javascript:void(0)">我流浪了那么久，还不想回家、因为你不在家、我便永远没有家。</a></li>
+                        <li><a href="javascript:void(0)">我徒手唱歌、你弹奏的肖邦、却盲了我的眼。</a></li>
+                        <li><a href="javascript:void(0)">只要心中有景，何处不是花香满径。</a></li>
+                        <li><a href="javascript:void(0)">一再的隐忍，一再的退让，却换来了盛宴上的谎言。</a></li>
+                        <li><a href="javascript:void(0)">我只是难过不能陪你一起老，再也没有机会，看到你的笑。</a></li>
+                        <li><a href="javascript:void(0)">用一千年的时间去爱你、再用一万年的时间去忘记。</a></li>
+                        <li><a href="javascript:void(0)">人总是在接近幸福时倍感幸福，在幸福进行时却患得患失。</a></li>
+                        <li><a href="javascript:void(0)">能够让彼此成就，彼此温暖，彼此让对方幸福感更强，这才是在一起最好的模样。</a></li>
+                        <li><a href="javascript:void(0)">如果跟他在一起，让本来阳光的你变得忧郁，变的敏感，让开心的你变的痛苦，那么你的选择就是错了。</a></li>
+                        <li><a href="javascript:void(0)">经历那么多的痛苦呢？</a></li>
+                        <li><a href="javascript:void(0)">我曾经以为自己深深爱着的那个人，一定是我这辈子最正确的选择，是对的人。但为什么我那么深爱的人让我</a></li>
+                        <li><a href="javascript:void(0)">愿你的深情不被辜负，愿你的人生都有人陪。</a></li>
+                        <li><a href="javascript:void(0)">愿你三冬暖，愿你春不寒。</a></li>
+                        <li><a href="javascript:void(0)">一见如故，再见陌路。</a></li>
+                        <li><a href="javascript:void(0)">好的爱情，一定要谈钱。</a></li>
+                        <li><a href="javascript:void(0)">那些夜里为你付出的等待，那些在时光中为你付出的思念。</a></li>
+                        <li><a href="javascript:void(0)">多谢你的绝情，让我学会死心。</a></li>
+                        <li><a href="javascript:void(0)">思绪凌乱地结成一张网，越网越紧，直达心脏，一阵隐隐作痛之后，方才罢休。</a></li>
+                        <li><a href="javascript:void(0)">如果坦白是一种伤害，我选择谎言。如果谎言也是伤害，我选择沉默。</a></li>
+                        <li><a href="javascript:void(0)">在对的时间遇到对的人，那是扯淡， 在错的时间遇到对的人，这就叫青春。</a></li>
+                        <li><a href="javascript:void(0)">如今我们仅有的默契，就是安静的躺在对方的好友列表里，不闻不问，各自生活。</a></li>
+                        <li><a href="javascript:void(0)">我的齐天大圣怎么变成别人的孙悟空了呢？</a></li>
+                        <li><a href="javascript:void(0)">学着做你自己，并优雅地放手所有不属于你的东西。</a></li>
+                        <li><a href="javascript:void(0)">你说过的永远，永远有多远？你说过的再见，何时再相见？</a></li>
+                        <li><a href="javascript:void(0)">没什么事是放不下的，痛了，你自然就会放下了。</a></li>
+                        <li><a href="javascript:void(0)">所谓旳执着已经没有了坚持旳理由，再继续旳停留也只是徒增寂寞而已。</a></li>
+                        <li><a href="javascript:void(0)">我们像是表面上的针，不停的转动，一面转，一面看着时间匆匆离去，却无能为力。</a></li>
+                        <li><a href="javascript:void(0)">一些受过伤的人会更加勇敢，因为他们知道，最痛不过如此。</a></li>
+                        <li><a href="javascript:void(0)">有没有一个约定，穷尽一生也舍不得忘记</a></li>
+                        <li><a href="javascript:void(0)">如果成长意味着分别，我怎么敢学会照顾自己。</a></li>
+                        <li><a href="javascript:void(0)">生在这世上，没有一样感情不是千疮百孔的。人生在世上，还不就是那么一回事，归根到底，什么事真，什么是假？</a></li>
+                        <li><a href="javascript:void(0)">慢慢的，长大了，却感觉变沉默了，懂得多了，却不快乐了。大家都是这样的么?</a></li>
+                        <li><a href="javascript:void(0)">人生苦短，别计较太多，与其在纷扰中度日如年，不如让自己在舒适中耗尽余生。</a></li>
+                        <li><a href="javascript:void(0)">原谅我的贪心，总是想留住身边每个对我好的人。最后才发现，有些人无论怎样也留不住。</a></li>
+                        <li><a href="javascript:void(0)">时间，渐渐带走了年少轻狂，也慢慢沉淀了冷暖自知。</a></li>
+                        <li><a href="javascript:void(0)">有些路很远，走下去会很累。可是，不走，会后悔。</a></li>
+                        <li><a href="javascript:void(0)">醉过才知酒浓，爱过才知情重，你不能做我的诗，正如我不能做你的梦。</a></li>
+                        <li><a href="javascript:void(0)">从容不迫的举止，比起咄咄逼人的态度，更能令人心折。</a></li>
+                        <li><a href="javascript:void(0)">孤独不是给别人机会来可怜你，而是给你机会发现更强大的自己。</a></li>
+                        <li><a href="javascript:void(0)">不管天气怎样，给自己的世界一片晴朗；不管季节变换，让自己的内心鸟语花香。</a></li>
+                        <li><a href="javascript:void(0)">为什么余生不能将就？这是我最喜欢的答案</a></li>
+                        <li><a href="javascript:void(0)">这个世界没有那么好，但也没有那么糟</a></li>
+                        <li><a href="javascript:void(0)">疼好自己，世界便会温柔以待</a></li>
+                        <li><a href="javascript:void(0)">如果记忆如钢铁般坚固，我该微笑，还是哭泣，如果记忆如钢铁般被腐蚀，那这是环城还是废墟。</a></li>
+                        <li><a href="javascript:void(0)">时间从来不能阻挡梦想的脚步，有着一份固执的坚持，学会让梦想每天壮大一点点</a></li>
+                        <li><a href="javascript:void(0)">你说的黑是什么黑？你说的借是什么借？</a></li>
+                        <li><a href="javascript:void(0)">贫穷限制的不仅是想象力，还有审美能力！</a></li>
+                        <li><a href="javascript:void(0)">面对老婆的套路，没点求生欲是不行的！</a></li>
+                        <li><a href="javascript:void(0)">再也不愿别的男人见识我的妩媚！</a></li>
+                        <li><a href="javascript:void(0)">暖男就像冬天里的一把火，温暖女神的心窝~</a></li>
+                        <li><a href="javascript:void(0)">老公，你这样对我良心不会痛吗？</a></li>
+                        <li><a href="javascript:void(0)">女神的饭局，颜值不够可不行哟~</a></li>
+                        <li><a href="javascript:void(0)">在人间有谁活着不带着一点绿？</a></li>
+                        <li><a href="javascript:void(0)">女神，真的不是你的错！</a></li>
+                        <li><a href="javascript:void(0)">大龄单身男青年的择偶标准~</a></li>
+                        <li><a href="javascript:void(0)">需要防水的不是手表，而是你的大脑</a></li>
+                        <li><a href="javascript:void(0)">男友的怀抱，女神却靠不到</a></li>
+                        <li><a href="javascript:void(0)">午夜惊魂之影藏的杀手！</a></li>
+                        <li><a href="javascript:void(0)">舞台就绪，请开始你的表演！</a></li>
+                        <li><a href="javascript:void(0)">在那遥远的地方，有一个智障......</a></li>
+                        <li><a href="javascript:void(0)">这种事儿，绝对不能在车上做！</a></li>
+                        <li><a href="javascript:void(0)">做贼不心虚，吊打老司机</a></li>
+                        <li><a href="javascript:void(0)">对付女友的唠叨，套路最重要！</a></li>
+                        <li><a href="javascript:void(0)">待遇不如狗，人生何其凄凉</a></li>
+                        <li><a href="javascript:void(0)">一觉醒来，镜中的自己突然变成了他...</a></li>
+                        <li><a href="javascript:void(0)">你自信的时候，真的美多了！</a></li>
+                        <li><a href="javascript:void(0)">胖女孩被嘲笑后疯狂减肥，三个月后......</a></li>
+                        <li><a href="javascript:void(0)">最毒男人心，相处要小心</a></li>
+                        <li><a href="javascript:void(0)">开百万豪车去相亲，却还遭美女嫌弃</a></li>
+                        <li><a href="javascript:void(0)">偶遇女神摇一摇，手速快！狠！准！</a></li>
+                        <li><a href="javascript:void(0)">为何负债累累，全靠智商拖后腿......</a></li>
+                        <li><a href="javascript:void(0)">女友被逼和别人相亲，挫男怎么办？</a></li>
+                        <li><a href="javascript:void(0)">男子苦心撩妹，却遭第三者插足破坏~</a></li>
+                        <li><a href="javascript:void(0)">爱情三十六计，要随时保持警惕~</a></li>
+                        <li><a href="javascript:void(0)">一部风靡职场、男女为之尖叫的小说</a></li>
+                        <li><a href="javascript:void(0)">美女多烦恼，全怪花钱少！</a></li>
+                        <li><a href="javascript:void(0)">美女主动撩汉回家，他却推门而去......</a></li>
+                        <li><a href="javascript:void(0)">未解之谜：她为何总是能最后一个到，还那么受欢迎？</a></li>
+                        <li><a href="javascript:void(0)">奇葩！女追男也隔层山，路遇情侣一耳光！</a></li>
+                        <li><a href="javascript:void(0)">每个落魄男人身后，都站着一群见钱眼开的人！</a></li>
+                        <li><a href="javascript:void(0)">我不嫁，凭什么让我嫁给王家那个二货！</a></li>
+                        <li><a href="javascript:void(0)">我养你啊？你养不起，滚开，骗谁呢？！</a></li>
+                        <li><a href="javascript:void(0)">越有本事的男人，越没有脾气</a></li>
+                        <li><a href="javascript:void(0)">叫你穿秋裤的人才是你该爱的人</a></li>
+                        <li><a href="javascript:void(0)">震惊！在婚姻里，比出轨更可怕的竟然是......</a></li>
+                        <li><a href="javascript:void(0)">“喜欢不是爱，所以变心很快”</a></li>
+                        <li><a href="javascript:void(0)">这种性格的男人，千万不要嫁给他</a></li>
+                        <li><a href="javascript:void(0)">给喜欢你的人，留条活路好不好?</a></li>
+                        <li><a href="javascript:void(0)">变得更好不是为了让别人来爱</a></li>
+                        <li><a href="javascript:void(0)">为什么不要和年龄大的男人谈恋爱</a></li>
+                        <li><a href="javascript:void(0)">喜欢你的人不回微信很正常</a></li>
+                        <li><a href="javascript:void(0)">从聊天的标点符号，就能看出他喜不喜欢你</a></li>
+                        <li><a href="javascript:void(0)">一生中最自卑的时候，是遇到了爱的人！</a></li>
+                        <li><a href="javascript:void(0)">与靠谱的人在一起有多爽</a></li>
+                        <li><a href="javascript:void(0)">你以为和你好聚好散的男人是风度，那都是假的</a></li>
+                        <li><a href="javascript:void(0)">男人是如何用一句话撩到喜欢的人</a></li>
+                        <li><a href="javascript:void(0)">一个人有多爱你，见一次父母就知道了</a></li>
+                        <li><a href="javascript:void(0)">女生在恋爱里最容易犯的一个错误是......</a></li>
+                        <li><a href="javascript:void(0)">女人找男人找未来，男人找女人找现在</a></li>
+                        <li><a href="javascript:void(0)">以后对男朋友好一点，毕竟他是这个世界上眼光最好的人</a></li>
+                        <li><a href="javascript:void(0)">翻开男友淘宝记录，发现他出轨了......</a></li>
+                        <li><a href="javascript:void(0)">你的微信昵称，暴露了你是什么样的人</a></li>
+                        <li><a href="javascript:void(0)">感谢时间，让我认清了很多事情</a></li>
+                        <li><a href="javascript:void(0)">一个男人在追你的时候，是他最用心的时候</a></li>
+                        <li><a href="javascript:void(0)">我曾想过，和你过一生</a></li>
+                        <li><a href="javascript:void(0)">这样的男人，活该没有女朋友！</a></li>
+                        <li><a href="javascript:void(0)">一个女人嫁的好不好，就看男人的三个部位就知道</a></li>
+                        <li><a href="javascript:void(0)">这三种情感，最后一定不得善终</a></li>
+                        <li><a href="javascript:void(0)">要验证是否相爱的最好方法，就是分开！</a></li>
+                        <li><a href="javascript:void(0)">相亲的时候看那里，妹子不会觉得尴尬？</a></li>
+                        <li><a href="javascript:void(0)">都说男生最爱的，永远是初恋，你觉得呢？</a></li>
+                        <li><a href="javascript:void(0)">老公要离婚，婆婆大骂：老婆是娶来干什么的？</a></li>
+                        <li><a href="javascript:void(0)">不要和认识很久的朋友谈恋爱</a></li>
+                        <li><a href="javascript:void(0)">光凭这一点，他就不是真的对你好</a></li>
+                        <li><a href="javascript:void(0)">这样的男人，让妹子最想睡</a></li>
+                        <li><a href="javascript:void(0)">豪门少妇的出轨实录</a></li>
+                        <li><a href="javascript:void(0)">那个来自ta的问候，竟让我热泪盈眶</a></li>
+                        <li><a href="javascript:void(0)">珍惜一个人的方式，就是一丁点都不要拥有</a></li>
+                        <li><a href="javascript:void(0)">三个渣男的真实下场</a></li>
+                        <li><a href="javascript:void(0)">这个男人干了一件事，拯救了上万女人</a></li>
+                        <li><a href="javascript:void(0)">和异性这样聊天，被撩是迟早的事！</a></li>
+                        <li><a href="javascript:void(0)">我爱一个男人，就不能给另一个男人抱</a></li>
+                        <li><a href="javascript:void(0)">真正的女王，用情不会太深~</a></li>
+                        <li><a href="javascript:void(0)">男人爱你程度多深，这些细节很重要！</a></li>
+                        <li><a href="javascript:void(0)">那些23岁就结婚的女孩告诉你，这个时代，晚婚的女孩更好命</a></li>
+                        <li><a href="javascript:void(0)">所有感情里的“不得其解”，用一个“他没那么喜欢你”都能解释通</a></li>
+                        <li><a href="javascript:void(0)">调教男人的最高境界是什么？</a></li>
+                        <li><a href="javascript:void(0)">夫妻之间也是有“潜规则”的，这个你清楚吗？</a></li>
+                        <li><a href="javascript:void(0)">三观不合的伴侣在一起会有什么结果？</a></li>
+                        <li><a href="javascript:void(0)">为什么很多有钱人的妻子不漂亮？</a></li>
+                        <li><a href="javascript:void(0)">嫁入豪门是每个女孩子的梦想，可对她来说却是噩梦的开始！</a></li>
+                        <li><a href="javascript:void(0)">想要男人对你死心踏地，要学会聪明的“胡闹”！</a></li>
+                        <li><a href="javascript:void(0)">结婚三年，她送给他的周年礼物，是一份离婚协议书</a></li>
+                        <li><a href="javascript:void(0)">除了老婆，99%男人都想要这种女人</a></li>
+                        <li><a href="javascript:void(0)" >男人这一点告诉你爱情和情欲的区别！</a></li>
+                        <!-- /ko -->
+                    </ul> </li>
+                <li id="cover-img" class="dropdown"> <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-image"></i> 文案封面 <span class="caret"></span></a> </li>
+                <li class="dropdown"> <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown" ><i class="ace-icon glyphicon glyphicon-text-width"></i> 文本模式<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li> <a href="javascript:void(0);" data-editor="text" ><i class="ace-icon glyphicon glyphicon-text-width"></i> 文本模式</a> </li>
+                        <li id="glyphicon-picture"> <a href="javascript:void(0);" data-editor="image" ><i class="ace-icon glyphicon glyphicon-picture"></i> 图片模式</a> </li>
+                        <li> <a href="javascript:void(0);" data-editor="background"><i class="ace-icon glyphicon glyphicon-picture"></i> 背景图模式</a> </li>
+                    </ul> </li>
+                <li class="dropdown"> <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">正文模板 <span class="caret"></span></a>
+                    <ul class="dropdown-menu content-module">
+                        <!-- ko foreach: body_templates -->
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body1.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body10.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body11.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body12.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body2.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body3.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body4.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body5.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body6.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body7.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body8.jpg" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/body/body9.jpg" /> </a> </li>
+                        <!-- /ko -->
+                    </ul> </li>
+                <li class="dropdown"> <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">原文引导模板 <span class="caret"></span></a>
+                    <ul id="img-footer" class="dropdown-menu">
+                        <!-- ko foreach: footer_templates -->
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer1.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer2.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer3.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer4.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer5.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer6.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer7.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer8.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer9.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer10.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer11.gif" /> </a> </li>
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/footer/footer12.gif" /> </a> </li>
+                        <!-- /ko -->
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" style="color:#777;" > ----------- 无 ----------- </a> </li>
+                    </ul> </li>
+                <li class="dropdown"> <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown">二维码引导模板 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <!-- ko foreach: qrcode_templates -->
+                        <li class="il-1" style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/qr_code/qr-footer1-preview.png" /> </a> </li>
+                        <li class="il-2" style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/qr_code/qr-footer2-preview.png" /> </a> </li>
+                        <li class="il-3" style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/qr_code/qr-footer6-preview.png" /> </a> </li>
+                        <li class="il-4" style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/qr_code/qr-footer7-preview.png" /> </a> </li>
+                        <li class="il-5" style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/qr_code/qr-footer8-preview.png" /> </a> </li>
+                        <li class="il-6" style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/qr_code/qr-footer12-preview.png" /> </a> </li>
+                        <li class="il-7" style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/qr_code/qr-footer13-preview.png" /> </a> </li>
+                        <li class="il-8" style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" > <img style="max-height: 40px;"  src="https://qcdn.zhangzhongyun.com/wx_articles/templates/qr_code/qr-footer14-preview.png" /> </a> </li>
+                        <!-- /ko -->
+                        <li style="border-bottom:#eee 1px solid;"> <a href="javascript:void(0)" style="color:#777;" > ----------- 无 ----------- </a> </li>
+                    </ul> </li>
+                <li class="dropdown"> <a href="javascript:void(0)" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-copy"></i> 复制 <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li class="copy-title"> <a href="javascript:void(0);" data-toggle="copy-text" data-clipboard-target="#wx-article-title">复制标题</a> </li>
+                        <li class="copy-content"> <a href="javascript:void(0);" data-toggle="copy-text" data-clipboard-target="#wx-article-content">复制正文</a> </li>
+                    </ul> </li>
+            </ul>
+            <div class="navbar-form navbar-right">
+      <span  style="">
+          <button id="btn-original" type="button" class="btn btn-primary" > <i class="fa fa-link"></i> 生成原文链接 </button>
+          <span class="btn-group dropup" style="display: none;">
+              <button type="button" class="btn btn-primary" ><i class="fa fa-link"></i> 获取原文链接</button>
+              <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> <span class="caret"></span> </button>
+        <ul class="dropdown-menu">
+         <li><a href="javascript:void(0)" ><i class="fa fa-fw fa-edit"></i> 修改链接属性</a></li>
+         <li><a href="javascript:void(0)" ><i class="fa fa-fw fa-plus"></i> 生成新链接</a></li>
+        </ul> </span> </span>
+                <span style="display:none;"> <button type="button" class="btn btn-disabled">小说已下架</button> </span>
+            </div>
+            <div class="navbar-form navbar-right">
+                <span>
+                    <button id="open_link" type="button" class="btn btn-primary"  data-toggle="tooltip" title="" data-original-title="获取临时公开链接给接单人员复制文案">
+                    <i class="fa fa-link"></i> 获取公开链接</button>
+                </span>
+            </div>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container-fluid -->
+</nav>
+<!--模态框     获取公开文案-->
+<div class="modal fade" id="tmp-referral-link-modal" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" id="close4"  class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">文案公开链接</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <div class="info-alert" style="display: none">
+                        该推广链接还没有添加文案
+                    </div>
+                    <div >
+                        <div class="input-group form-group">
+                            <span class="input-group-addon">链接</span>
+                            <input type="text" id="tmp-referral-link-url" value="https://c5180.818tu.com/referral_link/tmp/n1EqsoZZx"  readonly="" class="form-control"  />
+                            <span class="input-group-btn"> <button id="copy-open-url" type="button" data-toggle="copy-tmp-referral-link" data-clipboard-target="#tmp-referral-link-url" class="btn btn-default"><i class="fa fa-copy"></i> 复制</button> </span>
+                        </div>
+                        <div>
+                            有效期至:
+                            <span style="color:darkred;" ></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+               <!-- <button type="button" class="btn btn-primary" data-editor-mode="text" >编辑文字文案</button>
+                <button type="button" class="btn btn-primary" data-editor-mode="image" >编辑图片文案</button>
+                <button type="button" class="btn btn-primary" data-editor-mode="background" >编辑背景图文案</button>
+                <button type="button" class="btn btn-primary" >编辑文案</button>-->
+                <button type="button" class="btn btn-primary" >重置过期时间</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--模态框     生成原文链接-->
+<div class="modal fade" id="create-referral-link-modal" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" id="close1"  class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" >生成推广链接</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal"  novalidate="novalidate">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">入口页面</label>
+                        <div class="col-sm-7">
+                            <p class="form-control-static">
+                                <span >小说阅读页</span> 
+                                <span style="display: none" >首页</span>
+                                <span style="display: none"  >热门推荐</span>
+                                <span style="display: none"  >VIP年费充值</span>
+                                <span style="display: none"  >热门推荐-男生</span>
+                                <span style="display: none" >热门推荐-女生</span> </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3"><span class="required" aria-required="true">*</span> 派单渠道名称</label>
+                        <div class="col-sm-7">
+                            <input type="text" id="partnerPushUrlName" class="form-control" maxlength="100" name="description" data-val="true" data-val-required="请填写派单渠道名称"  />
+                            <p class="help-block help-block-error" data-valmsg-for="description" data-valmsg-replace="true"></p>
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: none;">
+                        <label class="control-label col-sm-3"><span class="required" aria-required="true">*</span> 派单渠道类型</label>
+                        <div class="col-sm-7">
+                            <label class="radio-inline"> <input type="radio" name="referrer_type" value="verified_mp"  data-val="true" data-val-required="请选择派单渠道类型" /> <span>认证公众号</span> </label>
+                            <label class="radio-inline"> <input type="radio" name="referrer_type" value="not_verified_mp"  /> <span>非认证公众号</span> </label>
+                            <p class="help-block help-block-error" data-valmsg-for="referrer_type" data-valmsg-replace="true"></p>
+                        </div>
+                    </div>
+                    <div >
+                        <div class="form-group">
+                            <div class="col-sm-7 col-sm-offset-3">
+                                <p class="form-control-static">
+                                    <img style="width:80px" src="${map.small_pic }">
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">阅读原文章节</label>
+                            <div class="col-sm-7">
+                                <p class="form-control-static">
+                                    <strong data-bind="html: article_title">${map.chapter_name }</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="generating_link" type="button" chapter-id="${map.chapter_id }" class="btn btn-primary">生成链接</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--模态框     获取原文链接  二维码-->
+<div class="modal fade" id="get-referral-link-qrcode-modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">原文链接</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>原文链接:</strong>
+                            <div style="margin:10px 0;word-break:break-all;" class="text-primary short-url"></div>
+                            <a style="margin:10px 0;" class=" link-url"></a>
+                            <div style="margin:10px 0;color:red;font-weight:bold;">
+                                <i class="fa fa-info-circle"></i> 请务必使用上方链接作为文案的原文链接，不要使用微信中点开后手工复制的链接
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div id="qrcode1" class="qrcode" style="padding-left:20px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-copy-ref-link" id="btn-copy-ref-link" data-url=""><i class="fa fa-copy"></i> 复制链接</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--模态框     获取原文链接-->
+<div class="modal fade" id="content-img-modal" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">正文图片</h4>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group" >
+                    <li class="list-group-item"> <span style="display:inline-block;margin-top:4px;"> <span style="font-size:16px;" ></span> 
+                        <span ><i class="fa fa-spin fa-spinner"></i></span> 
+                        <span class="text-muted" style="display: none;" > (<span ></span> x <span ></span>) </span> </span> <button type="button" class="btn btn-sm btn-default pull-right"><i class="fa fa-download"></i> 下载</button>
+                        <div style="color:red;display:none;" ></div> </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!--模态框     文案封面图-->
+<div class="cover-select-modal modal fade" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" id="close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">文案封面选择</h4>
+            </div>
+            <div class="modal-body">
+                <div id="title-img" class="row">
+                    <!-- ko foreach: covers -->
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;">
+                            <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304535.jpg" />
+                        </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304523.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304517.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304501.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304496.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304492.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304488.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304434.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304430.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304427.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304423.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304418.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304415.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304410.jpg" /> </a>
+                    </div>
+                    <div class="col-sm-3" style="height: 75px; width: 112px; overflow: hidden">
+                        <a href="javascript:;"  style="display:block;margin-bottom:10px;"> <img  style="width:112px;height:75px;" src="https://qcdn.zhangzhongyun.com/wxarticle/cover/1534304368.jpg" /> </a>
+                    </div>
+                    <!-- /ko -->
+                    <!-- ko if: covers().length == 0 -->
+                    <!-- /ko -->
+                </div>
+                <div style="margin: 10px; text-align: center; background: rgb(249, 249, 249); padding: 10px 0px;">
+                    <a href="javascript:;">加载更多</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--模态框     提示先生成原文链接-->
+<div class="modal fade" id="alert-create-referral-link" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" id="close5"  class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" data-bind="html: title">提示</h4>
+            </div>
+            <div class="modal-body" data-bind="html: body" style="max-height: 547px; overflow: auto;">
+                获取文案公开链接需要先生成原文链接
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button id="go-content-img-modal" type="button" class="btn btn-primary">立即生成</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="alert-create-referral-link2" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" id="close6"  class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" data-bind="html: title">提示</h4>
+            </div>
+            <div class="modal-body" data-bind="html: body" style="max-height: 547px; overflow: auto;">
+                插入二维码需要先生成原文链接
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button id="go-content-img-modal2" type="button" class="btn btn-primary">立即生成</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script src="static/js/scripts/PushChannel/Bootstrap.js"></script>
+<!--复制框架-->
+<script src="https://cdn.bootcss.com/clipboard.js/2.0.1/clipboard.min.js"></script>
+<!--二维码框架-->
+<script src="https://cdn.bootcss.com/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+<!--快捷方法框架-->
+<script src="https://cdn.bootcss.com/knockout/3.4.2/knockout-min.js"></script>
+<!--提示框架-->
+<script src="https://cdn.bootcss.com/toastr.js/latest/js/toastr.min.js"></script>
+<!--页面截图-->
+<script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+<!--页面js-->
+<script src="static/js/scripts/partner/PushChannel/referencedCopywriting.js"></script>
+</body>
+</html>

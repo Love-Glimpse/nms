@@ -1,0 +1,263 @@
+package com.kuaidu.nms.pushchannel.serviceImpl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerLogo;
+import com.kuaidu.nms.entity.PartnerPmConfig;
+import com.kuaidu.nms.entity.RestReturn;
+import com.kuaidu.nms.pushchannel.mapper.PartnerInfoMapper;
+import com.kuaidu.nms.utils.Utils;
+import com.kuaidu.nms.utils.fastdfs.FastDFSTemplate;
+import com.kuaidu.nms.utils.fastdfs.FastDfsInfo;
+
+
+@Service
+@Transactional 
+public class PartnerInfoMapperImpl {
+	@Resource
+	private PartnerInfoMapper mapper;
+	
+	@Autowired
+	FastDFSTemplate fastDFSTemplate;
+
+	public PartnerInfoMapper getMapper() {
+		return mapper;
+	}
+
+	public void setMapper(PartnerInfoMapper mapper) {
+		this.mapper = mapper;
+	}
+
+	public List<PartnerInfo> getAllPartnerInfo(PartnerInfo partnerInfo) {
+		// TODO Auto-generated method stub
+		try {
+			return mapper.getAllPartnerInfo(partnerInfo);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public int updatePartnerInfo(PartnerInfo partnerInfo) {
+		// TODO Auto-generated method stub
+		int ret = 0;
+		try {
+			if (mapper.checkPartnerSymbol(partnerInfo)>0) {
+				ret = 11;
+			}
+			if (mapper.checkPartnerName(partnerInfo)>0) {
+				ret = 12;
+			}
+			if (mapper.checkLoginName(partnerInfo)>0) {
+				ret = 13;
+			}else {
+				mapper.updatePartnerInfo(partnerInfo);
+				ret = 10;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	@Transactional
+	public int addPartnerInfo(PartnerInfo partnerInfo) {
+		// TODO Auto-generated method stub
+		int ret = 0;
+		//查询partner_symbol, partner_symbol,login_name 是否存在
+		try {
+			if (mapper.checkPartnerSymbol(partnerInfo)>0) {
+				ret = 11;
+			}
+			if (mapper.checkPartnerName(partnerInfo)>0) {
+				ret = 12;
+			}
+			if (mapper.checkLoginName(partnerInfo)>0) {
+				ret = 13;
+			}else {
+				mapper.addPartnerInfo(partnerInfo);
+				PartnerPmConfig pmConfig = new PartnerPmConfig();
+				
+				pmConfig.setPartner_id(partnerInfo.getPartner_id());
+				pmConfig.setWe_token(Utils.md5(partnerInfo.getPartner_name()+partnerInfo.getPartner_id()));
+				mapper.addPartnerPmConfig(pmConfig);
+				ret = 10;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+	public String getMaxPartnerId() {
+		// TODO Auto-generated method stub
+		try {
+			String maxPartnerId = mapper.getMaxPartnerId();
+			int length = maxPartnerId.length();
+			if (length<4) {
+				for (int i = 4; i > length; i--) {
+					maxPartnerId = "0"+maxPartnerId;
+				}
+			}
+			return maxPartnerId;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "0";
+		}
+	}
+
+	public int getLevelWithPartnerId(int partner_id) {
+		// TODO Auto-generated method stub
+		try {
+			return mapper.getLevelWithPartnerId(partner_id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	public int delPartnerInfo(int partner_id) {
+		// TODO Auto-generated method stub
+		try {
+			mapper.delPartnerInfo(partner_id);
+			return 1;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	public List<PartnerInfo> getSubPartnerInfo(PartnerInfo partnerInfo) {
+		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub
+		try {
+			return mapper.getSubPartnerInfo(partnerInfo);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public PartnerPmConfig getPartnerPmConfig(int partner_id) {
+		// TODO Auto-generated method stub
+		try {
+			return mapper.getPartnerPmConfig(partner_id);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public int savePartnerLogoConfig(PartnerLogo partnerLogo) {
+		// TODO Auto-generated method stub
+		try {
+			if (mapper.checkExist(partnerLogo)==0) {
+				mapper.savePartnerLogoConfig(partnerLogo);
+			}else {
+				mapper.updatePartnerLogoConfig(partnerLogo);
+			}
+			return 0;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 1;
+		}
+	}
+	public int checkPaUser(int id, String s_pwd) {
+		// TODO Auto-generated method stub
+		return mapper.checkPaUser(id,s_pwd);
+	}
+
+	public int changePaPwd(int id, String n_pwd, String s_pwd) {
+		// TODO Auto-generated method stub
+		int ret = 0;
+		try {
+			mapper.changePaPwd(id,n_pwd,s_pwd);
+			ret = 20;
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		return ret;
+	}
+
+	public void uploadPartnerLog(int parent_id, String fileAbsolutePath) {
+		mapper.uploadPartnerLog(parent_id,fileAbsolutePath);
+	}
+
+	@Transactional
+	public Object uploadPartnerLog(Integer partnerId, MultipartFile file) throws Exception {
+		byte[] bytes = file.getBytes();
+		String originalFilename = file.getOriginalFilename();
+		PartnerLogo partnerLogo = mapper.selectPartnerLogo(partnerId);
+		String type = StringUtils.substringAfterLast(originalFilename, ".");
+		FastDfsInfo fastDfsInfo = fastDFSTemplate.upload(bytes, type);
+		String logoUrl = fastDfsInfo.getFileAbsolutePath();
+		if (partnerLogo == null) {
+			partnerLogo = new PartnerLogo();
+			partnerLogo.setPartner_id(partnerId);
+			partnerLogo.setLogo_url(logoUrl);
+			mapper.savePartnerUrl(partnerLogo);
+		}else {
+			mapper.uploadPartnerLog(partnerId,logoUrl);
+			if (partnerLogo.getLogo_url() != null) {
+				
+				fastDFSTemplate.deleteFile(partnerLogo.getLogo_url());
+			}
+			
+		}
+		
+		return RestReturn.success(logoUrl);
+	}
+
+	public Object uploadQRCode(Integer partnerId, MultipartFile file) throws Exception {
+		byte[] bytes = file.getBytes();
+		String originalFilename = file.getOriginalFilename();
+		PartnerLogo partnerLogo = mapper.selectPartnerLogo(partnerId);
+		String type = StringUtils.substringAfterLast(originalFilename, ".");
+		FastDfsInfo fastDfsInfo = fastDFSTemplate.upload(bytes, type);
+		String qrCodeRul = fastDfsInfo.getFileAbsolutePath();
+		if (partnerLogo == null) {
+			partnerLogo = new PartnerLogo();
+			partnerLogo.setPartner_id(partnerId);
+			partnerLogo.setQr_code_url(qrCodeRul);
+			mapper.savePartnerUrl(partnerLogo);
+		}else {
+			mapper.updateQrCodeUrl(qrCodeRul,partnerId);
+			if (partnerLogo.getQr_code_url() != null) {
+				
+				fastDFSTemplate.deleteFile(partnerLogo.getQr_code_url());
+			}
+			
+		}
+		return RestReturn.success(qrCodeRul);
+	}
+
+	public Object savePartnerLogo(PartnerLogo partnerLogo) {
+		PartnerLogo partnerLogoselect = mapper.selectPartnerLogo(partnerLogo.getPartner_id());
+		if (partnerLogoselect == null) {
+			mapper.savePartnerLogo(partnerLogo);
+		}else {
+			partnerLogo.setId(partnerLogoselect.getId());
+			System.err.println(partnerLogo.toString());
+			mapper.updatePartnerLogo(partnerLogo);
+		}
+		
+		return RestReturn.success();
+	}
+}

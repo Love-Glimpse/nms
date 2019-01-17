@@ -1,0 +1,157 @@
+package com.kuaidu.nms.partner.push.controller;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.github.pagehelper.PageInfo;
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.entity.RecCover;
+import com.kuaidu.nms.entity.RecTitle;
+import com.kuaidu.nms.entity.RestReturn;
+import com.kuaidu.nms.partner.push.serviceImpl.PartnerPushUrlServiceImpl;
+import com.kuaidu.nms.utils.Utils;
+
+@Controller
+@RequestMapping("partner")
+public class PartnerPushUrlController {
+	
+	@Autowired
+	PartnerPushUrlServiceImpl partnerPushUrlService;
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	
+	
+	/**
+	 * 添加推广链接
+	 * @param type
+	 * @param name
+	 * @param chapterId
+	 * @param session
+	 * @return
+	 */
+	@ResponseBody
+	@PostMapping("pushUrl")
+	public RestReturn savePartnerPushUrl(PartnerPushUrl partnerPushUrl,HttpSession session){
+			try {
+				return partnerPushUrlService.savePartnerPushUrl(partnerPushUrl,session);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return RestReturn.fail();
+		}
+		
+	
+	@GetMapping("pushUrls")
+	public String toPushUrlPage(HttpSession session,HttpServletRequest request,@RequestParam(required=false)String name
+			,@RequestParam(defaultValue="1")Integer pn,@RequestParam(defaultValue="10")Integer ps){
+		PartnerInfo partnerInfo = Utils.getPartnerFromSession(session);
+		PageInfo<PartnerPushUrl> pageInfo = partnerPushUrlService.getPushUrlInfo(partnerInfo.getPartner_id(),pn,ps,name);
+		request.setAttribute("pageInfo", pageInfo);
+		request.setAttribute("name", name);
+		return "partner/PushChannel/pushUrl";
+	}
+	
+	/**
+	 * 删除推广链接
+	 * @param pushId
+	 * @return
+	 */
+	@ResponseBody
+	@DeleteMapping("pushUrl/{pushId}")
+	public RestReturn deletePartnerPushUrl(@PathVariable()Integer pushId){
+		return  partnerPushUrlService.deletePartnerPushUrl(pushId);
+	}
+	
+	
+	@ResponseBody
+	@PutMapping("pushUrl/{pushId}")
+	public RestReturn updateeartnerPushUrl(@PathVariable()Integer pushId,String name){
+		return  partnerPushUrlService.updatePartnerPushUrl(pushId,name);
+	}
+	
+	/**
+	 * 微信推广模板
+	 * @param bookId
+	 * @param chapterNum
+	 * @param mode
+	 * @param request
+	 * @return
+	 */
+	@GetMapping("wx_editor")
+	public String sdf(PartnerPushUrl partnerPushUrl,HttpServletRequest request) {
+		partnerPushUrlService.wxEditor(partnerPushUrl,request);
+		
+		
+	
+		return "partner/PushChannel/referencedCopywriting";
+	}
+	
+	/**
+	 * 创建公开链接
+	 * @param pushId
+	 * @return
+	 */
+	@ResponseBody
+	@PostMapping("openUrl/{pushId}")
+	public Object createOpenUrl(@PathVariable()Integer pushId,PartnerPushUrl partnerPushUrl) {
+		
+		return  partnerPushUrlService.createOpenUrl(pushId,partnerPushUrl);
+		
+	}
+	
+	@ResponseBody
+	@PutMapping("reset/openUrl/{pushId}")
+	public Object resetExpiryDate(@PathVariable()Integer pushId) {
+		
+		return  partnerPushUrlService.resetExpiryDate(pushId);
+		
+	}
+	
+	
+	
+	
+	
+	/**
+	 * 加载封面图
+	 * @param pn
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("covers")
+	public Object getCover(Integer pn) {
+		return partnerPushUrlService.getCover(pn);
+	}
+	
+	/**
+	 * 获取公开链接
+	 * @return
+	 */
+	@ResponseBody
+	@GetMapping("openUrl/{pushId}")
+	public Object getOpenUrl(@PathVariable()Integer pushId,HttpSession session) {
+		PartnerInfo partnerInfo = Utils.getPartnerFromSession(session);
+		return partnerPushUrlService.getOpenUrlByPushId(pushId,partnerInfo.getPartner_id());
+	}
+	
+	
+	
+	
+	
+}

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.partner.datastat.mapper.PartnerUserOrderMapper">
+    <select id="getAllRecords" resultType="UserOrder">
+		SELECT uo.created_time,uo.parent_id,uo.partner_id,pi.partner_name,ui.user_id,ui.nick_name,ui.picture,uo.order_id
+				,uo.`status`,uo.pay_time,uo.product_price,uo.quantity,IFNULL(ppu.name,'直充') cname
+    		 FROM user_order uo 
+    		LEFT JOIN user_info ui ON uo.user_id = ui.user_id
+			LEFT JOIN partner_info pi ON uo.partner_id = pi.partner_id
+			LEFT JOIN partner_push_url ppu ON ppu.push_id = uo.push_id
+		where 1=1 and uo.kl_flag=0 and pi.partner_name IS NOT NULL and ui.user_id IS NOT NULL
+    	<if test="order_id != null and order_id != ''">
+			and order_id like '%${order_id}%'
+		</if>
+		<if test="partner_id == parent_id"> 
+			 and uo.parent_id=#{parent_id}
+		</if>
+		<if test="partner_id != parent_id">
+			 and uo.partner_id=#{partner_id}
+		</if>
+		<choose>
+			<when test="status == 1">
+				and uo.status =1
+			</when>
+			<when test="status == 0">
+				and (uo.status =0 or uo.status = -1)
+			</when>
+		</choose>
+		<if test="push_id > 0">
+			 and uo.push_id=#{push_id}
+		</if>
+		<if test='start_time!=null and start_time!=""'>
+			 and to_days(uo.created_time) &gt;=to_days(#{start_time})
+		</if>
+		<if test='end_time!=null and end_time!=""'>
+			 and to_days(uo.created_time) &lt;=to_days(#{end_time})
+		</if>
+    	order by id desc limit #{start_rows},#{end_rows}
+    </select>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+		SELECT count(0)  FROM user_order uo 
+    		LEFT JOIN user_info ui ON uo.user_id = ui.user_id
+			LEFT JOIN partner_info pi ON uo.partner_id = pi.partner_id
+		where 1=1 and uo.kl_flag=0 and pi.partner_name IS NOT NULL and ui.user_id IS NOT NULL
+     	<if test="order_id != null and order_id != ''">
+			and order_id like '%${order_id}%'
+		</if>
+		<if test="partner_id == parent_id"> 
+			 and uo.parent_id=#{parent_id}
+		</if>
+		<if test="partner_id != parent_id">
+			 and uo.partner_id=#{partner_id}
+		</if>
+		<choose>
+			<when test="status == 1">
+				and uo.status =1
+			</when>
+			<when test="status == 0">
+				and (uo.status =0 or uo.status = -1)
+			</when>
+		</choose>
+		<if test="push_id > 0">
+			 and uo.push_id=#{push_id}
+		</if>
+		<if test='start_time!=null and start_time!=""'>
+			 and to_days(uo.created_time) &gt;=to_days(#{start_time})
+		</if>
+		<if test='end_time!=null and end_time!=""'>
+			 and to_days(uo.created_time) &lt;=to_days(#{end_time})
+		</if>
+  	</select>
+  	<select id="getPushUrlsByPartnerId" resultType="PartnerPushUrl">
+  		select push_id,name from partner_push_url where 1=1 
+  		<if test="partner_id>0">
+  			and partner_id = #{partner_id}
+  		</if>
+  	</select>
+</mapper>

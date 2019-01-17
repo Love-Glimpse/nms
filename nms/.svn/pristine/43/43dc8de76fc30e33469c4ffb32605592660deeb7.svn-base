@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.pushchannel.mapper.PartnerInfoMapper">
+	<select id="getAllPartnerInfo" resultType="PartnerInfo">
+		SELECT a.partner_id,a.group_id,a.parent_id,a.partner_symbol,a.partner_name,a.login_name,a.password,a.sub_domain,a.`status`,
+			a.created_time,pt.type_name,IFNULL(b.partner_symbol,"--") as parent_partner,IFNULL(c.sub_count,0) as sub_partner_count
+			from partner_info a 
+		LEFT JOIN partner_info b  on a.parent_id = b.partner_id 
+		LEFT JOIN  (SELECT parent_id, count(0) as sub_count from partner_info GROUP BY parent_id ) c 
+			ON a.partner_id = c.parent_id 
+		LEFT JOIN partner_plat pt ON a.partner_plat_id = pt.id
+		 where 1=1 
+		<if test="partner_symbol != null and partner_symbol != ''">
+			and (a.partner_symbol like CONCAT('%',#{partner_symbol},'%') or a.partner_symbol like CONCAT('%',#{partner_name},'%') ) 
+		</if>
+		order by a.partner_id
+	</select>
+	<select id="getSubPartnerInfo" resultType="PartnerInfo">
+	 	SELECT a.*,IFNULL(b.partner_symbol,"--") as parent_partner,IFNULL(c.sub_count,0) as sub_partner_count 
+			from partner_info a LEFT JOIN partner_info b  on a.parent_id = b.partner_id 
+					LEFT JOIN  (SELECT parent_id, count(0) as sub_count from partner_info GROUP BY parent_id ) c 
+					ON a.partner_id = c.parent_id where a.parent_id = #{partner_id}
+	</select>
+	<select id="getLevelWithPartnerId" resultType="int">
+		select partner_level+1 from partner_info where partner_id = #{partner_id}
+	</select>
+	<select id="getMaxPartnerId" resultType="String">
+		select IFNULL(max(partner_id),0)+1 from partner_info
+	</select>
+	<insert id="addPartnerInfo" parameterType="PartnerInfo" useGeneratedKeys="true" keyProperty="partner_id" keyColumn="partner_id">
+		INSERT into partner_info (group_id,grand_parent_id,parent_id,partner_symbol,partner_name,login_name,password,sub_domain,partner_level,status,sync_switch,sync_method,created_time)
+		VALUES(#{group_id},#{grand_parent_id},#{parent_id},#{partner_symbol},#{partner_name},#{login_name},#{password},#{sub_domain},1,#{status},#{sync_switch},#{sync_method},now())
+	</insert>
+	<insert id="addPartnerPmConfig" parameterType="PartnerPmConfig">
+		insert into partner_pm_config (partner_id,we_token)values(#{partner_id},#{we_token})
+	</insert>
+	<select id="checkPartnerSymbol" resultType="int">
+		select count(0) from partner_info where partner_symbol=#{partner_symbol}
+	</select>
+	<select id="checkPartnerName" resultType="int">
+		select count(0) from partner_info where partner_name=#{partner_name}
+	</select>
+	<select id="checkLoginName" resultType="int">
+		select count(0) from partner_info where login_name=#{login_name}
+	</select>
+	<update id="updatePartnerInfo" parameterType="PartnerInfo">
+		update partner_info set sync_switch = #{sync_switch},sync_method = #{sync_method},status=#{status}
+		<if test="group_id != null and group_id !=''">
+			,group_id=#{group_id}
+		</if>
+		<if test="partner_name != null and partner_name !=''">
+			,partner_name=#{partner_name}
+		</if>
+		where partner_id = #{partner_id}
+	</update>
+	<delete id="delPartnerInfo">
+		delete from partner_info where partner_id = #{partner_id};
+		update partner_info set parent_id = 0,grand_parent_id=0 where parent_id=#{partner_id};
+	</delete>
+	<select id="getPartnerPmConfig" resultType="PartnerPmConfig">
+		select * from partner_pm_config where partner_id = #{partner_id} limit 1;
+	</select>
+	<select id="checkExist" resultType="int">
+		select count(0) from partner_logo where partner_id = #{partner_id}
+	</select>
+	<insert id="savePartnerLogoConfig" parameterType="PartnerLogo">
+		insert into partner_logo(partner_id,logo_url,logo_name,work_time,qq,mail,we_chat,qr_code_url,create_time)
+		values(#{partner_id},#{logo_url},#{logo_name},#{work_time},#{qq},#{mail},#{we_chat},#{qr_code_url},now())
+	</insert>
+	<update id="updatePartnerLogoConfig" parameterType="PartnerLogo">
+		update partner_logo set logo_url=#{logo_url},logo_name=#{logo_name},work_time=#{work_time},qq=#{qq},
+		mail=#{mail},we_chat=#{we_chat},qr_code_url=#{qr_code_url},create_time=now()
+		 where partner_id = #{partner_id}
+	</update>
+	
+	
+   <select id="checkPaUser" resultType="int">
+   		select count(0) from partner_info where partner_id=#{partner_id} and password=#{md5_pwd}
+   </select>
+    <update id="changePaPwd">
+   		update partner_info set password=#{md5_pwd} where partner_id = #{partner_id} and password=#{s_pwd}
+   </update>
+   <update id="uploadPartnerLog">
+   		update partner_logo set logo_url = #{fileAbsolutePath} where partner_id =#{partnerId}
+   </update>
+   <update id="updateQrCodeUrl">
+   		update partner_logo set qr_code_url = #{qrCodeRul} where partner_id =#{partnerId}
+   </update>
+   
+   <select id="selectPartnerLogo" resultType="partnerLogo">
+   		select id,partner_id, logo_url,qr_code_url from partner_logo where partner_id =#{partnerId}
+   </select>
+   
+   <insert id="savePartnerUrl">
+   	insert into partner_logo (partner_id,logo_url,create_time) values(#{partner_id},#{logo_url},now())
+   </insert>
+   
+   <insert id="savePartnerLogo">
+   	insert into partner_logo (partner_id,logo_name,work_time,qq,mail,we_chat,create_time)
+   	values(#{partner_id},#{logo_name},#{work_time},#{qq},#{mail},#{we_chat},now())
+   </insert>
+   
+   <update id="updatePartnerLogo">
+   		update partner_logo set logo_name =#{logo_name},work_time=#{work_time},qq=#{qq},mail=#{mail},we_chat=#{we_chat} 
+   		where id = #{id}
+   </update>
+   
+</mapper>

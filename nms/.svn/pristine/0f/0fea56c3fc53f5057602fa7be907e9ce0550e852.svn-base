@@ -1,0 +1,13 @@
+package com.kuaidu.nms.bizandpush.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.PartnerPushUrl;
+
+import tk.mybatis.mapper.common.Mapper;
+
+public interface PushUrlMapper extends Mapper<PartnerPushUrl> {
+	List<PartnerPushUrl> getPushUrlInfo(@Param("name")String name);
+}

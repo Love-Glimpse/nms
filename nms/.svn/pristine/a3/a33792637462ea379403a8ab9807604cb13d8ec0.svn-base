@@ -1,0 +1,146 @@
+package com.kuaidu.nms.bizandpush.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.kuaidu.nms.bizandpush.serviceImpl.SalesPromotionImpl;
+import com.kuaidu.nms.entity.Product;
+import com.kuaidu.nms.entity.PromotionActive;
+import com.kuaidu.nms.entity.Sys_user;
+import com.kuaidu.nms.utils.ResultData;
+import com.kuaidu.nms.utils.Utils;
+
+import net.sf.json.JSONObject;
+
+/** 
+ * @Title SalesPromotion.java 
+ * @description 促销活动
+ * @time 2018年11月2日 上午10:31:56 
+ * @author victor 
+ * @version 1.0 
+**/
+@Controller
+@RequestMapping("/salesPromotion")
+public class SalesPromotionController {
+	@Autowired
+	SalesPromotionImpl sImpl;
+	
+	@RequestMapping("/salesPromotionIndex")
+	public ModelAndView customMsgNewsIndex(HttpSession session){
+		ModelAndView mv = new ModelAndView();
+		try {
+			List<Product> products = sImpl.getPromotionProducts();
+			mv.addObject("product", products);
+			mv.setViewName("bizAndPush/salesPromotion"); 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return mv;
+	}
+	/**
+	 * 平台添加活动
+	 * */
+	@ResponseBody
+	@RequestMapping("/createActive")
+	public JSONObject addPlatActive(HttpSession session,PromotionActive promotionActive) {
+		JSONObject retJson = new JSONObject();
+		int ret=0;
+		Sys_user  sUser = Utils.getSysUserFromSession(session);
+		if (sUser==null) {
+			retJson.put("result", 0);
+			return retJson;
+		}
+		ret = sImpl.createActive(promotionActive);
+		retJson.put("result", ret);
+		return retJson;
+	}
+	/**
+	 * 平台删除活动
+	 * */
+	@ResponseBody
+	@RequestMapping("/delActive")
+	public JSONObject delActive(HttpServletRequest request,HttpSession session,PromotionActive promotionActive) {
+		JSONObject retJson = new JSONObject();
+		String offset= request.getParameter("active_id");
+		
+		int active_id = Integer.parseInt(offset);
+		Sys_user  sUser = Utils.getSysUserFromSession(session);
+		if (sUser==null) {
+			retJson.put("result",0);
+			return retJson;
+		}
+        sImpl.delActive(active_id);
+		retJson.put("result", 1);
+		return retJson;
+	}
+	
+	
+	/**
+	 * 获取平台活动列表
+	 * */
+	
+	@ResponseBody
+	@RequestMapping("/getPromotionActiveList")
+	public String getAll(HttpServletRequest request,HttpSession session,PromotionActive promotionActive){	
+		String offset= request.getParameter("offset");	
+		String rows= request.getParameter("limit");
+		PromotionActive pList = new PromotionActive();
+		
+		pList.setStart_rows(Integer.parseInt(offset));
+		pList.setEnd_rows(Integer.parseInt(rows));
+		
+		Sys_user  sUser = Utils.getSysUserFromSession(session);
+		
+		if (sUser!=null) {
+			pList.setFlag(0);
+			List<PromotionActive> list =  sImpl.getPromotionActiveList(pList);
+			int total = sImpl.getAll(pList);
+			return ResultData.toJsonString(total, list);
+		}else {
+			return null;
+		}
+	}
+	
+	
+	/**
+	 * 获取渠道活动列表
+	 * */
+	@ResponseBody
+	@RequestMapping("/getPartnerPromotionActiveList")
+	public String getPartnerPromotionActiveList(HttpServletRequest request,HttpSession session,@RequestParam(required=true)Integer partner_id) {
+
+		Sys_user  sUser = Utils.getSysUserFromSession(session);
+		
+		if (sUser!=null) {
+			String offset= request.getParameter("offset");	
+			String rows= request.getParameter("limit");
+			PromotionActive pList = new PromotionActive();
+			
+			pList.setStart_rows(Integer.parseInt(offset));
+			pList.setEnd_rows(Integer.parseInt(rows));
+			
+			//partner_id=0 获取指定渠道的活动
+			if (partner_id>0) {
+				pList.setFlag(2);
+				pList.setPartner_id(partner_id);
+			}else {
+				//partner_id=0 获取所有渠道的活动
+				pList.setFlag(1);
+			}
+			List<PromotionActive> list =  sImpl.getPromotionActiveList(pList);
+			int total = sImpl.getAll(pList);
+			return ResultData.toJsonString(total, list);
+		}else {
+			return null;
+		}
+	}
+}

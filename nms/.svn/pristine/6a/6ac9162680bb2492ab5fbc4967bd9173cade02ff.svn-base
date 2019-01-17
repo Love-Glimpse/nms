@@ -1,0 +1,10 @@
+.modal-dialog .col-sm-6 {
+    width: 63%;
+}
+
+.activities .active-info td{
+    vertical-align: middle;
+}
+.activities .active-info .text-center{
+    text-align: center;
+}

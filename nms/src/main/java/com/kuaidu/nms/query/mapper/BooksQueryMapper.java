@@ -1,0 +1,107 @@
+package com.kuaidu.nms.query.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.Author;
+import com.kuaidu.nms.entity.Book_list;
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.entity.Novel_type;
+
+public interface BooksQueryMapper {
+	// 书籍表查
+	public List<Book_list> getAllbooks(Book_list bList);
+
+	// 书类别查询
+	public List<Novel_type> getAllnovel_type();
+
+	// 书籍增
+	public void add_bList(Book_list bList);
+
+	// 书籍删
+	public void del_bList(List<Object> list);
+
+	// 书籍改
+	public void edit_bList(Book_list bList);
+
+	// 书籍数，用于分页
+	public int getCount(Book_list bList);
+
+	// 同书名同作者数，用于判断
+	public int getSameCount(Book_list bList);
+
+	// 作者表查询
+	public List<Author> getAllAuthors(Author author);
+
+	// 作者添加
+	public int add_author(Author author);
+
+	public void updateBookList(ChapterList chapterList);
+
+	// 删除章节时更新
+	public void updateBookList_del(ChapterList chapterList);
+
+	// 更新章节时更新字数
+	public void updateBookList_update(@Param("book_id") Integer book_id, @Param("words") Integer words,
+			@Param("oldWords") Integer oldWords);
+
+	public void checkOk(Book_list book_list);
+
+	public void updateRemark(Book_list book_list);
+
+	List<Book_list> getNoPic();
+
+	List<Book_list> getPicByIds(String[] split);
+
+	/**
+	 * 修改图片路径
+	 * 
+	 * @param name
+	 * @param fileAbsolutePath
+	 */
+	void updateBookPic(@Param("bookId") Integer bookId, @Param("path") String fileAbsolutePath);
+
+	List<Book_list> getbookPic(@Param("changed") Integer changed);
+
+	String getBookPicUrl(Integer id);
+
+	void updateBooksmallPic(@Param("bookId") Integer bookId, @Param("path") String substringBefore);
+
+	// 推广商查看书籍
+	List<Book_list> getBooksBycondition(@Param("sex") Integer sex, @Param("isserial") Integer isserial,
+			@Param("bookName") String bookName, @Param("typeId") Integer typeId, @Param("hotValue") Integer hotValue);
+
+	/**
+	 * 根据sex查看小说类型
+	 * 
+	 * @param sex
+	 * @return
+	 */
+	List<Novel_type> getNovelTypeBy(@Param("sex") Integer sex);
+
+	Book_list getBookInfoBybookId(Integer bookId);
+
+	String getbookPicById(Integer bookId);
+
+	String getBookSmallPic(String name);
+
+	List<Book_list> getBookNameAndPicture(@Param("condition") String condition);
+
+	public List<Book_list> getsmall();
+
+	public List<Book_list> getpic();
+
+	public void clearBookList(@Param("book_id") Integer book_id, @Param("book_url") String book_url);
+
+	public void editReadOriginalChapter(@Param("book_id") Integer book_id, @Param("chapter_num") Integer chapter_num);
+
+	public void editSubscribeChapter(@Param("partner_id") Integer partner_id, @Param("book_id") Integer book_id,
+			@Param("chapter_num") Integer chapter_num);
+
+	public Integer getbookIdByBookname(@Param("book_name") String book_name);
+
+	public void addBookLabelsByBookId(Book_list book_list);
+
+	public void delBookLables(List<Object> list);
+}

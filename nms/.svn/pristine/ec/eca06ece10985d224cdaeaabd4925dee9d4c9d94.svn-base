@@ -1,0 +1,46 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kuaidu.nms.entity.PayChannel;
+import com.kuaidu.nms.entity.UserOrder;
+import com.kuaidu.nms.entity.UserReadLog;
+import com.kuaidu.nms.pay.mapper.PayChannelMapper;
+import com.kuaidu.nms.query.mapper.RechargeRecordMapper;
+/*
+ * 接口实现类
+ * */
+@Service
+@Transactional 
+public class RechargeRecordMapperImpl {
+	@Resource
+	private RechargeRecordMapper rMapper;
+	@Resource
+	private PayChannelMapper pMapper;
+	public RechargeRecordMapper getrMapper() {
+		return rMapper;
+	}
+
+	public void setrMapper(RechargeRecordMapper rMapper) {
+		this.rMapper = rMapper;
+	}
+	//查询书籍
+	public List<UserOrder> getAllRecords(UserOrder rList) {
+		return rMapper.getAllRecords(rList);
+	}
+	//获取书籍记录总行数
+	public int getCount(UserOrder rList) {
+		return rMapper.getCount(rList);
+	}
+
+	public List<PayChannel> getAllPayChannel() {
+		// TODO Auto-generated method stub
+		return pMapper.getAllPayChannel(null);
+	}
+
+}

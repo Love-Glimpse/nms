@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.kuaidu.nms.datastaticstics.mapper.StatUserStayMapper">
+	<select id="getStatUserStays" resultType="ActiveUser">
+	SELECT a.*,IFNULL(b.active_count,0) active_count  from (SELECT day_time active_date,#{create_date} create_date from assist_day 
+			 	WHERE  TO_DAYS(day_time) BETWEEN  TO_DAYS(#{create_date}) and  TO_DAYS(NOW())-1)a
+	LEFT JOIN  (SELECT active_date,COUNT(0) active_count,create_date from active_user 
+ 		WHERE TO_DAYS(create_date) = TO_DAYS(#{create_date})
+			<if test="partner_id > 0">
+				and parent_id=#{partner_id}
+			</if>
+			<if test="partner_id > 0 and push_id >-1">
+				and push_id = #{push_id}
+			</if>
+		GROUP BY active_date ORDER BY active_date) b
+		ON a.active_date = b.active_date
+	</select>
+	<select id="getNewUserCount" resultType="int">
+		SELECT COUNT(0) 
+		from user_info 
+		WHERE TO_DAYS(subscribe_time) = TO_DAYS(#{create_date}) and subscribe !=0
+		<if test="partner_id > 0">
+			and parent_id=#{partner_id}
+		</if>
+		<if test="partner_id > 0 and push_id >-1">
+			and push_id = #{push_id}
+		</if>
+	</select>
+	<select id="getActiveUserDetail" resultType="ActiveUser">
+		SELECT a.*,ui.nick_name,ui.picture,p.partner_name,IFNULL(ppu.`name`,'直接关注') push_name
+ 		from  (SELECT * from active_user WHERE TO_DAYS(create_date) = TO_DAYS(#{create_date})
+			and TO_DAYS(active_date) = TO_DAYS(#{create_date})+${days}
+			<if test="parent_id > 0">
+				and parent_id=#{parent_id}
+			</if>
+			<if test="parent_id > 0 and push_id >-1">
+				and push_id = #{push_id}
+			</if>
+			) a
+			LEFT JOIN user_info ui ON ui.user_id = a.user_id
+			LEFT JOIN partner_info p ON p.partner_id = a.parent_id
+			LEFT JOIN partner_push_url ppu ON ppu.push_id = a.push_id
+			limit ${start_row},${rows}
+	</select>
+	<select id="getActiveUserDetailCount" resultType="int">
+		SELECT count(0)
+ 		from  (SELECT * from active_user WHERE TO_DAYS(create_date) = TO_DAYS(#{create_date})
+			and TO_DAYS(active_date) = TO_DAYS(#{create_date})+${days}
+			<if test="parent_id > 0">
+				and parent_id=#{parent_id}
+			</if>
+			<if test="parent_id > 0 and push_id >-1">
+				and push_id = #{push_id}
+			</if>
+			) a
+			LEFT JOIN user_info ui ON ui.user_id = a.user_id
+			LEFT JOIN partner_info p ON p.partner_id = a.parent_id
+			LEFT JOIN partner_push_url ppu ON ppu.push_id = a.push_id
+	</select>
+	<select id="getUserStayDetailByUserId" resultType="ActiveUser">
+		SELECT * from active_user WHERE user_id = #{user_id} ORDER BY active_date 
+	</select>
+</mapper>

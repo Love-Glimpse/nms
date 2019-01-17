@@ -1,0 +1,17 @@
+//界面加载完毕执行以下程序
+$(function(){
+    /*生成推广文案链接显隐*/
+    $(".pull-right div").on("click",function () {
+        $(".pull-right div").removeClass('open');
+        $(this).addClass('open');
+    });
+    $(document).click(function(){
+        $(".pull-right div").removeClass('open');
+    });
+    $(".pull-right div").click(function(event){
+        event.stopPropagation();
+    });
+
+ 
+  
+});

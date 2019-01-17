@@ -1,0 +1,55 @@
+package com.kuaidu.nms.message.serviceImpl;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.WxCustomMsg;
+import com.kuaidu.nms.message.mapper.CustomMsgMapper;
+
+@Service
+public class CustomMsgImpl {
+	@Resource 
+	@Autowired
+	CustomMsgMapper cMapper;
+
+	public void createCustomMsg() {
+		// TODO Auto-generated method stub
+		cMapper.createCustomMsg();
+	}
+
+	public void updateMsgStatus(WxCustomMsg customMsg) {
+		// TODO Auto-generated method stub
+		cMapper.updateMsgStatus(customMsg);
+	}
+
+	public List<WxCustomMsg> loadCustomMsg() {
+		// TODO Auto-generated method stub
+		return cMapper.loadCustomMsg();
+	}
+
+	public void updateCustomMsg(List<WxCustomMsg> wxCustomMsgs) {
+		// TODO Auto-generated method stub
+		cMapper.updateCustomMsg(wxCustomMsgs);
+	}
+	/**
+	 * size 分片大小
+	 * */
+	public void batchInsert(List<WxCustomMsg> list,int size) {
+		// TODO Auto-generated method stub
+		if (list==null||list.isEmpty()) {
+			return;
+		}
+		int count = (int) Math.ceil((double)list.size()/size);
+		int from,to;
+		for (int i = 0; i < count; i++) {
+			from = size*i;
+			to=(from+size)>list.size()?list.size():(from+size);
+			cMapper.batchInsertCustomMsg(list.subList(from, to));
+		}
+	}
+	
+}

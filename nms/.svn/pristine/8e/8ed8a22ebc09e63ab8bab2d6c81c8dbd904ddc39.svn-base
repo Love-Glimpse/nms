@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.partner.mapper.PartnerPushUrlMapper">
+ 
+ 
+ 	<insert id="savePartnerPushUrl" useGeneratedKeys="true" keyColumn="push_id" keyProperty="push_id">
+ 		insert into partner_push_url(name,partner_id,type,chapter_id,hits,source_url,status,created_time) 
+ 		values(#{name},#{partner_id},#{type},#{chapter_id},0,#{source_url},1,now())
+ 	</insert>
+ 
+ 	<select id="getPushUrlInfo" resultType="PartnerPushUrl">
+		SELECT a.*,IFNULL(b.price,0) price,IFNULL(b.num,0) order_count,IFNULL(c.user_count,0) user_count FROM(
+									SELECT  pa.status,pa.partner_id,pa.push_id,pa.name,pa.type,pa.created_time,pa.hits,b.book_name,c.book_id,c.chapter_name FROM partner_push_url pa
+									LEFT JOIN chapter_list c
+									on pa.chapter_id = c.chapter_id
+									LEFT JOIN book_list b
+									on c.book_id = b.book_id
+									) a
+		LEFT JOIN (SELECT push_id, SUM(product_price * charged_quantity) price,SUM(charged_quantity) num  FROM stat_user_order  GROUP BY push_id) b
+		on a.push_id = b.push_id
+		LEFT JOIN (SELECT push_id, count(0) user_count FROM user_info WHERE push_id in(SELECT push_id FROM partner_push_url WHERE partner_id = 1)) c
+		on a.push_id = c.push_id
+		WHERE a.partner_id = #{partnerId} and a.status = 1 
+		<if test='name != null and name != ""'>
+			and pa.name like concat('%','${name}','%')
+		</if>
+ 	</select>
+ 	
+ 	<update id="deletePartnerPushUrl">
+ 		update partner_push_url set status = 0 where push_id = #{pushId}
+ 	</update>
+ 	
+ 	<update id="updatePartnerPushUrl">
+ 		update partner_push_url set name = #{name} where push_id = #{pushId} and status = 1
+ 	</update>
+ 
+</mapper>

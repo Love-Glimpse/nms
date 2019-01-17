@@ -1,0 +1,433 @@
+package com.kuaidu.nms.partner.serviceImpl;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.io.Charsets;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.kuaidu.nms.entity.ChapterList;
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerPushUrl;
+import com.kuaidu.nms.entity.RecCover;
+import com.kuaidu.nms.entity.RecLeadUrl;
+import com.kuaidu.nms.entity.RecTitle;
+import com.kuaidu.nms.entity.RestReturn;
+import com.kuaidu.nms.partner.mapper.PartnerPushUrlMapper;
+import com.kuaidu.nms.query.mapper.ChapterMapper;
+import com.kuaidu.nms.utils.NumTools;
+import com.kuaidu.nms.utils.Utils;
+
+@Service
+public class PartnerPushUrlServiceImpl {
+	
+	
+	
+	@Autowired
+	PartnerPushUrlMapper partnerPushUrlMapper;
+	@Autowired
+	ChapterMapper chapterMapper;
+	@Autowired
+	RedisTemplate<String, Object> redisTemplate;
+	
+
+	
+
+
+
+	public RestReturn savePartnerPushUrl(PartnerPushUrl partnerPushUrl,HttpSession session) {
+		//添加推广章节url
+		//章节推广
+		PartnerInfo partnerInfo = (PartnerInfo) session.getAttribute("partner_user");
+		if (partnerPushUrl.getPush_id() == null) {
+			Integer type = partnerPushUrl.getType();
+			if (type == 0) { 
+				if (partnerPushUrl.getChapter_id() == null) {
+					return RestReturn.fail();
+				}
+				partnerPushUrl.setSource_url("http://c"+partnerInfo.getParent_id()+".mzshu.com/kdread/chapter/"+partnerPushUrl.getChapter_id());
+				//首页推广
+			}else if(type == 1){
+				partnerPushUrl.setSource_url("http://c"+partnerInfo.getParent_id()+".mzshu.com/kdread/index");
+			}
+			partnerPushUrl.setPartner_id(partnerInfo.getPartner_id());
+			partnerPushUrlMapper.insertSelective(partnerPushUrl);
+			String url = "http://c"+partnerInfo.getParent_id()+".mzshu.com/kdread/referral/"+partnerPushUrl.getPush_id();
+			HashMap<String,String> hashMap = new HashMap<>();
+			hashMap.put("url", url);
+			hashMap.put("pushId", partnerPushUrl.getPush_id()+"");
+			return RestReturn.success(hashMap);
+		}
+		
+		String url = "http://c"+partnerInfo.getParent_id()+".mzshu.com/kdread/referral/"+partnerPushUrl.getPush_id();
+		HashMap<String,String> hashMap = new HashMap<>();
+		hashMap.put("url", url);
+		hashMap.put("pushId", partnerPushUrl.getPush_id()+"");
+		return RestReturn.success(hashMap);
+				
+		
+		/*PartnerPushUrl partnerPushUrl2 = partnerPushUrlMapper.getPartnerPushUrlByPushId(partnerPushUrl.getPush_id());*/
+		
+		
+	}
+
+
+
+	public PageInfo<PartnerPushUrl> getPushUrlInfo(int partner_id, Integer pn, Integer ps, String name) {
+		PageHelper.startPage(pn, ps);
+		List<PartnerPushUrl> list  = partnerPushUrlMapper.getPushUrlInfo(partner_id,name);
+		
+		PageInfo<PartnerPushUrl> pageInfo = new PageInfo<PartnerPushUrl>(list, 5);
+		return pageInfo;
+	}
+
+
+
+	public RestReturn deletePartnerPushUrl(Integer pushId) {
+		 int num = partnerPushUrlMapper.deletePartnerPushUrl(pushId);
+		 if (num > 0) {
+			return RestReturn.success();
+		}
+		 return RestReturn.fail();
+	}
+
+
+
+	public RestReturn updatePartnerPushUrl(Integer pushId, String name) {
+		 int num = partnerPushUrlMapper.updatePartnerPushUrl(pushId,name);
+		 if (num > 0) {
+			return RestReturn.success();
+		}
+		 return RestReturn.fail();
+	}
+
+
+
+	
+
+
+
+	public Map<String, Object> getBookPicAndNextChapterId(Integer bookId, Integer chapterNum) {
+		return chapterMapper.getBookPicAndNextChapterId(bookId,chapterNum);
+		 
+	}
+
+
+
+	public Object getCover(Integer pn) {
+		PageHelper.startPage(pn, 15);
+		List<RecCover> list = partnerPushUrlMapper.getCover();
+		PageInfo<RecCover> pageInfo = new PageInfo<>(list);
+		return pageInfo;
+	}
+
+
+
+	
+
+
+
+	public RecCover getRanDomRecCover() {
+		return partnerPushUrlMapper.getRanDomRecCover();
+		 
+	}
+
+
+
+	public List<RecTitle> getRecTitle() {
+		return partnerPushUrlMapper.getRecTitle();
+	}
+
+
+
+	public Object createOpenUrl(Integer pushId, PartnerPushUrl partnerPushUrl2) {
+		HashMap<String, String> hashMap = new HashMap<>();
+		PartnerPushUrl partnerPushUrl = partnerPushUrlMapper.selectOpenUrlByPuahId(pushId);
+		if (partnerPushUrl == null) {
+			return null;
+		}
+		if (partnerPushUrl.getOpen_str() == null) {
+			String randomStr = NumTools.getRandomStr(10);
+			//String openurl = "http://c1.mzshu.com/nms/temp/"+randomStr;
+			partnerPushUrl2.setPush_id(pushId);
+			partnerPushUrl2.setOpen_str(randomStr);
+			Date addDays = DateUtils.addDays(new Date(), 7);
+			String format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(addDays);
+			partnerPushUrl2.setExpiry_date(format);
+			partnerPushUrlMapper.updateByPrimaryKeySelective(partnerPushUrl2);
+			hashMap.put("url", "http://c1.mzshu.com/nms/temp/"+randomStr);
+			hashMap.put("expiry_date", format);
+			return hashMap;
+		}
+		partnerPushUrl2.setPush_id(pushId);
+		partnerPushUrlMapper.updateByPrimaryKeySelective(partnerPushUrl2);
+		hashMap.put("url", "http://c1.mzshu.com/nms/temp/"+partnerPushUrl.getOpen_str());
+		hashMap.put("expiry_date", partnerPushUrl.getExpiry_date());
+		return hashMap;
+		
+		
+	}
+
+
+
+	public Object resetExpiryDate(Integer pushId) {
+		PartnerPushUrl partnerPushUrl = new PartnerPushUrl();
+		partnerPushUrl.setPush_id(pushId);
+		Date addDays = DateUtils.addDays(new Date(), 7);
+		String format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(addDays);
+		partnerPushUrl.setExpiry_date(format);
+		partnerPushUrlMapper.updateByPrimaryKeySelective(partnerPushUrl);
+		return RestReturn.success(format);
+	}
+
+
+
+	public PartnerPushUrl getOpenUrl(String random) {
+		PartnerPushUrl partnerPushUrl = partnerPushUrlMapper.getPartnerPushUrlByRandom(random);
+		
+		
+		
+		return partnerPushUrl;
+	}
+
+
+
+	public Object getOpenUrlByPushId(Integer pushId, int partnerId) {
+		PartnerPushUrl partnerPushUrl = partnerPushUrlMapper.getOpenUrlByPushId(pushId,partnerId);
+		if (partnerPushUrl != null) {
+			HashMap<String,String> hashMap = new HashMap<>();
+			hashMap.put("url", "http://c1.mzshu.com/nms/temp/"+partnerPushUrl.getOpen_str());
+			hashMap.put("expiryDate", partnerPushUrl.getExpiry_date());
+			return hashMap;
+		}
+		return null;
+	}
+
+
+
+	public byte[] chapterPicture(Integer chapterId) throws Exception {
+		String chapterUrl = chapterMapper.getChapterUrl(chapterId);
+		String contentByUrl = Utils.getContentByUrl(chapterUrl);
+		contentByUrl = contentByUrl.replaceAll("\\s+", "").replaceAll("</p>", "").replaceAll("<\\s*/?[p|P][^>]*>", System.lineSeparator());
+	    byte [] bytes  = createImage(contentByUrl, new Font("楷体", Font.PLAIN, 40));
+		return bytes;
+	}
+	
+	 public static byte[] createImage(String text, Font font)  
+	            throws Exception {  
+	    	int width = 570;
+	        //每行个数 
+	        int x_count = (width-10)/font.getSize();
+	    	//行数 
+	    	int y_bit = 0;
+	    	int x_bit = 0;
+	        for (int i = 0; i < text.length(); i++) {
+	        	char c = text.charAt(i);
+	        	
+	        	if (c==System.lineSeparator().charAt(0)||x_bit%x_count==0) {//换行符
+	        		y_bit++;
+	        		x_bit=0;
+				}
+	        	x_bit++;
+	        	
+	        }
+	        int height = y_bit*(font.getSize()+2);
+	        // 创建图片  
+	        BufferedImage image = new BufferedImage(width, height+5,  
+	                BufferedImage.TYPE_INT_BGR);//创建图片画布  
+	        Graphics2D g = image.createGraphics(); 
+	        g.setColor(Color.WHITE); // 先用白色填充整张图片,也就是背景  
+	        g.fillRect(0, 0, width, height+5);//画出矩形区域，以便于在矩形区域内写入文字  
+	        g.setColor(Color.black);// 再换成黑色，以便于写入文字  
+	        // 抗锯齿
+	        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	        g.setFont(font);// 设置画笔字体  
+	        x_bit=0;
+	        y_bit=0;
+	        for (int i = 0; i < text.length(); i++) {
+	        	char c = text.charAt(i);
+	        	if (c==System.lineSeparator().charAt(0)||x_bit%x_count==0) {//换行符
+	        		y_bit++;
+	        		x_bit = 0;
+				}  
+	        	int y = y_bit*(font.getSize()+2);
+	    		int x= x_bit*font.getSize();
+	        	g.drawString(String.valueOf(c), x+10, y);// 画出符串  
+	        	x_bit++;
+			}
+	        g.dispose();  
+	        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+	        ImageIO.write(image, "png", byteArrayOutputStream);// 输出png图片  
+	        System.out.println(byteArrayOutputStream.size());
+	        return byteArrayOutputStream.toByteArray();
+	    }
+
+
+
+
+
+	public void wxEditor(PartnerPushUrl partnerPushUrl, HttpServletRequest request) {
+		//文本模式  查出章节内容
+		if (partnerPushUrl.getMode() == 1) {
+			List<Map<String,Object>> chapters = getChapterContent(partnerPushUrl.getBook_id(),partnerPushUrl.getChapter_num());
+			request.setAttribute("chapters", chapters);
+		//图片模式  查出章节id
+		}else {
+			List<ChapterList> chapters = chapterMapper.getChapterIds(partnerPushUrl.getBook_id(),partnerPushUrl.getChapter_num());
+			request.setAttribute("chapters", chapters);
+		}
+		//书籍封面和下一章id
+		Map<String, Object> map =chapterMapper. getBookPicAndNextChapterId(partnerPushUrl.getBook_id(),partnerPushUrl.getChapter_num());
+		request.setAttribute("map", map);
+		
+		//取出所有的标题
+		List<RecTitle> recTitles = partnerPushUrlMapper.getRecTitle();
+		request.setAttribute("recTitles", recTitles);
+		
+		//随机取一个标题
+		RecTitle recTitle;
+		if (partnerPushUrl.getRec_title_id() == null) {
+			 int n =  new Random().nextInt(recTitles.size())+1;
+			  recTitle = recTitles.get(n);
+			 partnerPushUrl.setRec_title_id(recTitle.getId());
+		}else {
+			 recTitle = partnerPushUrlMapper.getRecTitleById(partnerPushUrl.getRec_title_id());
+		}
+		request.setAttribute("recTitle", recTitle);
+		
+		//取出所有封面
+		List<RecCover> recCovers = partnerPushUrlMapper.getRecCovers();
+		RecCover recCover;
+		if (partnerPushUrl.getRec_cover_id() == null) {
+			 int n =  new Random().nextInt(recCovers.size())+1;
+			  recCover = recCovers.get(n);
+			 partnerPushUrl.setRec_title_id(recCover.getId());
+		}else {
+			recCover = partnerPushUrlMapper.getRecCoverById(partnerPushUrl.getRec_cover_id());
+		}
+		request.setAttribute("recCover", recCover);
+		
+		//正文模板
+		if (partnerPushUrl.getText_template() == null) {
+			 int n =  new Random().nextInt(12)+1;
+			 System.err.println("正文模板号："+n);
+			 partnerPushUrl.setText_template(n);
+		}
+		
+		//原文引导模板
+		List<RecLeadUrl> recLeadUrls = partnerPushUrlMapper.getRecLeadUrl();
+		request.setAttribute("recLeadUrls", recLeadUrls);
+		if (partnerPushUrl.getRec_lead_ulr_id() != null) {
+			 for (RecLeadUrl recLeadUrl : recLeadUrls) {
+				if (partnerPushUrl.getRec_lead_ulr_id() == recLeadUrl.getId()) {
+					request.setAttribute("recLeadUrl", recLeadUrl);
+					break;
+				}
+			}
+		}
+		
+		
+		
+	
+		 request.setAttribute("partnerPushUrl", partnerPushUrl);
+		
+		
+	}  
+	
+	
+	public List<Map<String, Object>> getChapterContent(Integer bookId, Integer chapterNum) {
+		List<Map<String,Object>> list = chapterMapper.getChapterContent(bookId,chapterNum);
+		for (int i = 0; i < list.size(); i++) {
+			String object = (String) list.get(i).get("chapter_filepath_fdfs");
+			try {
+				String contentByUrl = Utils.getContentByUrl(object);
+				list.get(i).put("content", contentByUrl);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+		
+		return list;
+	}
+	
+	public static List<String> getContentByUrl(String fileUrl) throws Exception {
+		List<String> list = new ArrayList<>();
+		URL url = new URL(fileUrl);
+		InputStream inputStream = url.openStream();
+		ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+		ZipEntry zipEntry = null;
+		StringBuffer sb = new StringBuffer();
+		while ((zipEntry = zipInputStream.getNextEntry()) != null) {
+			InputStreamReader inputStreamReader = new InputStreamReader(zipInputStream, Charsets.toCharset("UTF-8"));
+			BufferedReader reader = toBufferedReader(inputStreamReader);
+			String line = reader.readLine();
+			while (line != null && !line.equalsIgnoreCase("null")) {
+				if (line.length() > 1) {
+					list.add(line);
+				}
+				line = reader.readLine();
+			}
+		}
+		return list;
+	}
+
+	public static BufferedReader toBufferedReader(Reader reader) {
+		return reader instanceof BufferedReader ? (BufferedReader) reader : new BufferedReader(reader);
+	}
+
+
+
+	public void openUrl(PartnerPushUrl partnerPushUrl, HttpServletRequest request) {
+		/*if(partnerPushUrl.getMode() == 1) {
+			List<Map<String,Object>> chapters = getChapterContent(partnerPushUrl.getBook_id(),partnerPushUrl.getChapter_num());
+			request.setAttribute("chapters", chapters);
+			request.setAttribute("partnerPushUrl", partnerPushUrl);
+			request.setAttribute("referralUrl", "http://c"+partnerPushUrl.getPartner_id()+".mzshu.com/referral/"+partnerPushUrl.getPush_id());
+			request.setAttribute("qrCodeTemplate", partnerPushUrl.getQr_code_id());
+			
+		}else if(partnerPushUrl.getMode() == 2) {
+			
+		}*/
+		if (partnerPushUrl.getMode() == 1) {
+			List<Map<String,Object>> chapters = getChapterContent(partnerPushUrl.getBook_id(),partnerPushUrl.getChapter_num());
+			request.setAttribute("chapters", chapters);
+		//图片模式  查出章节id
+		}else {
+			List<ChapterList> chapters = chapterMapper.getChapterIds(partnerPushUrl.getBook_id(),partnerPushUrl.getChapter_num());
+			request.setAttribute("chapters", chapters);
+		}
+		request.setAttribute("qrCodeTemplate", partnerPushUrl.getQr_code_id());
+		request.setAttribute("referralUrl", "http://c"+partnerPushUrl.getPartner_id()+".mzshu.com/referral/"+partnerPushUrl.getPush_id());
+		request.setAttribute("partnerPushUrl", partnerPushUrl);
+	}
+
+}

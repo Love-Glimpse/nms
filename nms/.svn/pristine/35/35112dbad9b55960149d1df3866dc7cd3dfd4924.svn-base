@@ -1,0 +1,72 @@
+package com.kuaidu.nms.query.serviceImpl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.kuaidu.nms.entity.UserProposal;
+import com.kuaidu.nms.query.mapper.UserFeedBackMapper;
+import com.kuaidu.nms.query.mapper.UserManagementMapper;
+/*
+ * 接口实现类
+ * */
+@Service
+@Transactional 
+public class UserFeedBackMapperImpl {
+	@Resource
+	private UserFeedBackMapper rMapper;
+
+	@Resource
+	private UserManagementMapper uMapper;
+	
+	public UserFeedBackMapper getrMapper() {
+		return rMapper;
+	}
+
+	public void setrMapper(UserFeedBackMapper rMapper) {
+		this.rMapper = rMapper;
+	}
+	//查询书籍
+	public List<UserProposal> getAllRecords(UserProposal rList) {
+		return rMapper.getAllRecords(rList);
+	}
+	//获取书籍记录总行数
+	public int getCount(UserProposal rList) {
+		return rMapper.getCount(rList);
+	}
+
+	public int ignore(List<Integer> chapter_ids) {
+		// TODO Auto-generated method stub
+		int ret = 0;
+		try {
+			rMapper.ignore(chapter_ids);
+			ret = 1;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	@Transactional
+	public int changeStatus(UserProposal userProposal) {
+		// TODO Auto-generated method stub
+		int ret = 0;
+		try {
+			List<Integer> chapter_ids = new ArrayList<Integer>();
+			chapter_ids.add(userProposal.getId());
+			rMapper.ignore(chapter_ids);
+			uMapper.addUserPoint50(userProposal.getUser_id());
+			
+			ret = 1;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return ret;
+	}
+
+}

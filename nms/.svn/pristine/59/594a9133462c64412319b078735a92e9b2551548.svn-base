@@ -1,0 +1,18 @@
+package com.kuaidu.nms.bizandpush.mapper;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.Product;
+import com.kuaidu.nms.entity.PromotionActive;
+
+public interface SalesPromotionMapper {
+
+	List<Product> getPromotionProducts();
+
+	void createActive(PromotionActive promotionActive);
+
+	List<PromotionActive> getPromotionActiveList(@Param("flag")int flag, @Param("partner_id")int partner_id);
+	
+}

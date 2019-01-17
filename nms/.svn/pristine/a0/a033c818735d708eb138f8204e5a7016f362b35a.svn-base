@@ -1,0 +1,86 @@
+/*
+* 初始化表格
+*/
+var parent_id = $("#parentId").val();
+var push_id = $("#pushId").val();
+var sub_date = $("#subDate").val();
+initGrid();
+function initGrid() {
+	$('#grid').datagrid({
+		columns : [ [
+			//js代码创建的datagrid本身已经添加了checkbox列，就是第一列。checkbox列将会自适应宽度。
+			{
+				field : 'ck',
+				checkbox : true,
+				align : 'center'
+			},
+		{
+				field : 'sub_date',
+				title : '推广日期',
+				width : 100,
+				align : 'center'
+			},
+			{
+				field : 'stat_date',
+				title : '充值日期',
+				width : 100,
+				align : 'center'
+			},
+			{
+				field : 'partner_name',
+				title : '认证渠道',
+				width : 60,
+				align : 'center'
+			},
+			{
+				field : 'push_name',
+				title : '推广名称',
+				width : 100,
+				align : 'center'
+			},
+			{
+				field : 'nick_name',
+				title : '用户名称',
+				width : 50,
+				align : 'center'
+			},
+			{
+				field : 'amount',
+				title : '充值金额',
+				width : 50,
+				align : 'center',
+				formatter : function(value, row, index) {
+					return '￥ '+row.amount
+				}
+			}
+		] ],
+
+		//同action提交.提交的类型是jason
+		url : 'statOrderPush/getSubDateDetail',
+		method : 'post',
+		queryParams:{
+			parent_id:parent_id,
+			push_id:push_id,
+			sub_date:sub_date
+		},
+		collapsible : true,
+		//rownumber列的配置是在全局设置的
+		//如果设置为true则会在开头第一列来添加一列来显示行号。
+		rownumbers : false,
+		//如果为true，则只允许选择一行。
+		singleSelect : false,
+		toolbar : '#tb',
+		fitColumns : true,
+		pageSize : 1000,
+		pageList : [ 50, 100, 200 ],
+		//pagination:是否启动分页，true，这样一来我们的datagrid底部就会出现一个分页工具栏
+		//datagrid在请求数据的时候会自动的添加分页的信息：
+		//page：当前请求的页码
+		//rows：每页要显示的行数
+		pagination : true,
+		onLoadSuccess : function(data) { //加载成功   
+			//要判断或者执行的代码
+			
+		}
+	});
+}

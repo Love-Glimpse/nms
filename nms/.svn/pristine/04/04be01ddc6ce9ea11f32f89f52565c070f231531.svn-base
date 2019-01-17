@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	like  '%'+#{title}+'%'
+ -->
+<mapper namespace="com.kuaidu.nms.user.mapper.ReadingRecordsMapper">
+
+	<select id="getGroupUser_id" resultType="UserReadLog">	
+		SELECT aa.*,ui.nick_name,ui.picture  from (select * FROM user_read_log WHERE id in
+			(SELECT id from      
+				(SELECT MAX(id) id FROM user_read_log where 1=1
+					<if test="user_id!=null and user_id>0">
+						and user_id = #{user_id}
+					</if>
+					<if test="book_name!=null and book_name!=''">
+						and book_name like '%${book_name}%'
+					</if>
+					<if test="nick_name != null and nick_name != ''">
+						and user_id in (select user_id from user_info where nick_name like '%${nick_name}%')
+					</if>
+				 GROUP BY user_id order by id desc LIMIT 0,50)a  
+			))aa 
+  			LEFT join user_info ui on aa.user_id = ui.user_id
+	</select>
+
+
+	<select id="getGroupByUserIdReadLogCount" resultType="int">
+		select count(0) from (SELECT MAX(id) id FROM user_read_log where 1=1
+			<if test="user_id!=null and user_id>0">
+				and user_id = #{user_id}
+			</if>
+			<if test="book_name!=null and book_name!=''">
+				and book_name like '%${book_name}%'
+			</if>
+			<if test="nick_name != null and nick_name != ''">
+				and user_id in (select user_id from user_info where nick_name like '%${nick_name}%')
+			</if>
+			GROUP BY user_id ) a
+	</select>
+
+
+
+    <select id="getAllRecords" resultType="UserReadLog">
+		SELECT a.*,ui.nick_name,ui.picture from (SELECT * from user_read_log WHERE 1=1 
+			<if test="user_id!=null and user_id>0">
+				and user_id = #{user_id}
+			</if>
+			<if test="book_name!=null and book_name!=''">
+				and book_name like '%${book_name}%'
+			</if>
+			<if test="nick_name != null and nick_name != ''">
+			and user_id in (select user_id from user_info where nick_name like '%${nick_name}%')
+			</if>
+		ORDER BY id desc
+		LIMIT #{start_rows},#{end_rows})a
+		LEFT JOIN user_info ui ON a.user_id=ui.user_id 
+    </select>
+    <!-- 分页		 count（*）=获取所有记录个数		-->
+    <select id="getCount" resultType="int">
+		SELECT count(0) from user_read_log WHERE 1=1 
+			<if test="user_id!=null and user_id>0">
+				and user_id = #{user_id}
+			</if>
+			<if test="book_name!=null and book_name!=''">
+				and book_name like '%${book_name}%'
+			</if>
+			<if test="nick_name != null and nick_name != ''">
+			and user_id in (select user_id from user_info where nick_name like '%${nick_name}%')
+			</if>
+	</select>
+</mapper>

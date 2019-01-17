@@ -1,0 +1,395 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<%
+String path = request.getContextPath();
+String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<base href="<%=basePath%>">
+<title>分销活动</title>
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+<meta http-equiv="description" content="This is my page">
+<link rel="stylesheet" href="static/css/bootstrap.min.css">
+<!-- 引入bootstrap-table样式 -->
+<link href="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.min.css" rel="stylesheet">
+<link rel="stylesheet" href="static/css/font-awesome.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+<link rel="stylesheet" href="static/css/ace.min.css">
+<link rel="stylesheet" href="static/css/bizAndPush/salesPromotion.css">
+<link rel="stylesheet" href="static/css/build.css">
+</head>
+<body style="padding:0;">
+<div class="page-content" style=" padding: 0; ">
+    <div class="page-content-area">
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- PAGE CONTENT BEGINS -->
+                <!--/span-->
+                <!-- left menu ends -->
+                <div style="margin-bottom:10px">
+                    <ul class="nav nav-tabs">
+                        <li class="active" data-tab="platform"> <a href="javascript:void(0)">平台活动</a> </li>
+                        <li class="" data-tab="partner"> <a href="javascript:void(0)">渠道自定义活动</a></li>
+                    </ul>
+                </div>
+               <div class="activities platform fit="true" style="width:100%;">
+                   <div class="actions-bar" id="toolbar">
+                   		<div class="ib">	
+	                       	<input type="text" class="form-control" id="search-input-plat" placeholder="输出活动名称搜索" style=" display: inline-block;width: 180px; height: 38px;">
+	                       	<button id="btnSearch" type="button" class="btn btn-primary" data-toggle="modal" data-target="#DeleteForm" > 
+								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;搜索 
+							</button> 
+                        </div>
+                       <div class="ib">
+                       		<button id="pla-btnRefresh" type="button" class="btn btn-primary" data-toggle="modal" data-target="#DeleteForm" onclick=""> 
+								<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>&nbsp;刷新 
+							</button> 
+                       </div>
+                   		<div class="ib">
+                   			<button id="pla-build" type="button" class="btn btn-success"> 
+						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;创建 
+							</button>
+                   		</div>
+                       <div class="ib">
+ 							<button id="pla-btnDel" type="button" class="btn btn-danger" data-toggle="modal" data-target="#DeleteForm" onclick=""> 
+							<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>&nbsp;下架 
+							</button> 
+                       </div>
+                       
+                   </div>
+                   
+	                  <table id="platGrid" class="text-nowrap" style="table-layout: fixed;">
+	                  	<td style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></td>
+	                  </table>
+               </div>
+               <div class="activities partner" fit="true"  style="display: none;width:100%;" >
+                      <div class="actions-bar" id="toolbar">
+	                    <div class="ib">
+	                    	<select class="txt_content" name="isserial" style="width:180px;height:38px;margin-top: -4px;vertical-align:middle;" id="partnerInfos">
+							 	<option value="0">全部</option>
+								<c:forEach var="partnerInfo" items="${partnerInfos}">
+									<option value="${partnerInfo.partner_id }">${partnerInfo.partner_name }</option>
+								</c:forEach>
+							</select>
+	                    </div>
+                   		<div class="ib">	
+	                       	<input type="text" class="form-control" id="search-input" placeholder="输出渠道名称搜索" style=" display: inline-block;width: 180px; height: 38px;">
+	                       	<button id="part-btnSearch" type="button" class="btn btn-primary" data-toggle="modal" data-target="#DeleteForm" > 
+								<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;搜索 
+							</button> 
+                        </div>
+                       <div class="ib">
+                       		<button id="part-btnRefresh" type="button" class="btn btn-primary" data-toggle="modal" data-target="#DeleteForm" onclick=""> 
+								<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>&nbsp;刷新 
+							</button> 
+                       </div>
+<!--                    		<div class="ib">
+                   			<button id="part-build" type="button" class="btn btn-success"> 
+						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;创建 
+							</button>
+                   		</div>
+                       <div class="ib">
+ 							<button id="part-btnDel" type="button" class="btn btn-danger" data-toggle="modal" data-target="#DeleteForm" onclick=""> 
+							<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>&nbsp;删除 
+							</button> 
+                       </div> -->
+                   </div>
+                       <table id="partnerGrid" class="text-nowrap"></table>
+               </div>
+                <!-- PAGE CONTENT ENDS -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- /.page-content-area -->
+</div>
+<!--平台活动创建模态框-->
+<div class="modal fade" id="create-modal" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="close-platModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">活动信息</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="create-modal-main" novalidate="novalidate">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动名称：</label>
+                        <div class="col-sm-6">
+                            <input type="text" id="active_name" data-toggle="tooltip"    class="form-control p-name"  maxlength="20"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动类型：</label>
+                        <div class="col-sm-6" >
+                            <div class="checkbox checkbox-success  radio-inline"  style="border:0px">
+                                <input type="radio" name="active_type" id="active_type1" value="1" checked>
+                                <label for="radio7" class="radio7">
+                                    	优惠充值
+                                </label>
+                            </div>
+                            <div class="checkbox checkbox-success  radio-inline" style="border:0px">
+                                <input type="radio" name="active_type" id="active_type2" value="2">
+                                <label for="radio8" class="radio8">
+                                 	  免费送书币
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="active-product">
+                        <label class="control-label col-sm-3">活动产品：</label>
+                        <select class="checkbox" data-toggle="tooltip"  name="type_desc" id="product_id"
+						style="margin-left: 165px;width: 58%;height:34px;padding: 0 0 0 10px;border: 1px solid  #d5d5d5;border-left: 53;" >
+							<option selected="selected" value="0">请选择产品</option>
+							<c:forEach items="${product}" var="p">
+								<option value="${p.product_id}">${p.product_desc}</option>
+							</c:forEach>
+						</select>
+                    </div>
+                    <div class="form-group" id="gift-point" style="display:none;">
+                        <label class="control-label col-sm-3">赠送数额：</label>
+                        <div class="col-sm-6">
+                            <input type="text" id="active_point" data-toggle="tooltip" class="form-control p-description"  maxlength="20"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动描述：</label>
+                        <div class="col-sm-6">
+                            <input type="text" id="active_description" class="form-control p-description"  maxlength="20"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动时间：</label>
+                        <div class="col-sm-6">
+                            <div class=" input-group" >
+                                <div class="form-inline input-group date" id="data-time1" style="display: inline-block">
+                                    <input type='text' id="start_time" data-toggle="tooltip" class="form-control input-group-addon start-time" style="border: 1px solid #d5d5d5;"/>
+                                </div>
+                                <div class="date" id="data-time3"  style="display: inline-block">
+                                    <input type='text' class="form-control input-group-addon" value="至" style="border: 0;width: 20px;"/>
+                                </div>
+                                <div class="form-inline input-group date" id="data-time2"  style="display: inline-block">
+                                    <input type='text' id="end_time" data-toggle="tooltip" class="form-control input-group-addon end-time" style="border: 1px solid #d5d5d5;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动地址：</label>
+                        <div class="col-sm-6">
+ 							<select class="form-control p-description" id = "active_url" data-toggle="tooltip">
+                                <option class="check-url" value="0" >活动链接类型</option>
+                                <option class="charge-url" value="http://c####.mzshu.com/user/active/">跳转充值页面</option>
+                                <option class="charge-url" value="http://c####.mzshu.com/user/activePay/">直接充值</option>
+                                <option class="free-url" value="http://c####.mzshu.com/user/active/" style="display:none">免费领书币</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">限购次数</label>
+                        <div class="col-sm-6">
+                            <select class="form-control pay-num" id = "limit_count">
+                                <option value=""></option>
+                                <option value="1">1次</option>
+                                <option value="2">2次</option>
+                                <option value="3">3次</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">备注</label>
+                        <div class="col-sm-6">
+                            <textarea class="promotion_text" maxlength="100" id="active_remark"
+                             style="margin: 0px; height: 66px; width: 347px;resize: none;overflow:hidden;" ></textarea>
+                           <!--  <p class="help-block"> 用于未支付提醒里的活动提示，例如: &quot;书币优惠活动限量99名，赶快进来参与吧！&quot; </p> -->
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="form-group" style=" text-align: center; ">
+                        <div class="col-sm-6 col-sm-offset-3">
+                            <button id="btn-create" type="button" class="btn btn-success btn-color" data-dismiss="modal">确定</button>
+                            <button type="button" class="btn btn-success btn-color" data-dismiss="modal" style="margin-left: 29%;">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--渠道活动创建模态框-->
+<div class="modal fade" id="create-partModal" tabindex="-1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" id="close-partModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">活动信息</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="create-part-main" novalidate="novalidate">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动名称：</label>
+                        <div class="col-sm-6">
+                            <input type="text" id="active_name2" data-toggle="tooltip"    class="form-control p-name"  maxlength="20"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动类型：</label>
+                        <div class="col-sm-6" >
+                            <div class="checkbox checkbox-success  radio-inline"  style="border:0px">
+                                <input type="radio" name="active_type3" id="active_type3" value="1" checked >
+                                <label for="radio4" class="radio4">
+                                    	优惠充值
+                                </label>
+                            </div>
+                            <div class="checkbox checkbox-success  radio-inline" style="border:0px">
+                                <input type="radio" name="active_type3" id="active_type4" value="2">
+                                <label for="radio5" class="radio5">
+                                 	  免费送书币
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="active-product2">
+                        <label class="control-label col-sm-3">活动产品：</label>
+                        <select class="checkbox" data-toggle="tooltip"  name="type_desc" id="product_id2"
+						style="margin-left: 165px;width: 58%;height:34px;padding: 0 0 0 10px;border: 1px solid  #d5d5d5;border-left: 53;" >
+							<option selected="selected" value="0">请选择产品</option>
+							<c:forEach items="${product}" var="p">
+								<option value="${p.product_id}">${p.product_desc}</option>
+							</c:forEach>
+						</select>
+                    </div>
+                    <div class="form-group" id="gift-point2" style="display:none;">
+                        <label class="control-label col-sm-3">赠送数额：</label>
+                        <div class="col-sm-6">
+                            <input type="text" id="active_point2" data-toggle="tooltip" class="form-control p-description"  maxlength="20"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动描述：</label>
+                        <div class="col-sm-6">
+                            <input type="text" id="active_description2" class="form-control p-description"  maxlength="20"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动时间：</label>
+                        <div class="col-sm-6">
+                            <div class=" input-group" >
+                                <div class="form-inline input-group date" id="data-time7" style="display: inline-block">
+                                    <input type='text' id="start_time2" data-toggle="tooltip" class="form-control input-group-addon start-time" style="border: 1px solid #d5d5d5;"/>
+                                </div>
+                                <div class="date" id="data-time9"  style="display: inline-block">
+                                    <input type='text' class="form-control input-group-addon" value="至" style="border: 0;width: 20px;"/>
+                                </div>
+                                <div class="form-inline input-group date" id="data-time8"  style="display: inline-block">
+                                    <input type='text' id="end_time2" data-toggle="tooltip" class="form-control input-group-addon end-time" style="border: 1px solid #d5d5d5;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">活动地址：</label>
+                        <div class="col-sm-6">
+                            <select class="form-control p-description" id = "active_url2" data-toggle="tooltip">
+                                <option class="check-url2" value="0" >请选择一个活动链接</option>
+                                <option class="charge-url2" value="1">http://c####.##.mzshu.com/user/active/</option>
+                                <option class="charge-url2" value="2">http://c####.##.mzshu.com/user/activePay/</option>
+                                <option class="free-url2" value="3" style="display:none">http://c####.##.mzshu.com/user/active/</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">限购次数</label>
+                        <div class="col-sm-6">
+                            <select class="form-control pay-num" id = "limit_count2">
+                                <option value=""></option>
+                                <option value="1">1次</option>
+                                <option value="2">2次</option>
+                                <option value="3">3次</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">备注</label>
+                        <div class="col-sm-6">
+                            <textarea class="promotion_text" maxlength="100" id="active_remark2"
+                             style="margin: 0px; height: 66px; width: 347px;resize: none;overflow:hidden;" ></textarea>
+                           <!--  <p class="help-block"> 用于未支付提醒里的活动提示，例如: &quot;书币优惠活动限量99名，赶快进来参与吧！&quot; </p> -->
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="form-group" style=" text-align: center; ">
+                        <div class="col-sm-6 col-sm-offset-3">
+                            <button id="btn-create2" type="button" class="btn btn-success btn-color" data-dismiss="modal">确定</button>
+                            <button type="button" class="btn btn-success btn-color" data-dismiss="modal" style="margin-left: 29%;">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 平台活动删除确认 -->
+<div class="modal fade" id="del-plat-active" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" >删除提示</h4>
+            </div>
+            <div class="modal-body">是否确定删除该活动？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary del-plat" >确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!-- 渠道活动删除确认 -->
+<div class="modal fade" id="del-part-active" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" >删除提示</h4>
+            </div>
+            <div class="modal-body">是否确定删除该活动？</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary del-part" >确定</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<script src="static/js/scripts/PushChannel/Bootstrap.js"></script>
+<!-- bootstrap-table.min.js -->
+<script src="https://cdn.bootcss.com/bootstrap-table/1.12.1/bootstrap-table.min.js"></script>
+<!-- 引入中文语言包 -->
+<script src="https://cdn.bootcss.com/bootstrap-table/1.12.1/locale/bootstrap-table-zh-CN.js"></script>
+<script src="static/js/scripts/PushChannel/moment-with-locales.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<!--复制-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.1/clipboard.min.js"></script>
+<!--提示框架-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<!--页面js-->
+<script type="text/javascript">
+    function changeState(el) {
+        if (el.readOnly) el.checked=el.readOnly=false;
+        else if (!el.checked) el.readOnly=el.indeterminate=true;
+    }
+</script>
+<script src="static/js/scripts/bizAndPush/salesPromotion.js"></script>
+</body>
+</html>

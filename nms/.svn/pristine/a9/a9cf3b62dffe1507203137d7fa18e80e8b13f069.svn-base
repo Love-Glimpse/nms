@@ -1,0 +1,110 @@
+package com.kuaidu.nms.entity;
+
+public class Partner_template_msg {
+
+	private Integer id;
+	private Integer partner_id;
+	private String task_name;
+	private String url;
+	private Integer vip_type;
+	private String sex;
+	private String point_level;
+	private String sub_time;
+	private String send_time;
+	private Integer send_status;
+	private String create_time;
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public Integer getPartner_id() {
+		return partner_id;
+	}
+	public void setPartner_id(Integer partner_id) {
+		this.partner_id = partner_id;
+	}
+	public String getTask_name() {
+		return task_name;
+	}
+	public void setTask_name(String task_name) {
+		this.task_name = task_name;
+	}
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	public Integer getVip_type() {
+		return vip_type;
+	}
+	public void setVip_type(Integer vip_type) {
+		this.vip_type = vip_type;
+	}
+	public String getSex() {
+		return sex;
+	}
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+	public String getPoint_level() {
+		return point_level;
+	}
+	public void setPoint_level(String point_level) {
+		this.point_level = point_level;
+	}
+	public String getSub_time() {
+		return sub_time;
+	}
+	public void setSub_time(String sub_time) {
+		this.sub_time = sub_time;
+	}
+	public String getSend_time() {
+		return send_time;
+	}
+	public void setSend_time(String send_time) {
+		this.send_time = send_time;
+	}
+	public Integer getSend_status() {
+		return send_status;
+	}
+	public void setSend_status(Integer send_status) {
+		this.send_status = send_status;
+	}
+	public String getCreate_time() {
+		return create_time;
+	}
+	public void setCreate_time(String create_time) {
+		this.create_time = create_time;
+	}
+	public Partner_template_msg(Integer id, Integer partner_id, String task_name, String url, Integer vip_type,
+			String sex, String point_level, String sub_time, String send_time, Integer send_status,
+			String create_time) {
+		super();
+		this.id = id;
+		this.partner_id = partner_id;
+		this.task_name = task_name;
+		this.url = url;
+		this.vip_type = vip_type;
+		this.sex = sex;
+		this.point_level = point_level;
+		this.sub_time = sub_time;
+		this.send_time = send_time;
+		this.send_status = send_status;
+		this.create_time = create_time;
+	}
+	public Partner_template_msg() {
+		super();
+	}
+	@Override
+	public String toString() {
+		return "Partner_template_msg [id=" + id + ", partner_id=" + partner_id + ", task_name=" + task_name + ", url="
+				+ url + ", vip_type=" + vip_type + ", sex=" + sex + ", point_level=" + point_level + ", sub_time="
+				+ sub_time + ", send_time=" + send_time + ", send_status=" + send_status + ", create_time="
+				+ create_time + "]";
+	}
+
+	
+}

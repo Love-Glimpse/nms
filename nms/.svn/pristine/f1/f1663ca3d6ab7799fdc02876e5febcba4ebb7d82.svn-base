@@ -1,0 +1,60 @@
+package com.kuaidu.nms.pushchannel.mapper;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+import com.kuaidu.nms.entity.PartnerInfo;
+import com.kuaidu.nms.entity.PartnerLogo;
+import com.kuaidu.nms.entity.Sys_module;
+
+public interface PartnerInfoMapper {
+
+	List<PartnerInfo> getAllPartnerInfo(PartnerInfo partnerInfo);
+
+	List<PartnerInfo> getSubPartner(PartnerInfo partnerInfo);
+
+	void updatePartnerInfo(PartnerInfo partnerInfo);
+
+	void addPartnerInfo(PartnerInfo partnerInfo);
+
+	int getLevelWithPartnerId(@Param("partner_id")int partner_id);
+
+	String getMaxPartnerId();
+
+	int checkPartnerSymbol(PartnerInfo partnerInfo);
+
+	int checkPartnerName(PartnerInfo partnerInfo);
+
+	int checkLoginName(PartnerInfo partnerInfo);
+
+	void delPartnerInfo(int partner_id);
+
+	List<PartnerInfo> getSubPartnerInfo(PartnerInfo partnerInfo);
+
+	PartnerLogo getPartnerLogoConfig(int partner_id);
+
+	void savePartnerLogoConfig(PartnerLogo partnerLogo);
+
+	int checkExist(PartnerLogo partnerLogo);
+
+	void updatePartnerLogoConfig(PartnerLogo partnerLogo);
+	
+
+	public int checkPaUser(@Param("partner_id")int id, @Param("md5_pwd")String s_pwd);
+
+	public void changePaPwd(@Param("partner_id")int id,  @Param("md5_pwd")String n_pwd,  @Param("s_pwd")String s_pwd);
+
+	void uploadPartnerLog(@Param("partnerId")int partnerId,@Param("fileAbsolutePath") String fileAbsolutePath);
+
+	PartnerLogo selectPartnerLogo(Integer partnerId);
+
+	void savePartnerUrl(PartnerLogo partnerLogo);
+
+
+	void updateQrCodeUrl(@Param("qrCodeRul")String qrCodeRul,@Param("partnerId") Integer partnerId);
+
+	void savePartnerLogo(PartnerLogo partnerLogo);
+
+	void updatePartnerLogo(PartnerLogo partnerLogo);
+	
+}

@@ -1,0 +1,60 @@
+package com.kuaidu.nms.user.serviceImpl;
+
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.entity.RestReturn;
+import com.kuaidu.nms.entity.SearchLog;
+import com.kuaidu.nms.user.mapper.SearchLogMapper;
+
+@Service
+public class SearchLogServiceImpl {
+	
+	
+	@Autowired
+	SearchLogMapper searchLogMapper;
+	
+
+	
+
+	public List<SearchLog> getAllRecords(SearchLog searchLog) {
+		return searchLogMapper.getAllRecords(searchLog);
+	}
+
+
+	public int getCount(SearchLog searchLog) {
+		return searchLogMapper.getCount(searchLog);
+	}
+
+
+	public Object deleteSearchLog(String ids) {
+		String[] split = StringUtils.split(ids, "-");
+		int num = searchLogMapper.deleteSearchLog(split);
+		if (num >=1) {
+			return RestReturn.success();
+		}
+		
+		
+		
+		return RestReturn.fail();
+	}
+
+
+	public List<SearchLog> getSortAllRecords(SearchLog searchLog) {
+		
+		return searchLogMapper.getSortAllRecords(searchLog);
+	}
+
+
+	public int getSortCount() {
+		
+		return searchLogMapper.getSortCount(null);
+	}
+	
+	
+	
+
+}

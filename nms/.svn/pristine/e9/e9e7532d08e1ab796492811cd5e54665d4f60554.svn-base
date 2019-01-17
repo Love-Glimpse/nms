@@ -1,0 +1,11 @@
+package com.kuaidu.nms.datastaticstics.mapper;
+
+import java.util.List;
+
+import com.kuaidu.nms.entity.StatOrderPush;
+
+public interface StatOrderPushMapper {
+
+	List<StatOrderPush> getStatOrders(StatOrderPush statOrderPush);
+
+}

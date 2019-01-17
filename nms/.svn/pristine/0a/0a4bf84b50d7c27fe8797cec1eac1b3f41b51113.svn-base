@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.pay.mapper.PayChannelMapper">
+  
+  
+  	<select id="getCount" resultType="int">
+  		select count(0) from pay_channel where 1=1 
+  		<if test="status != null and (status == 1 or status ==0) ">
+  			and status = #{status}
+  		</if>
+  		<if test="channel_name!=null and channel_name!=''">
+  			and channel_name like '%${channel_name}%'
+  		</if>
+  	</select>
+  	
+  	
+  	<select id="getAllPayChannel" resultType="PayChannel">
+  		select * from pay_channel where 1=1 
+  		<if test="status != null and (status == 1 or status ==0) ">
+  			and status = #{status}
+  		</if>
+  		<if test="channel_name!=null and channel_name!=''">
+  			and channel_name like '%${channel_name}%'
+  		</if>
+  		<if test="start_rows!=null and rows!= null">
+  		  limit #{start_rows},#{rows}
+  		</if>
+
+  	</select>
+  
+  
+  	<update id="updateEveryDayStatus">
+  		update pay_channel 
+  		<if test="status != null">
+  			set status = #{status}
+  		</if>
+  		<if test="everydayStatus != null">
+  			set everyday_status = #{everydayStatus}
+  		</if>
+  		 where channel_id = #{channelId}
+  	</update>
+  
+</mapper>

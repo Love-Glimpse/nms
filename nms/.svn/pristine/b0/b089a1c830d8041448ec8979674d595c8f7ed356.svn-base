@@ -1,0 +1,75 @@
+package com.kuaidu.nms.datastaticstics.serviceImpl;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.kuaidu.nms.datastaticstics.mapper.StatBookAnalysisMapper;
+import com.kuaidu.nms.entity.StatBookAnalysis;
+import com.kuaidu.nms.utils.ResultData;
+import com.kuaidu.nms.utils.Utils;
+
+/**
+ * @description TODO
+ * @time 2018年9月11日 下午2:01:37
+ * @author victor
+ * @version 1.0
+ **/
+@Service
+public class StatBookAnalysisMapperImpl {
+	@Autowired
+	StatBookAnalysisMapper sMapper;
+
+
+	public String getBookAnalysis(StatBookAnalysis statBookAnalysis) {
+		// TODO Auto-generated method stub
+		int count =  sMapper.getBookAnalysisCount(statBookAnalysis);
+		return ResultData.toJsonString(count, sMapper.getBookAnalysis(statBookAnalysis));
+	}
+
+
+	public String getBookAnalysisCompile(StatBookAnalysis statBookAnalysis, Integer days) {
+		// TODO Auto-generated method stub
+		if (days==null) {
+			days = 7;
+		}
+		List<StatBookAnalysis> sAnalysisList = new ArrayList<StatBookAnalysis>();
+		int count =  sMapper.getBookAnalysisCount(statBookAnalysis);
+		List<Map<String, Object>> sAnalysisMap = sMapper.getBookAnalysisCompile(statBookAnalysis,days);
+		
+		for (Map<String, Object> map : sAnalysisMap) {
+
+			int all_read = Integer.parseInt(map.get("all_read")+"")-Integer.parseInt(map.get("all_read1")+"");
+			int read5 = Integer.parseInt(map.get("read5")+"")-Integer.parseInt(map.get("read51")+"");
+			int read5_20 = Integer.parseInt(map.get("read5_20")+"")-Integer.parseInt(map.get("read5_201")+"");
+			int read20 = Integer.parseInt(map.get("read20")+"")-Integer.parseInt(map.get("read201")+"");
+			
+			
+			if (all_read>0||read5>0||read5_20>0||read20>0) {
+				StatBookAnalysis sAnalysis = new StatBookAnalysis();
+				sAnalysis.setStat_date((String) map.get("stat_date"));
+				sAnalysis.setBook_id(Integer.parseInt(map.get("book_id")+""));
+				sAnalysis.setBook_name((String) map.get("book_name"));
+				
+				//sAnalysis.setParent_id(Integer.parseInt(map.get("parent_id")+""));
+				if (map.get("partner_name")!=null) {
+					sAnalysis.setPartner_name((String) map.get("partner_name"));
+				}
+				sAnalysis.setAll_read(all_read);
+				sAnalysis.setRead5(read5);
+				sAnalysis.setRead5_20(read5_20);
+				sAnalysis.setRead20(read20);
+				sAnalysis.setCharge_cost_point(Integer.parseInt(map.get("charge_cost_point")+"")-Integer.parseInt(map.get("charge_cost_point1")+""));
+				sAnalysis.setCharge_cost_user(Integer.parseInt(map.get("charge_cost_user")+"")-Integer.parseInt(map.get("charge_cost_user1")+""));
+				sAnalysis.setNocharge_cost_point(Integer.parseInt(map.get("nocharge_cost_point")+"")-Integer.parseInt(map.get("nocharge_cost_point1")+""));
+				sAnalysis.setNocharge_cost_user(Integer.parseInt(map.get("nocharge_cost_user")+"")-Integer.parseInt(map.get("nocharge_cost_user1")+""));
+				sAnalysisList.add(sAnalysis);
+			}
+		}
+		return ResultData.toJsonString(count,sAnalysisList);
+	}
+}

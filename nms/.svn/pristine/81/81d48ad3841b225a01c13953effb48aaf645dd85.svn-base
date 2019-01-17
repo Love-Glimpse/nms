@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.kuaidu.nms.partner.push.mapper.KeywordReplyMapper">
+ 	<select id="getKeywordReply" resultType="PartnerKeyword">
+ 		select * from partner_keyword where partner_id=#{partner_id} limit #{start_rows},#{rows}
+ 	</select>
+ 	<select id="getKeywordReplyCount" resultType="int">
+ 		select count(0) from partner_keyword where partner_id=#{partner_id}
+ 	</select>
+  	<delete id="delKeywords" parameterType="java.util.List">
+	  	 delete from partner_keyword where partner_id = #{partner_id} id in 
+	  	 <foreach item="id" collection="list" open="(" separator="," close=")">
+	    	 #{id}
+	    </foreach>
+ 	</delete>
+<!--  	<update id="delKeywords" parameterType="java.util.List">
+ 		 update partner_keyword set status=2 where partner_id = #{partner_id} id in 
+	  	 <foreach item="id" collection="list" open="(" separator="," close=")">
+	    	 #{id}
+	    </foreach>
+ 	</update> -->
+ 	<insert id="addKeyword" parameterType="PartnerKeyword">
+ 		insert into partner_keyword(partner_id,key_word,status,reply_type,url,create_time,title,description,pic_url,msg_type)
+ 		values(#{partner_id},#{key_word},#{status},#{reply_type},#{url,},#{create_time},#{title},#{description},#{pic_url},#{msg_type})
+ 	</insert>
+</mapper>
